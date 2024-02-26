@@ -7,4 +7,6 @@ tasks:
 ports:
   - port: 6001
     visibility: public
-    onOpen: open-preview
+    onOpen: open-browser
+  - port: 6002
+    visibility: public
