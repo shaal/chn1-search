@@ -1,0 +1,3 @@
+outline-link {
+  @nested-import './outline-link.imported.css';
+}

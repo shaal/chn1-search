@@ -1,0 +1,10 @@
+tasks:
+  - command: |
+      yarn
+      time yarn build
+      yarn start
+
+ports:
+  - port: 6001
+    visibility: public
+    onOpen: open-preview
