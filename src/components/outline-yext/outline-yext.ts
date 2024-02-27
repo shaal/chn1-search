@@ -1,4 +1,10 @@
-import { LitElement, CSSResultGroup, html, noChange, TemplateResult } from 'lit';
+import {
+  LitElement,
+  CSSResultGroup,
+  html,
+  noChange,
+  TemplateResult,
+} from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
@@ -42,11 +48,11 @@ export class OutlineYext extends LitElement {
   accountId = 'me';
   // contentType = 'answers/vertical/query';
   contentType = 'search/vertical/query';
-  apiKey = 'f70a1166dcbde8731713f74b5d21b86f';
+  apiKey = '0f3c031ce836961cf921558aca570af3';
   apiVersion = '20230406';
   apiVersionEntities = '20230301';
-  experienceKey = 'tufts-fad';
-  verticalKey = 'healthcare_professionals';
+  experienceKey = 'universal-search';
+  // verticalKey = 'blog';
   version = 'PRODUCTION';
   locale = 'en';
   sortBys = 'relevance';
@@ -191,7 +197,7 @@ export class OutlineYext extends LitElement {
       }
     }
 
-    keysToDelete.forEach(key => {
+    keysToDelete.forEach((key) => {
       searchParams.delete(key);
     });
 
@@ -283,10 +289,10 @@ export class OutlineYext extends LitElement {
       searchFailed: this.totalCount === 0,
     };
 
-    const searchFilter = results.response.facets.flatMap(facet =>
+    const searchFilter = results.response.facets.flatMap((facet) =>
       facet.options
-        .filter(option => option.selected)
-        .map(option => option.displayName)
+        .filter((option) => option.selected)
+        .map((option) => option.displayName)
     );
     if (searchFilter.length > 0) {
       defaultLayer.searchFilter = searchFilter.join(', ');
@@ -300,7 +306,7 @@ export class OutlineYext extends LitElement {
     meta: {};
     response: verticalSearchResponseStructure;
   }) {
-    jsonResponse.response.facets.forEach(facet => {
+    jsonResponse.response.facets.forEach((facet) => {
       facet.options.sort((a, b) =>
         a.displayName.toLowerCase().localeCompare(b.displayName.toLowerCase())
       );
@@ -327,7 +333,7 @@ export class OutlineYext extends LitElement {
     const searchResults = jsonResponse.response.results;
 
     // Create an array of promises for each result
-    const promises = searchResults.map(async searchResult => {
+    const promises = searchResults.map(async (searchResult) => {
       // Check if there are additional profiles
       if (searchResult.data.c_additionalProfiles?.length > 0) {
         // Iterate over each additional profile
@@ -451,7 +457,7 @@ export class OutlineYext extends LitElement {
     const binaryFacets: verticalSearchResponseStructure['facets'] = [];
     const multiFacets: verticalSearchResponseStructure['facets'] = [];
 
-    response.facets.forEach(facet => {
+    response.facets.forEach((facet) => {
       if (facet.options.length > 0) {
         if (
           facet.options[0].displayName === 'true' ||
@@ -469,7 +475,7 @@ export class OutlineYext extends LitElement {
       'c_specialtyFAD.name',
       'officeName',
     ];
-    multiFacets.map(facet => {
+    multiFacets.map((facet) => {
       if (
         facet.fieldId === 'c_specialtyFAD.name' &&
         facet.displayName.includes('Name')
@@ -477,16 +483,16 @@ export class OutlineYext extends LitElement {
         facet.displayName = facet.displayName.replace('Name', '');
       }
     });
-    const displayOfficeNameFacet = multiFacets.find(facet => {
+    const displayOfficeNameFacet = multiFacets.find((facet) => {
       return (
         facetsTriggers.includes(facet.fieldId) &&
-        facet.options.some(option => option.selected)
+        facet.options.some((option) => option.selected)
       );
     });
 
     if (this.searchFacetValues === undefined) {
       multiFacets.map(
-        facet =>
+        (facet) =>
           (this.searchFacetValues = {
             ...this.searchFacetValues,
             [facet.displayName]: '',
@@ -495,9 +501,9 @@ export class OutlineYext extends LitElement {
     }
 
     const filteredFacets: verticalSearchResponseStructure['facets'] =
-      multiFacets.map(facet => {
+      multiFacets.map((facet) => {
         // Filter the options of each facet based on a condition
-        const filteredOptions = facet.options.filter(option =>
+        const filteredOptions = facet.options.filter((option) =>
           option.displayName
             .toLowerCase()
             .includes(this.getSearchFacetValue(facet.displayName).toLowerCase())
@@ -515,7 +521,7 @@ export class OutlineYext extends LitElement {
           ${repeat(filteredFacets, (facet, index) => {
             const originalReference = multiFacets[index];
             const someOptionsSelected = originalReference.options.some(
-              option => option.selected
+              (option) => option.selected
             );
 
             return html`
@@ -535,7 +541,7 @@ export class OutlineYext extends LitElement {
                     : null}
                   ${repeat(
                     facet.options,
-                    option => option,
+                    (option) => option,
                     (option, index) => {
                       const idWithSpaces =
                         facet.displayName + `-` + option.displayName;
@@ -572,11 +578,11 @@ export class OutlineYext extends LitElement {
             ? html` <p class="legend">Additional preferences</p> `
             : undefined}
           <ul class="checkbox-container">
-            ${binaryFacets.map(facet => {
+            ${binaryFacets.map((facet) => {
               return html`
                 ${repeat(
                   facet.options,
-                  option => option,
+                  (option) => option,
                   (option, index) => {
                     if (option.displayName === 'false') {
                       return;
@@ -641,8 +647,8 @@ export class OutlineYext extends LitElement {
     facets: verticalSearchResponseStructure['facets'],
     parentAsLabel: Boolean
   ) {
-    return facets.map(facet => {
-      return facet.options.map(option => {
+    return facets.map((facet) => {
+      return facet.options.map((option) => {
         if (!option.selected) return;
         const idWithSpaces = facet.displayName + `-` + option.displayName;
         const id = idWithSpaces.replace(/\s/g, '_');
@@ -677,7 +683,7 @@ export class OutlineYext extends LitElement {
     const binaryFacets: verticalSearchResponseStructure['facets'] = [];
     const multiFacets: verticalSearchResponseStructure['facets'] = [];
 
-    response.facets.forEach(facet => {
+    response.facets.forEach((facet) => {
       if (facet.options.length > 0) {
         if (
           facet.options[0].displayName === 'true' ||
@@ -745,7 +751,7 @@ export class OutlineYext extends LitElement {
       // If the checkbox is unchecked, remove the filter from the list of facet filters
       // (if it's the last filter for that facet, remove the facet)
       const indexToDelete = facetFilters[`${key}`].findIndex(
-        item => item[`${key}`].$eq === value
+        (item) => item[`${key}`].$eq === value
       );
       facetFilters[`${key}`].splice(indexToDelete, 1);
       if (Object.keys(facetFilters[`${key}`]).length === 0) {
@@ -785,7 +791,7 @@ export class OutlineYext extends LitElement {
       <ul class="profiles-list" aria-live="polite">
         ${repeat(
           response.results,
-          result => result,
+          (result) => result,
           (result, index) => html`
             <li class="list-separator" aria-hidden="true">
               <hr />
@@ -961,7 +967,7 @@ export class OutlineYext extends LitElement {
         ${expertiseShow
           ? repeat(
               expertiseShow,
-              result => result,
+              (result) => result,
               (result, index) => html`
                 <div slot="expertise" data-index=${index}>${result}</div>
               `
@@ -970,7 +976,7 @@ export class OutlineYext extends LitElement {
         ${expertiseHidden
           ? repeat(
               expertiseHidden,
-              res => res,
+              (res) => res,
               (res, index) => html`
                 <div slot="additional-expertise" data-index=${index}>
                   ${res}
@@ -1044,7 +1050,7 @@ export class OutlineYext extends LitElement {
         ${data.c_additionalProfiles?.length > 0
           ? repeat(
               data.c_additionalProfiles,
-              profile => profile,
+              (profile) => profile,
               (profile, index) =>
                 html`<div slot="additional-location" data-index=${index}>
                   <svg
@@ -1344,7 +1350,7 @@ export class OutlineYext extends LitElement {
         </nav>
       </outline-breadcrumbs>
       <outline-heading level-size="xxl">
-        <h1>Find a Doctor</h1>
+        <h1>Universal Search</h1>
       </outline-heading>`;
   }
   searchAuxiliaryTextTemplate() {
@@ -1547,9 +1553,9 @@ export class OutlineYext extends LitElement {
                 : html`<ul class="filters-container" aria-live="polite">
                     ${this.fetchEndpoint.render({
                       pending: () => (this.taskValue ? noChange : null),
-                      complete: data =>
+                      complete: (data) =>
                         html` ${this.displayFacetsActive(data.response)} `,
-                      error: error => html`${error}`,
+                      error: (error) => html`${error}`,
                     })}
                     <li>
                       <button
@@ -1695,8 +1701,8 @@ export class OutlineYext extends LitElement {
 
       ${this.fetchEndpoint.render({
         pending: () => (this.taskValue ? noChange : null),
-        complete: data => html` ${this.displayFacets(data.response)} `,
-        error: error => html`${error}`,
+        complete: (data) => html` ${this.displayFacets(data.response)} `,
+        error: (error) => html`${error}`,
       })}
       ${this.mobileStickyCTATemplate()}`;
   }
@@ -1719,8 +1725,8 @@ export class OutlineYext extends LitElement {
             ${this.fetchEndpoint.render({
               pending: () =>
                 this.taskValue ? this.displayPending() : noChange,
-              complete: data => this.displayAll(data.response),
-              error: error => html`${error}`,
+              complete: (data) => this.displayAll(data.response),
+              error: (error) => html`${error}`,
             })}
             ${this.totalCount
               ? html`
