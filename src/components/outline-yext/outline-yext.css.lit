@@ -10,7 +10,7 @@ ul {
   list-style:none;
 }
 
-.search-verticals-all {
+.search-verticals-nav {
   display: flex;
   gap: 2rem;
 }

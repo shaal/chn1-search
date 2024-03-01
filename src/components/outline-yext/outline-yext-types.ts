@@ -15,6 +15,7 @@ export type SubQueryParam = {
 export interface SearchSettings {
   [key: string]: string | number | QueryParam;
   input: string;
+  limit: number;
   offset: number;
   // facetFilters: QueryParam;
 }
@@ -45,7 +46,7 @@ export type HighlightedField = {
   }[];
 };
 
-export type ProcedureData = {
+export type ResultItemData = {
   id: string;
   type: string;
   name: string;
@@ -54,8 +55,8 @@ export type ProcedureData = {
   uid: string;
 };
 
-export type Procedure = {
-  data: ProcedureData;
+export type ResultData = {
+  data: ResultItemData;
   highlightedFields: {
     c_body?: HighlightedField;
     name?: HighlightedField;
@@ -66,7 +67,7 @@ export type Module = {
   verticalConfigId: string;
   resultsCount: number;
   encodedState: string;
-  results: [];
+  results: ResultData[];
 };
 
 export type SearchResponse = {

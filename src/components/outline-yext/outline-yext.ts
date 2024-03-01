@@ -1,11 +1,4 @@
-// import { OutlineElement } from '@phase2/outline-core';
-import {
-  LitElement,
-  CSSResultGroup,
-  html,
-  noChange,
-  TemplateResult,
-} from 'lit';
+import { LitElement, html, noChange, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
@@ -18,16 +11,16 @@ import componentStyles from './outline-yext.css.lit';
 import { ResizeController } from '../../controllers/resize-controller';
 import { debounce } from '../../utilities/debounce';
 import type {
-  SubQueryParam,
   SearchSettings,
   Result,
   SearchResponse,
   ResponseSearchSuggestions,
+  ResultData,
 } from './outline-yext-types';
 import { Module } from './outline-yext-types';
 
 /**
- * The Yext Base component.
+ * The Yext component.
  * @element outline-yext
  */
 
@@ -51,8 +44,8 @@ export class OutlineYext extends LitElement {
 
   defaultSearchSettings: SearchSettings = {
     input: '',
+    limit: 16,
     offset: 0,
-    // facetFilters: {},
   };
 
   searchSettings: SearchSettings = structuredClone(this.defaultSearchSettings);
@@ -77,6 +70,8 @@ export class OutlineYext extends LitElement {
 
   requestURL!: string;
   lastFetchTime!: null | number;
+
+  activeVertical: string = 'all';
 
   @state() isFocus = false;
 
@@ -330,20 +325,44 @@ export class OutlineYext extends LitElement {
     }
 
     return html`
-      <ul class="search-verticals-all">
+      <ul class="search-verticals-nav">
         <li class="vertical vertical--all">
-          <h2>All (${this.sumResultsCount(response)})</h2>
+          <div>All (${this.sumResultsCount(response)})</div>
         </li>
         ${repeat(
           response.modules,
           (result: Module) => result,
           (result) => html`
             <li class="vertical">
-              <h2>${result.verticalConfigId} (${result.resultsCount})</h2>
+              <div>${result.verticalConfigId} (${result.resultsCount})</div>
             </li>
           `
         )}
       </ul>
+
+      <div class="search-verticals-results">
+        ${repeat(
+          response.modules,
+          (module: Module) => module,
+          (module) => html`
+            <div class="search-vertical-result-section">
+              <h2>${module.verticalConfigId}</h2>
+              <div>
+                ${repeat(
+                  module.results.slice(0, 3),
+                  (result) => result,
+                  (result) => html`
+                    <a href="${result.data.c_uRL}"
+                      ><h3>${result.data.name}</h3></a
+                    >
+                    <p>${result.data.c_body}</p>
+                  `
+                )}
+              </div>
+            </div>
+          `
+        )}
+      </div>
     `;
   }
 
@@ -391,7 +410,7 @@ export class OutlineYext extends LitElement {
     const params = new URLSearchParams();
     params.set('api_key', this.apiKey);
     params.set('experienceKey', this.experienceKey);
-    params.set('verticalKey', this.verticalKey);
+    // params.set('verticalKey', this.verticalKey);
     params.set('locale', this.locale);
     params.set('input', `${this.searchSettings.input.toLocaleLowerCase()}`);
 
