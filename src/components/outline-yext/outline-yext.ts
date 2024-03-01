@@ -325,22 +325,7 @@ export class OutlineYext extends LitElement {
     }
 
     return html`
-      <ul class="search-verticals-nav">
-        <li class="vertical vertical--all">
-          <div>All (${this.sumResultsCount(response)})</div>
-        </li>
-        ${repeat(
-          response.modules,
-          (result: Module) => result,
-          (result) => html`
-            <li class="vertical">
-              <div>${result.verticalConfigId} (${result.resultsCount})</div>
-            </li>
-          `
-        )}
-      </ul>
-
-      <div class="search-verticals-results">
+      <div class="search-verticals-results--all">
         ${repeat(
           response.modules,
           (module: Module) => module,
@@ -563,6 +548,28 @@ export class OutlineYext extends LitElement {
     this.cleanSearchSuggestions();
   }
 
+  searchVerticalNavTemplate(response: SearchResponse): TemplateResult {
+    return html`
+      <div class="search-verticals-nav">
+        <h2>Refine Your Search</h2>
+        <ul class="">
+          <li class="vertical vertical--all">
+            <div>All (${this.sumResultsCount(response)})</div>
+          </li>
+          ${repeat(
+            response.modules,
+            (result: Module) => result,
+            (result) => html`
+              <li class="vertical">
+                <div>${result.verticalConfigId} (${result.resultsCount})</div>
+              </li>
+            `
+          )}
+        </ul>
+      </div>
+    `;
+  }
+
   mobileCloseModalTemplate() {
     return this.modalFiltersOpenClose
       ? html`<button
@@ -703,7 +710,13 @@ export class OutlineYext extends LitElement {
     return html`
       ${this.searchBarTemplate()}
       <outline-container-baseline>
-        <div class="${classMap(classes)}">
+        <div class="${classMap(classes)}"></div>
+        ${this.fetchEndpoint.render({
+          pending: () => (this.taskValue ? this.displayPending() : noChange),
+          complete: (data) => this.searchVerticalNavTemplate(data.response),
+          error: (error) => html`${error}`,
+        })}
+
           <main>
             ${this.fetchEndpoint.render({
               pending: () =>
@@ -711,20 +724,22 @@ export class OutlineYext extends LitElement {
               complete: (data) => this.displayAll(data.response),
               error: (error) => html`${error}`,
             })}
-            ${this.totalCount
-              ? html`
-                  <outline-yext-pager
-                    current-page=${this.searchSettings.offset /
-                      this.searchSettings.limit +
-                    1}
-                    total-pages=${Math.ceil(
-                      this.totalCount / this.searchSettings.limit
-                    )}
-                    @click=${(e: Event) => this.handlePageChange(e)}
-                    aria-live="polite"
-                  ></outline-yext-pager>
-                `
-              : null}
+            ${
+              this.totalCount
+                ? html`
+                    <outline-yext-pager
+                      current-page=${this.searchSettings.offset /
+                        this.searchSettings.limit +
+                      1}
+                      total-pages=${Math.ceil(
+                        this.totalCount / this.searchSettings.limit
+                      )}
+                      @click=${(e: Event) => this.handlePageChange(e)}
+                      aria-live="polite"
+                    ></outline-yext-pager>
+                  `
+                : null
+            }
           </main>
         </div>
       </outline-container-baseline>
