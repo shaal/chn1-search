@@ -1,4 +1,4 @@
-import { verticalSearchResponseStructure } from './outline-yext-types';
+// import { SearchResponse } from './outline-yext-types';
 
 export function formatPhone(phoneNumber: string): string | null {
   if (!phoneNumber) {
@@ -15,39 +15,39 @@ export function formatPhone(phoneNumber: string): string | null {
   const formattedPhoneNumber = `${countryCode} ${groups.join('.')}`;
   return formattedPhoneNumber;
 }
-// deleteDuplicateDoctor ensures that the resulting results from Yext contains
-// only unique doctors based on the npi property
-// by leveraging a Set to track and filter out duplicates.
-export function deleteDuplicateProfiles(jsonResponse: {
-  meta: {};
-  response: verticalSearchResponseStructure;
-}) {
-  // Create a Set to store unique NPI values
-  const uniqueNPI = new Set<string>();
+// // // deleteDuplicateDoctor ensures that the resulting results from Yext contains
+// // // only unique doctors based on the npi property
+// // // by leveraging a Set to track and filter out duplicates.
+// // export function deleteDuplicateProfiles(jsonResponse: {
+// //   meta: {};
+// //   response: verticalSearchResponseStructure;
+// // }) {
+// //   // Create a Set to store unique NPI values
+// //   const uniqueNPI = new Set<string>();
 
-  // Filter the results array to remove duplicate profiles based on NPI values
-  // Update the results array with the filtered results
-  jsonResponse.response.results = jsonResponse.response.results.filter(
-    obj => !uniqueNPI.has(obj.data.npi) && uniqueNPI.add(obj.data.npi)
-  );
-  // Return the modified jsonResponse
-  return jsonResponse;
-}
+// //   // Filter the results array to remove duplicate profiles based on NPI values
+// //   // Update the results array with the filtered results
+// //   jsonResponse.response.results = jsonResponse.response.results.filter(
+// //     (obj) => !uniqueNPI.has(obj.data.npi) && uniqueNPI.add(obj.data.npi)
+// //   );
+// //   // Return the modified jsonResponse
+// //   return jsonResponse;
+// // }
 
-export function deleteDuplicateProfilesEntities(
-  response: verticalSearchResponseStructure
-) {
-  // Create a Set to store unique NPI values
-  const uniqueNPI = new Set<string>();
+// export function deleteDuplicateProfilesEntities(
+//   response: verticalSearchResponseStructure
+// ) {
+//   // Create a Set to store unique NPI values
+//   const uniqueNPI = new Set<string>();
 
-  // Filter the results array to remove duplicate profiles based on NPI values
-  // Update the results array with the filtered results
-  response.entities = response.entities.filter(
-    obj => !uniqueNPI.has(obj.npi) && uniqueNPI.add(obj.npi)
-  );
-  // Return the modified jsonResponse
-  return response;
-}
+//   // Filter the results array to remove duplicate profiles based on NPI values
+//   // Update the results array with the filtered results
+//   response.entities = response.entities.filter(
+//     (obj) => !uniqueNPI.has(obj.npi) && uniqueNPI.add(obj.npi)
+//   );
+//   // Return the modified jsonResponse
+//   return response;
+// }
 
 export function addTargetBlankToAnchorTags(text: string): string {
   // Use a regular expression to find and modify <a> tags
