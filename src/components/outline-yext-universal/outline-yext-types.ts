@@ -70,7 +70,42 @@ export type Module = {
   results: ResultData[];
 };
 
-export type SearchResponse = {
+export type UniversalSearchResponse = {
   businessId: number;
   modules: Module[];
 };
+
+// Vertical search
+
+export type VerticalSearchResponseStructure = {
+  businessId: number;
+  queryId: string;
+  resultsCount: number;
+  results: verticalSearchResults;
+  appliedQueryFilters: unknown[];
+  facets: {
+    fieldId: string;
+    displayName: string;
+    options: {
+      displayName: string;
+      count: number;
+      selected: boolean;
+      filter: SubQueryParam;
+    }[];
+  }[];
+  searchIntents: unknown[];
+  source: string;
+  directAnswer: Record<string, unknown>;
+  alternativeVerticals: Record<string, unknown>;
+  spellCheck: Record<string, unknown>;
+  locationBias: Record<string, unknown>;
+  allResultsForVertical: Record<string, unknown>;
+  c_additionalProfiles: Array<string>;
+};
+
+export type verticalSearchResults = {
+  data: {};
+  highlightedFields: Record<string, unknown>;
+  distance: number;
+  distanceFromFilter: number;
+}[];

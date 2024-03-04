@@ -1,51 +1,47 @@
 import { LitElement, html, noChange, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
-import { ifDefined } from 'lit/directives/if-defined.js';
+
 import { classMap } from 'lit/directives/class-map.js';
 
 import { Task } from '@lit/task';
 
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import componentStyles from './outline-yext.css.lit';
 import { ResizeController } from '../../controllers/resize-controller';
-import { debounce } from '../../utilities/debounce';
+
 import type {
   SearchSettings,
   Result,
-  SearchResponse,
+  VerticalSearchResponseStructure,
   ResponseSearchSuggestions,
   ResultData,
-} from './outline-yext-types';
-import { Module } from './outline-yext-types';
+} from '../outline-yext-universal/outline-yext-types';
 
 /**
- * The Yext component.
- * @element outline-yext
+ * The Yext Vertical Search component.
+ * @element outline-yext-universal
  */
-
 @customElement('outline-yext')
 export class OutlineYext extends LitElement {
   static styles = [componentStyles];
 
   urlHref = 'https://cdn.yextapis.com/v2/accounts';
   accountId = 'me';
-  contentType = 'search/query';
+  contentType = 'search/vertical/query';
   apiKey = '0f3c031ce836961cf921558aca570af3';
   apiVersion = '20230406';
   apiVersionEntities = '20230301';
   version = 'PRODUCTION';
   locale = 'en';
   sortBys = 'relevance';
-  pageTitle = 'Universal Search';
+  pageTitle = '';
   experienceKey = 'universal-search';
-  input = 'test';
-  // verticalKey = 'provider_profile';
 
   defaultSearchSettings: SearchSettings = {
     input: '',
-    limit: 16,
     offset: 0,
+    limit: 16,
+    facetFilters: {},
   };
 
   searchSettings: SearchSettings = structuredClone(this.defaultSearchSettings);
@@ -53,37 +49,37 @@ export class OutlineYext extends LitElement {
   fields = 'firstName,lastName,data.id';
   requestUrlBase = `${this.urlHref}/${this.accountId}/${this.contentType}`;
 
-  // @property()
-  totalCount!: null | number;
-  randomizationToken!: null | string;
+  totalCount?: null | number;
+  randomizationToken?: null | string;
 
   filterTempProfiles = false;
 
+  @property({ type: String, attribute: 'vertical-key' })
+  verticalKey?: string = 'blog';
+
   @property({ type: Boolean, reflect: true, attribute: 'debug' })
-  debug: boolean | undefined;
+  debug: null;
 
   @property({ type: Number, reflect: true, attribute: 'show-results' })
   showResults = 5;
 
-  userLat!: number;
-  userLong!: number;
+  userLat?: number;
+  userLong?: number;
 
-  requestURL!: string;
-  lastFetchTime!: null | number;
-
-  activeVertical: string = 'all';
+  requestURL?: string;
+  lastFetchTime?: null | number;
 
   @state() isFocus = false;
 
   @state()
-  entities!: [];
+  entities?: [];
 
   @state()
   searchSuggestions: Result[] = [];
 
   @state() modalFiltersOpenClose = false;
 
-  @state() searchFacetValues!: {
+  @state() searchFacetValues?: {
     [key: string]: string;
   };
 
@@ -130,14 +126,14 @@ export class OutlineYext extends LitElement {
   prepareRequestURL() {
     const staticParams = new URLSearchParams();
     const dynamicParams = new URLSearchParams();
+    // params.set('api_key', this.apiKey);
     staticParams.set('v', this.apiVersion);
     staticParams.set('api_key', this.apiKey);
     staticParams.set('experienceKey', this.experienceKey);
-    // staticParams.set('verticalKey', this.verticalKey);
+    staticParams.set('verticalKey', this.verticalKey);
     staticParams.set('version', this.version);
     staticParams.set('locale', this.locale);
-    staticParams.set('input', this.input);
-    // dynamicParams.set('retrieveFacets', 'true');
+    dynamicParams.set('retrieveFacets', 'true');
     dynamicParams.set(
       'sortBys',
       JSON.stringify([{ type: this.sortBys.toUpperCase() }])
@@ -154,15 +150,9 @@ export class OutlineYext extends LitElement {
 
     this.updateUrlWithSearchSettings(dynamicParams);
 
-    const requestURL = `${
+    this.requestURL = `${
       this.requestUrlBase
     }?${staticParams.toString()}&${dynamicParams.toString()}`;
-
-    let urlObject = new URL(requestURL);
-
-    urlObject.searchParams.delete('limit');
-
-    this.requestURL = urlObject.toString();
   }
 
   /**
@@ -182,7 +172,6 @@ export class OutlineYext extends LitElement {
 
     // Remove all `yext_` parameters from the params object
     const keysToDelete = [];
-
     for (const key of searchParams.keys()) {
       if (key.startsWith('yext_')) {
         keysToDelete.push(key);
@@ -240,7 +229,7 @@ export class OutlineYext extends LitElement {
     }
   }
 
-  rawFilters: {} | undefined;
+  rawFilters?: {};
 
   fetchEndpoint = new Task(
     this,
@@ -248,12 +237,14 @@ export class OutlineYext extends LitElement {
       const startTime = performance.now();
       this.prepareRequestURL();
 
-      const response = await fetch(this.requestURL, {});
+      if (!this.requestURL) return;
 
+      const response = await fetch(this.requestURL, {});
       const jsonResponse: {
         meta: {};
-        response: SearchResponse;
+        response: VerticalSearchResponseStructure;
       } = await response.json();
+      this.totalCount = jsonResponse.response.resultsCount;
 
       const endTime = performance.now();
       this.lastFetchTime = (endTime - startTime) / 1000;
@@ -290,11 +281,7 @@ export class OutlineYext extends LitElement {
     );
   }
 
-  /**
-   * Only used on individual vertical search
-   *
-   * from https://hitchhikers.yext.com/docs/contentdeliveryapis/search/verticalsearch
-   */
+  // from https://hitchhikers.yext.com/docs/contentdeliveryapis/search/verticalsearch
   displayTotalCount() {
     if (this.totalCount) {
       const range1 = this.searchSettings.offset + 1;
@@ -319,109 +306,39 @@ export class OutlineYext extends LitElement {
     `;
   }
 
-  displayAll(response: SearchResponse) {
-    if (response.modules?.length === 0) {
+  displayAll(response: VerticalSearchResponseStructure) {
+    if (response.resultsCount === 0) {
       return html` <h2>No results found</h2> `;
     }
 
+    // this.randomizationToken = response.randomizationToken;
+    this.userLat = Number(response.locationBias?.latitude);
+    this.userLong = Number(response.locationBias?.longitude);
+
     return html`
-      <div class="search-verticals-results--all">
+      <ul class="results-list">
         ${repeat(
-          response.modules,
-          (module: Module) => module,
-          (module) => html`
-            <div class="search-vertical-result-section">
-              <h2>${module.verticalConfigId}</h2>
-              <div>
-                ${repeat(
-                  module.results.slice(0, 3),
-                  (result) => result,
-                  (result) => html`
-                    <a href="${result.data.c_uRL}"
-                      ><h3>${result.data.name}</h3></a
-                    >
-                    <p>${result.data.c_body}</p>
-                  `
-                )}
-              </div>
-            </div>
+          response.results,
+          (result) => result,
+          (result, index) => html`
+            <li class="result">
+              <div>${index}</div>
+            </li>
           `
         )}
-      </div>
+      </ul>
     `;
   }
 
-  sumResultsCount(searchResponse: SearchResponse): number {
-    const { modules } = searchResponse;
-
-    const totalResultsCount = modules.reduce(
-      (sum, { resultsCount }) => sum + resultsCount,
-      0
-    );
-
-    return totalResultsCount;
-  }
-
-  reset(e: Event) {
-    e.preventDefault(); // prevent form submission
-    this.searchSettings = structuredClone(this.defaultSearchSettings);
-    this.sortBys = 'relevance';
-    this.cleanSearchSuggestions();
-    this.fetchEndpoint.run();
-  }
-
-  cleanSearchSuggestions() {
-    this.searchSuggestions = [];
-    this.isFocus = false;
-  }
-
-  search(e: Event) {
-    // prevent form submission
-    e.preventDefault();
-    this.cleanSearchSuggestions();
-
-    // save input before resetting searchSettings and then restore it back
-    const inputSearch = this.searchSettings.input;
-    this.searchSettings = structuredClone(this.defaultSearchSettings);
-    this.searchSettings.input = inputSearch;
-
-    this.fetchEndpoint.run();
-  }
-
-  // Single instance was created outside of the handleInput so that the debounce is not called multiple times
-  debouncedFunction = debounce(this.fetchSuggestion.bind(this), 150);
-
-  async fetchSuggestion() {
-    const params = new URLSearchParams();
-    params.set('api_key', this.apiKey);
-    params.set('experienceKey', this.experienceKey);
-    // params.set('verticalKey', this.verticalKey);
-    params.set('locale', this.locale);
-    params.set('input', `${this.searchSettings.input.toLocaleLowerCase()}`);
-
-    // Encode the autocomplete before constructing the URL
-    const url = `${this.urlHref}/${
-      this.accountId
-    }/search/vertical/autocomplete?v=${this.apiVersion}&${params.toString()}`;
-
-    const response = await fetch(url);
-    const suggestions: ResponseSearchSuggestions = await response.json();
-    console.log(suggestions);
-    // this.searchSuggestions = suggestions.response.results.slice(
-    //   0,
-    //   this.showResults
-    // );
-    this.isFocus = this.searchSuggestions.length > 0;
-  }
-
-  handleInput(e: InputEvent) {
-    e.preventDefault;
-    this.searchSettings.input = (e.target as HTMLInputElement).value;
-    if (this.searchSettings.input.length > 3) {
-      this.debouncedFunction();
-    } else {
-      this.cleanSearchSuggestions();
-    }
+  debugTemplate(data: {}): TemplateResult {
+    return html`
+      <details class="debug">
+        <summary></summary>
+        <div>
+          <pre>${JSON.stringify(data, null, 2)}</pre>
+        </div>
+      </details>
+    `;
   }
 
   _focusIn() {
@@ -444,261 +361,8 @@ export class OutlineYext extends LitElement {
     }
   }
 
-  searchBarTemplate(): TemplateResult {
-    const isMobile = ifDefined(
-      this.resizeController.currentBreakpointRange === 0
-    );
-
-    return html`
-      <outline-container-baseline class="${isMobile ? 'isMobile' : null}">
-        <div class="search-hero ${isMobile ? 'isMobile' : 'isDesktop'}">
-          <outline-heading-baseline level-size="2xl">
-            <h1>${this.pageTitle}</h1>
-          </outline-heading-baseline>
-
-          <div
-            class="exposed-filters"
-            @focusout="${(e: FocusEvent) => this._focusOut(e)}"
-          >
-            <outline-form-baseline form-type="search">
-              <form
-                action="/search"
-                method="get"
-                id="views-exposed-form-search-search-page"
-                accept-charset="UTF-8"
-              >
-                <div
-                  class="js-form-item form-item js-form-type-textfield form-item-text js-form-item-text"
-                >
-                  <label
-                    for="edit-search-api-fulltext"
-                    class="form-item__label font-body"
-                    >Keyword</label
-                  >
-                  <input
-                    placeholder="Location name, services, specialty, city, zip code"
-                    type="text"
-                    id="edit-search-api-fulltext"
-                    name="field_keyword"
-                    .value=${this.searchSettings.input}
-                    @input=${this.handleInput}
-                    @focus="${this._focusIn}"
-                    maxlength="128"
-                    class="form-text form-element form-element--type-text form-element--api-textfield"
-                  />
-                </div>
-                <div
-                  data-drupal-selector="edit-actions"
-                  class="form-actions js-form-wrapper form-wrapper"
-                >
-                  <button
-                    class="btn btn--search btn--small form-submit"
-                    data-drupal-selector="edit-submit"
-                    type="submit"
-                    id="edit-submit"
-                    value="Search"
-                    @click=${(e: Event) => this.search(e)}
-                  >
-                    <span>Search</span>
-                  </button>
-                </div>
-              </form>
-            </outline-form-baseline>
-            <ul
-              aria-live="polite"
-              class="${this.isFocus
-                ? 'open-suggestion'
-                : 'close-suggestion'} suggested-list"
-            >
-              <li class="suggested-title">Suggested Searches</li>
-              ${this.searchSuggestions.length > 0
-                ? this.searchSuggestions.map(
-                    (suggestion) => html`<li>
-                      <button
-                        type="button"
-                        @click="${() => this.handleSuggestion(suggestion)}"
-                      >
-                        ${unsafeHTML(
-                          this.highlightWord(
-                            suggestion.value,
-                            this.searchSettings.input
-                          )
-                        )}
-                      </button>
-                    </li> `
-                  )
-                : undefined}
-            </ul>
-          </div>
-        </div>
-      </outline-container-baseline>
-    `;
-  }
-
-  highlightWord(string: string, words: string) {
-    const regex = new RegExp(words, 'gi');
-    return string.replace(regex, function (str) {
-      return '<span class="suggestion-highlight">' + str + '</span>';
-    });
-  }
-
-  handleSuggestion(suggestion: Result) {
-    this.searchSettings.input = suggestion.value;
-    this.fetchEndpoint.run();
-    this.cleanSearchSuggestions();
-  }
-
-  searchVerticalNavTemplate(response: SearchResponse): TemplateResult {
-    return html`
-      <div class="search-verticals-nav">
-        <h2>Refine Your Search</h2>
-        <ul class="">
-          <li class="vertical vertical--all">
-            <div>All (${this.sumResultsCount(response)})</div>
-          </li>
-          ${repeat(
-            response.modules,
-            (result: Module) => result,
-            (result) => html`
-              <li class="vertical">
-                <div>${result.verticalConfigId} (${result.resultsCount})</div>
-              </li>
-            `
-          )}
-        </ul>
-      </div>
-    `;
-  }
-
-  mobileCloseModalTemplate() {
-    return this.modalFiltersOpenClose
-      ? html`<button
-          type="button"
-          id="closeModal"
-          class="menu-dropdown-close"
-          aria-expanded="${this.modalFiltersOpenClose}"
-          aria-controls="slider-modal"
-          @click=${this.toggleFilterModal}
-        >
-          <outline-icon-baseline
-            name="close"
-            aria-hidden="true"
-          ></outline-icon-baseline>
-          <span class="visually-hidden">Close modal filters</span>
-        </button>`
-      : null;
-  }
-
-  mobileStickyCTATemplate() {
-    return this.modalFiltersOpenClose
-      ? html`<div class="container-cta-sticky">
-          <button
-            class="reset-search"
-            type="button"
-            @click=${(e: Event) => this.reset(e)}
-          >
-            Clear
-          </button>
-          <button
-            type="button"
-            id="close-modal-mobile"
-            class="close-modal-mobile btn btn--default btn--small"
-            aria-expanded="${this.modalFiltersOpenClose}"
-            aria-controls="slider-modal"
-            @click=${this.toggleFilterModal}
-          >
-            Show ${this.totalCount} results
-
-            <outline-icon-baseline
-              name="arrowRight"
-              size="1.25rem"
-            ></outline-icon-baseline>
-          </button>
-        </div>`
-      : null;
-  }
-
-  toggleFilterModal() {
-    this.modalFiltersOpenClose = !this.modalFiltersOpenClose;
-    if (this.modalFiltersOpenClose) {
-      document.querySelector('body')!.style.overflow = 'hidden';
-      this._trapKeyboardMobileMenu = this._trapKeyboardMobileMenu.bind(this);
-      document.addEventListener('keydown', this._trapKeyboardMobileMenu);
-    } else {
-      document.querySelector('body')!.style.overflow = 'revert';
-      document.removeEventListener('keydown', this._trapKeyboardMobileMenu);
-      this.backToFocusElementCloseFilter();
-    }
-
-    this.focusCloseButton();
-  }
-
-  backToFocusElementCloseFilter() {
-    const openButtonModal = this.shadowRoot?.querySelector(
-      '#openModal'
-    ) as HTMLButtonElement;
-    if (openButtonModal) {
-      openButtonModal?.focus();
-    }
-  }
-
-  focusCloseButton() {
-    setTimeout(() => {
-      const closeButtonRef = this.shadowRoot
-        ?.querySelector('#slider-modal')
-        ?.querySelector('.menu-dropdown-close') as HTMLButtonElement;
-      if (closeButtonRef) {
-        closeButtonRef?.focus();
-      }
-    }, 300);
-  }
-
-  _trapKeyboardMobileMenu(event: KeyboardEvent) {
-    // Get all focusable elements in the Modal
-    const focusableElements =
-      this.shadowRoot!.querySelector(
-        '#slider-modal'
-      )?.querySelectorAll<HTMLElement>('button, summary');
-    if (!focusableElements) {
-      return;
-    }
-    const firstFocusableElement = focusableElements[0];
-    const lastFocusableElement =
-      focusableElements[focusableElements.length - 1];
-
-    if (event.key === 'Tab') {
-      if (event.shiftKey) {
-        if (
-          document.activeElement?.shadowRoot?.activeElement?.matches(
-            `#${lastFocusableElement.id}`
-          )
-        ) {
-          return;
-        }
-        if (
-          document.activeElement?.shadowRoot?.activeElement?.matches(
-            `#${firstFocusableElement.id}`
-          )
-        ) {
-          lastFocusableElement.focus();
-          event.preventDefault();
-          return;
-        }
-      }
-
-      if (
-        document.activeElement?.shadowRoot?.activeElement?.matches(
-          `#${lastFocusableElement.id}`
-        )
-      ) {
-        firstFocusableElement.focus();
-        event.preventDefault();
-        return;
-      }
-    }
-  }
-
   render(): TemplateResult {
+    console.log(365);
     if (this.fetchEndpoint.value !== undefined) {
       this.taskValue = this.fetchEndpoint.value;
     }
@@ -706,17 +370,9 @@ export class OutlineYext extends LitElement {
       wrapper: true,
       isMobile: this.resizeController.currentBreakpointRange === 0,
     };
-
     return html`
-      ${this.searchBarTemplate()}
       <outline-container-baseline>
-        <div class="${classMap(classes)}"></div>
-        ${this.fetchEndpoint.render({
-          pending: () => (this.taskValue ? this.displayPending() : noChange),
-          complete: (data) => this.searchVerticalNavTemplate(data.response),
-          error: (error) => html`${error}`,
-        })}
-
+        <div class="${classMap(classes)}">
           <main>
             ${this.fetchEndpoint.render({
               pending: () =>
@@ -724,22 +380,20 @@ export class OutlineYext extends LitElement {
               complete: (data) => this.displayAll(data.response),
               error: (error) => html`${error}`,
             })}
-            ${
-              this.totalCount
-                ? html`
-                    <outline-yext-pager
-                      current-page=${this.searchSettings.offset /
-                        this.searchSettings.limit +
-                      1}
-                      total-pages=${Math.ceil(
-                        this.totalCount / this.searchSettings.limit
-                      )}
-                      @click=${(e: Event) => this.handlePageChange(e)}
-                      aria-live="polite"
-                    ></outline-yext-pager>
-                  `
-                : null
-            }
+            ${this.totalCount
+              ? html`
+                  <outline-yext-pager
+                    current-page=${this.searchSettings.offset /
+                      this.searchSettings.limit +
+                    1}
+                    total-pages=${Math.ceil(
+                      this.totalCount / this.searchSettings.limit
+                    )}
+                    @click=${(e: Event) => this.handlePageChange(e)}
+                    aria-live="polite"
+                  ></outline-yext-pager>
+                `
+              : null}
           </main>
         </div>
       </outline-container-baseline>
