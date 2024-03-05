@@ -323,7 +323,7 @@ export class OutlineYext extends LitElement {
           (result) => result,
           (result) => html`
             <li class="result">
-              <a href="${result.data.c_url}"><h3>${result.data.name}</h3></a>
+              <h3><a href="${result.data.c_url}">${result.data.name}</a></h3>
               <div>${result.data.c_body}</div>
             </li>
           `

@@ -340,9 +340,9 @@ export class OutlineYextUniversal extends LitElement {
                   module.results.slice(0, 3),
                   (result) => result,
                   (result) => html`
-                    <a href="${result.data.c_uRL}"
-                      ><h3>${result.data.name}</h3></a
-                    >
+                    <h3>
+                      <a href="${result.data.c_uRL}">${result.data.name}</a>
+                    </h3>
                     <p>${result.data.c_body}</p>
                   `
                 )}
@@ -732,21 +732,22 @@ export class OutlineYextUniversal extends LitElement {
     };
 
     return html`
-      ${this.activeVertical !== 'all'
-        ? html`
-            <outline-yext vertical-key="${this.activeVertical}"></outline-yext>
-          `
-        : html`
-            ${this.searchBarTemplate()}
-            <outline-container-baseline>
-              <div class="${classMap(classes)}"></div>
-              ${this.fetchEndpoint.render({
-                pending: () =>
-                  this.taskValue ? this.displayPending() : noChange,
-                complete: (data) =>
-                  this.searchVerticalNavTemplate(data.response),
-                error: (error) => html`${error}`,
-              })}
+      ${this.searchBarTemplate()}
+      <outline-container-baseline>
+        <div class="${classMap(classes)}"></div>
+        ${this.fetchEndpoint.render({
+          pending: () => (this.taskValue ? this.displayPending() : noChange),
+          complete: (data) => this.searchVerticalNavTemplate(data.response),
+          error: (error) => html`${error}`,
+        })}
+        ${this.activeVertical !== 'all'
+          ? html`
+              <outline-yext
+                vertical-key="${this.activeVertical}"
+              ></outline-yext>
+            `
+          : html`
+
 
               <main>
                 ${this.fetchEndpoint.render({
@@ -755,23 +756,26 @@ export class OutlineYextUniversal extends LitElement {
                   complete: (data) => this.displayAll(data.response),
                   error: (error) => html`${error}`,
                 })}
-                ${this.totalCount
-                  ? html`
-                      <outline-yext-pager
-                        current-page=${this.searchSettings.offset /
-                          this.searchSettings.limit +
-                        1}
-                        total-pages=${Math.ceil(
-                          this.totalCount / this.searchSettings.limit
-                        )}
-                        @click=${(e: Event) => this.handlePageChange(e)}
-                        aria-live="polite"
-                      ></outline-yext-pager>
-                    `
-                  : null}
+                ${
+                  this.totalCount
+                    ? html`
+                        <outline-yext-pager
+                          current-page=${this.searchSettings.offset /
+                            this.searchSettings.limit +
+                          1}
+                          total-pages=${Math.ceil(
+                            this.totalCount / this.searchSettings.limit
+                          )}
+                          @click=${(e: Event) => this.handlePageChange(e)}
+                          aria-live="polite"
+                        ></outline-yext-pager>
+                      `
+                    : null
+                }
               </main>
             </outline-container-baseline>
           `}
+      </outline-container-baseline>
     `;
   }
 }
