@@ -322,19 +322,20 @@ export class OutlineYextUniversal extends LitElement {
   }
 
   displayAll(response: UniversalSearchResponse) {
+    console.log(response);
     if (response.modules?.length === 0) {
       return html` <h2>No results found</h2> `;
     }
 
     return html`
-      <div class="search-verticals-results--all">
+      <div class="results-list">
         ${repeat(
           response.modules,
           (module: Module) => module,
           (module) => html`
-            <div class="search-vertical-result-section">
+            <div class="results-section">
               <h2>${module.verticalConfigId}</h2>
-              <div>
+              <div class="result">
                 ${repeat(
                   module.results.slice(0, 3),
                   (result) => result,
@@ -402,9 +403,9 @@ export class OutlineYextUniversal extends LitElement {
     params.set('input', `${this.searchSettings.input.toLocaleLowerCase()}`);
 
     // Encode the autocomplete before constructing the URL
-    const url = `${this.urlHref}/${
-      this.accountId
-    }/search/vertical/autocomplete?v=${this.apiVersion}&${params.toString()}`;
+    const url = `${this.urlHref}/${this.accountId}/search/autocomplete?v=${
+      this.apiVersion
+    }&${params.toString()}`;
 
     const response = await fetch(url);
     const suggestions: ResponseSearchSuggestions = await response.json();
@@ -731,50 +732,46 @@ export class OutlineYextUniversal extends LitElement {
     };
 
     return html`
-      ${this.searchBarTemplate()}
-      <outline-container-baseline>
-        <div class="${classMap(classes)}"></div>
-        ${this.fetchEndpoint.render({
-          pending: () => (this.taskValue ? this.displayPending() : noChange),
-          complete: (data) => this.searchVerticalNavTemplate(data.response),
-          error: (error) => html`${error}`,
-        })}
+      ${this.activeVertical !== 'all'
+        ? html`
+            <outline-yext vertical-key="${this.activeVertical}"></outline-yext>
+          `
+        : html`
+            ${this.searchBarTemplate()}
+            <outline-container-baseline>
+              <div class="${classMap(classes)}"></div>
+              ${this.fetchEndpoint.render({
+                pending: () =>
+                  this.taskValue ? this.displayPending() : noChange,
+                complete: (data) =>
+                  this.searchVerticalNavTemplate(data.response),
+                error: (error) => html`${error}`,
+              })}
 
-          <main>
-            ${
-              this.activeVertical !== 'all'
-                ? html`
-                    <outline-yext
-                      vertical-key="${this.activeVertical}"
-                    ></outline-yext>
-                  `
-                : this.fetchEndpoint.render({
-                    pending: () =>
-                      this.taskValue ? this.displayPending() : noChange,
-                    complete: (data) => this.displayAll(data.response),
-                    error: (error) => html`${error}`,
-                  })
-            }
-
-            ${
-              this.totalCount
-                ? html`
-                    <outline-yext-pager
-                      current-page=${this.searchSettings.offset /
-                        this.searchSettings.limit +
-                      1}
-                      total-pages=${Math.ceil(
-                        this.totalCount / this.searchSettings.limit
-                      )}
-                      @click=${(e: Event) => this.handlePageChange(e)}
-                      aria-live="polite"
-                    ></outline-yext-pager>
-                  `
-                : null
-            }
-          </main>
-        </div>
-      </outline-container-baseline>
+              <main>
+                ${this.fetchEndpoint.render({
+                  pending: () =>
+                    this.taskValue ? this.displayPending() : noChange,
+                  complete: (data) => this.displayAll(data.response),
+                  error: (error) => html`${error}`,
+                })}
+                ${this.totalCount
+                  ? html`
+                      <outline-yext-pager
+                        current-page=${this.searchSettings.offset /
+                          this.searchSettings.limit +
+                        1}
+                        total-pages=${Math.ceil(
+                          this.totalCount / this.searchSettings.limit
+                        )}
+                        @click=${(e: Event) => this.handlePageChange(e)}
+                        aria-live="polite"
+                      ></outline-yext-pager>
+                    `
+                  : null}
+              </main>
+            </outline-container-baseline>
+          `}
     `;
   }
 }

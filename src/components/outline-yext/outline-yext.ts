@@ -244,6 +244,7 @@ export class OutlineYext extends LitElement {
         meta: {};
         response: VerticalSearchResponseStructure;
       } = await response.json();
+
       this.totalCount = jsonResponse.response.resultsCount;
 
       const endTime = performance.now();
@@ -310,7 +311,7 @@ export class OutlineYext extends LitElement {
     if (response.resultsCount === 0) {
       return html` <h2>No results found</h2> `;
     }
-
+    console.log(response);
     // this.randomizationToken = response.randomizationToken;
     this.userLat = Number(response.locationBias?.latitude);
     this.userLong = Number(response.locationBias?.longitude);
@@ -320,9 +321,10 @@ export class OutlineYext extends LitElement {
         ${repeat(
           response.results,
           (result) => result,
-          (result, index) => html`
+          (result) => html`
             <li class="result">
-              <div>${index}</div>
+              <a href="${result.data.c_url}"><h3>${result.data.name}</h3></a>
+              <div>${result.data.c_body}</div>
             </li>
           `
         )}
@@ -362,7 +364,6 @@ export class OutlineYext extends LitElement {
   }
 
   render(): TemplateResult {
-    console.log(365);
     if (this.fetchEndpoint.value !== undefined) {
       this.taskValue = this.fetchEndpoint.value;
     }
@@ -373,6 +374,8 @@ export class OutlineYext extends LitElement {
     return html`
       <outline-container-baseline>
         <div class="${classMap(classes)}">
+          ${this.displayTotalCount()}
+          <br />
           <main>
             ${this.fetchEndpoint.render({
               pending: () =>
