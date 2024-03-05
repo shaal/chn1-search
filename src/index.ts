@@ -20,6 +20,7 @@ import { AdoptedStylesheets } from '@phase2/outline-adopted-stylesheets-controll
 // import { Controller1 } from './controllers/controller1';
 // import { Controller2 } from './controllers/controller2';
 // Add more controller imports as needed...
+import { OutlineYextUniversal } from './components/outline-yext-universal/outline-yext-universal';
 import { OutlineYext } from './components/outline-yext/outline-yext';
 
 // Exporting all imported components and controllers for external use
@@ -34,5 +35,6 @@ export {
   // Controller1,
   // Controller2
   // Add more controller exports as needed...
+  OutlineYextUniversal,
   OutlineYext,
 };

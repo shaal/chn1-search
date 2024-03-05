@@ -46,8 +46,6 @@
     "@phase2/outline-adopted-stylesheets-controller": "^1.0.2",
     "@phase2/outline-config": "^0.0.14",
     "@phase2/outline-core": "^0.2.7",
-    "@phase2/outline-core-alert": "^0.0.2",
-    "@phase2/outline-core-link": "^0.0.11",
     "lit": "^3.1.2"
   },
   "devDependencies": {
