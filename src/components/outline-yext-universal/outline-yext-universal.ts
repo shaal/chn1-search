@@ -7,7 +7,8 @@ import { classMap } from 'lit/directives/class-map.js';
 import { Task } from '@lit/task';
 
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import componentStyles from './outline-yext-universal.css.lit';
+import componentStyles from './outline-yext-universal.css?inline';
+import { AdoptedStylesheets } from '@phase2/outline-adopted-stylesheets-controller';
 import { ResizeController } from '../../controllers/resize-controller';
 import { debounce } from '../../utilities/debounce';
 import type {
@@ -28,7 +29,17 @@ import '../outline-yext/outline-yext';
 
 @customElement('outline-yext-universal')
 export class OutlineYextUniversal extends LitElement {
-  static styles = [componentStyles];
+
+  // EncapsulatedStylesheets: AdoptedStylesheets | undefined;
+
+  createRenderRoot() {
+    const root = super.createRenderRoot();
+    // this.EncapsulatedStylesheets = this.shadowRoot
+    //   ? new AdoptedStylesheets(this, componentStyles, this.shadowRoot)
+    //   : undefined;
+    new AdoptedStylesheets(this, componentStyles, this.shadowRoot!)
+    return root;
+  }
 
   urlHref = 'https://cdn.yextapis.com/v2/accounts';
   accountId = 'me';
