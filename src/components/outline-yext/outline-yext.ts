@@ -13,8 +13,6 @@ import type {
   SearchSettings,
   Result,
   VerticalSearchResponseStructure,
-  ResponseSearchSuggestions,
-  ResultData,
 } from '../outline-yext-universal/outline-yext-types';
 
 /**
@@ -28,7 +26,7 @@ export class OutlineYext extends LitElement {
     // this.EncapsulatedStylesheets = this.shadowRoot
     //   ? new AdoptedStylesheets(this, componentStyles, this.shadowRoot)
     //   : undefined;
-    new AdoptedStylesheets(this, componentStyles, this.shadowRoot!)
+    new AdoptedStylesheets(this, componentStyles, this.shadowRoot!);
     return root;
   }
 
