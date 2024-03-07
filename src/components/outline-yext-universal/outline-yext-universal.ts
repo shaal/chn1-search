@@ -551,23 +551,23 @@ export class OutlineYextUniversal extends LitElement {
     this.cleanSearchSuggestions();
   }
 
+  handleNavClick(vertical: string) {
+    this.activeVertical = vertical;
+    this.shadowRoot?.querySelector('outline-yext')?.requestUpdate();
+  }
+
   searchVerticalNavTemplate(response: UniversalSearchResponse): TemplateResult {
     return html`
       <div class="search-verticals-nav">
         <h2>Refine Your Search</h2>
+
         <ul class="">
           <li
             class="vertical vertical--all ${this.activeVertical == 'all'
               ? 'active'
               : ''}"
           >
-            <button
-              @click="${() => {
-                this.activeVertical = 'all';
-              }}"
-            >
-              All (${this.sumResultsCount(response)})
-            </button>
+            <button @click="${() => this.handleNavClick('all')}">All</button>
           </li>
           ${repeat(
             response.modules,
@@ -580,11 +580,9 @@ export class OutlineYextUniversal extends LitElement {
                   : ''}"
               >
                 <button
-                  @click="${() => {
-                    this.activeVertical = result.verticalConfigId;
-                  }}"
+                  @click="${() => this.handleNavClick(result.verticalConfigId)}"
                 >
-                  ${result.verticalConfigId} (${result.resultsCount})
+                  ${result.verticalConfigId}
                 </button>
               </li>
             `

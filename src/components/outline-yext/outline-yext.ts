@@ -88,6 +88,7 @@ export class OutlineYext extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     this.readParamsFromUrl();
+    this.pageTitle = this.verticalKey;
   }
 
   /**
@@ -374,6 +375,7 @@ export class OutlineYext extends LitElement {
     return html`
       <outline-container-baseline>
         <div class="${classMap(classes)}">
+          <h2>${this.pageTitle}</h2>
           ${this.displayTotalCount()}
           <br />
           <main>
