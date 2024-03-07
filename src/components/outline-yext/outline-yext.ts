@@ -5,8 +5,8 @@ import { repeat } from 'lit/directives/repeat.js';
 import { classMap } from 'lit/directives/class-map.js';
 
 import { Task } from '@lit/task';
-
-import componentStyles from './outline-yext.css.lit';
+import { AdoptedStylesheets } from '@phase2/outline-adopted-stylesheets-controller';
+import componentStyles from './outline-yext.css?inline';
 import { ResizeController } from '../../controllers/resize-controller';
 
 import type {
@@ -23,7 +23,14 @@ import type {
  */
 @customElement('outline-yext')
 export class OutlineYext extends LitElement {
-  static styles = [componentStyles];
+  createRenderRoot() {
+    const root = super.createRenderRoot();
+    // this.EncapsulatedStylesheets = this.shadowRoot
+    //   ? new AdoptedStylesheets(this, componentStyles, this.shadowRoot)
+    //   : undefined;
+    new AdoptedStylesheets(this, componentStyles, this.shadowRoot!)
+    return root;
+  }
 
   urlHref = 'https://cdn.yextapis.com/v2/accounts';
   accountId = 'me';
