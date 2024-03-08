@@ -395,6 +395,7 @@ export class OutlineYextUniversal extends LitElement {
     this.searchSettings.input = inputSearch;
 
     this.fetchEndpoint.run();
+    this.activeVertical = 'all';
   }
 
   // Single instance was created outside of the handleInput so that the debounce is not called multiple times
