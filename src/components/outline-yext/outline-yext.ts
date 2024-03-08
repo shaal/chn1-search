@@ -90,10 +90,15 @@ export class OutlineYext extends LitElement {
 
   taskValue: unknown;
 
+  updated() {
+    console.log(94);
+    console.log(this.verticalKey);
+    // this.fetchEndpoint.run();
+  }
   connectedCallback() {
     super.connectedCallback();
     this.readParamsFromUrl();
-    this.pageTitle = this.verticalKey;
+    this.pageTitle = this.verticalKey || '';
   }
 
   /**
@@ -130,6 +135,7 @@ export class OutlineYext extends LitElement {
    * @returns {void} This function does not return a value but updates the `this.requestURL` property.
    */
   prepareRequestURL() {
+    console.log(this.verticalKey, '!!');
     const staticParams = new URLSearchParams();
     const dynamicParams = new URLSearchParams();
     // params.set('api_key', this.apiKey);
@@ -327,8 +333,8 @@ export class OutlineYext extends LitElement {
         ${repeat(
           response.results,
           (result) => result,
-          (result) => html`
-            <li class="result">
+          (result, index) => html`
+            <li class="result" data-index=${index}>
               <h3><a href="${result.data.c_url}">${result.data.name}</a></h3>
               <div>${result.data.c_body}</div>
             </li>
@@ -373,6 +379,7 @@ export class OutlineYext extends LitElement {
     if (this.fetchEndpoint.value !== undefined) {
       this.taskValue = this.fetchEndpoint.value;
     }
+
     const classes = {
       wrapper: true,
       isMobile: this.resizeController.currentBreakpointRange === 0,
@@ -380,7 +387,7 @@ export class OutlineYext extends LitElement {
     return html`
       <outline-container-baseline>
         <div class="${classMap(classes)}">
-          <h2>${this.pageTitle}</h2>
+          <h2>${this.verticalKey}</h2>
           ${this.displayTotalCount()}
           <br />
           <main>

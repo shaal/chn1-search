@@ -560,7 +560,10 @@ export class OutlineYextUniversal extends LitElement {
 
   handleNavClick(vertical: string) {
     this.activeVertical = vertical;
-    this.shadowRoot?.querySelector('outline-yext')?.requestUpdate();
+    this.shadowRoot
+      ?.querySelector('outline-yext')
+      ?.setAttribute('vertical-key', this.activeVertical);
+    this.shadowRoot?.querySelector('outline-yext')?.fetchEndpoint.run();
   }
 
   searchVerticalNavTemplate(response: UniversalSearchResponse): TemplateResult {
@@ -579,8 +582,9 @@ export class OutlineYextUniversal extends LitElement {
           ${repeat(
             response.modules,
             (result: Module) => result,
-            (result) => html`
+            (result, index) => html`
               <li
+                data-index=${index}
                 class="vertical ${this.activeVertical ===
                 result.verticalConfigId
                   ? 'active'
