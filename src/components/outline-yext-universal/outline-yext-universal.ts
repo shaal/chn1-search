@@ -559,9 +559,10 @@ export class OutlineYextUniversal extends LitElement {
 
   handleNavClick(vertical: string) {
     this.activeVertical = vertical;
-    this.shadowRoot
-      ?.querySelector('outline-yext')
-      ?.setAttribute('vertical-key', this.activeVertical);
+    vertical !== 'all' &&
+      this.shadowRoot
+        ?.querySelector('outline-yext')
+        ?.setAttribute('vertical-key', this.activeVertical);
     this.shadowRoot?.querySelector('outline-yext')?.fetchEndpoint.run();
   }
 
