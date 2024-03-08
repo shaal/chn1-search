@@ -329,7 +329,6 @@ export class OutlineYextUniversal extends LitElement {
   }
 
   displayAll(response: UniversalSearchResponse) {
-    console.log(response);
     if (response.modules?.length === 0) {
       return html` <h2>No results found</h2> `;
     }
@@ -416,7 +415,7 @@ export class OutlineYextUniversal extends LitElement {
 
     const response = await fetch(url);
     const suggestions: ResponseSearchSuggestions = await response.json();
-    console.log(suggestions);
+
     // this.searchSuggestions = suggestions.response.results.slice(
     //   0,
     //   this.showResults

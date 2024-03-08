@@ -90,11 +90,6 @@ export class OutlineYext extends LitElement {
 
   taskValue: unknown;
 
-  updated() {
-    console.log(94);
-    console.log(this.verticalKey);
-    // this.fetchEndpoint.run();
-  }
   connectedCallback() {
     super.connectedCallback();
     this.readParamsFromUrl();
@@ -135,7 +130,6 @@ export class OutlineYext extends LitElement {
    * @returns {void} This function does not return a value but updates the `this.requestURL` property.
    */
   prepareRequestURL() {
-    console.log(this.verticalKey, '!!');
     const staticParams = new URLSearchParams();
     const dynamicParams = new URLSearchParams();
     // params.set('api_key', this.apiKey);
@@ -323,7 +317,7 @@ export class OutlineYext extends LitElement {
     if (response.resultsCount === 0) {
       return html` <h2>No results found</h2> `;
     }
-    console.log(response);
+
     // this.randomizationToken = response.randomizationToken;
     this.userLat = Number(response.locationBias?.latitude);
     this.userLong = Number(response.locationBias?.longitude);
