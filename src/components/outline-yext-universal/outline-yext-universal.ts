@@ -46,7 +46,7 @@ export class OutlineYextUniversal extends LitElement {
   version = 'PRODUCTION';
   locale = 'en';
   sortBys = 'relevance';
-  pageTitle = 'Universal Search';
+  pageTitle = '';
   experienceKey = 'universal-search';
   verticalKey = 'all';
 
@@ -460,88 +460,81 @@ export class OutlineYextUniversal extends LitElement {
     );
 
     return html`
-      <outline-container-baseline class="${isMobile ? 'isMobile' : null}">
-        <div class="search-hero ${isMobile ? 'isMobile' : 'isDesktop'}">
-          <outline-heading-baseline level-size="2xl">
-            <h1>${this.pageTitle}</h1>
-          </outline-heading-baseline>
-
-          <div
-            class="exposed-filters"
-            @focusout="${(e: FocusEvent) => this._focusOut(e)}"
+      <div class="search-form ${isMobile ? 'isMobile' : 'isDesktop'}">
+        <div
+          class="search-form__inner"
+          @focusout="${(e: FocusEvent) => this._focusOut(e)}"
+        >
+          <form
+            action="/search"
+            method="get"
+            id="views-exposed-form-search-search-page"
+            accept-charset="UTF-8"
           >
-            <outline-form-baseline form-type="search">
-              <form
-                action="/search"
-                method="get"
-                id="views-exposed-form-search-search-page"
-                accept-charset="UTF-8"
-              >
-                <div
-                  class="js-form-item form-item js-form-type-textfield form-item-text js-form-item-text"
-                >
-                  <label
-                    for="edit-search-api-fulltext"
-                    class="form-item__label font-body"
-                    >Keyword</label
-                  >
-                  <input
-                    placeholder="Location name, services, specialty, city, zip code"
-                    type="text"
-                    id="edit-search-api-fulltext"
-                    name="field_keyword"
-                    .value=${this.searchSettings.input}
-                    @input=${this.handleInput}
-                    @focus="${this._focusIn}"
-                    maxlength="128"
-                    class="form-text form-element form-element--type-text form-element--api-textfield"
-                  />
-                </div>
-                <div
-                  data-drupal-selector="edit-actions"
-                  class="form-actions js-form-wrapper form-wrapper"
-                >
-                  <button
-                    class="btn btn--search btn--small form-submit"
-                    data-drupal-selector="edit-submit"
-                    type="submit"
-                    id="edit-submit"
-                    value="Search"
-                    @click=${(e: Event) => this.search(e)}
-                  >
-                    <span>Search</span>
-                  </button>
-                </div>
-              </form>
-            </outline-form-baseline>
-            <ul
-              aria-live="polite"
-              class="${this.isFocus
-                ? 'open-suggestion'
-                : 'close-suggestion'} suggested-list"
+            <div
+              class="js-form-item form-item js-form-type-textfield form-item-text js-form-item-text"
             >
-              <li class="suggested-title">Suggested Searches</li>
-              ${this.searchSuggestions.length > 0
-                ? this.searchSuggestions.map(
-                    (suggestion) => html`<li>
-                      <button
-                        type="button"
-                        @click="${() => this.handleSuggestion(suggestion)}"
-                      >
-                        ${unsafeHTML(
-                          this.highlightWord(
-                            suggestion.value,
-                            this.searchSettings.input
-                          )
-                        )}
-                      </button>
-                    </li> `
-                  )
-                : undefined}
-            </ul>
-          </div>
+              <label
+                for="edit-search-api-fulltext"
+                class="sr-only form-item__label"
+                >Keyword</label
+              >
+              <input
+                placeholder=""
+                type="text"
+                id="edit-search-api-fulltext"
+                name="field_keyword"
+                .value=${this.searchSettings.input}
+                @input=${this.handleInput}
+                @focus="${this._focusIn}"
+                maxlength="128"
+                class="form-text form-element form-element--type-text form-element--api-textfield"
+              />
+            </div>
+            <div
+              data-drupal-selector="edit-actions"
+              class="form-actions js-form-wrapper form-wrapper"
+            >
+              <button
+                class="btn btn--search form-submit"
+                data-drupal-selector="edit-submit"
+                type="submit"
+                id="edit-submit"
+                value="Search"
+                @click=${(e: Event) => this.search(e)}
+              >
+                <span>Search</span>
+              </button>
+            </div>
+          </form>
+
+          <ul
+            aria-live="polite"
+            class="${this.isFocus
+              ? 'open-suggestion'
+              : 'close-suggestion'} suggested-list"
+          >
+            <!-- <li class="suggested-title">Suggested Searches</li> -->
+            ${this.searchSuggestions.length > 0
+              ? this.searchSuggestions.map(
+                  (suggestion) => html`<li>
+                    <button
+                      type="button"
+                      @click="${() => this.handleSuggestion(suggestion)}"
+                    >
+                      ${unsafeHTML(
+                        this.highlightWord(
+                          suggestion.value,
+                          this.searchSettings.input
+                        )
+                      )}
+                    </button>
+                  </li> `
+                )
+              : undefined}
+          </ul>
         </div>
-      </outline-container-baseline>
+      </div>
     `;
   }
 
@@ -570,7 +563,7 @@ export class OutlineYextUniversal extends LitElement {
   searchVerticalNavTemplate(response: UniversalSearchResponse): TemplateResult {
     return html`
       <div class="search-verticals-nav">
-        <h2>Refine Your Search</h2>
+        <h2 class="search-verticals-nav-heading">Refine Your Search</h2>
 
         <ul class="">
           <li
@@ -594,7 +587,9 @@ export class OutlineYextUniversal extends LitElement {
                 <button
                   @click="${() => this.handleNavClick(result.verticalConfigId)}"
                 >
-                  ${result.verticalConfigId}
+                  ${result.verticalConfigId
+                    .replace(/_/g, ' ')
+                    .replace(/\b\w/g, (match) => match.toUpperCase())}
                 </button>
               </li>
             `
@@ -743,20 +738,21 @@ export class OutlineYextUniversal extends LitElement {
 
     return html`
       ${this.searchBarTemplate()}
-      <outline-container-baseline>
-        <div class="${classMap(classes)}"></div>
-        ${this.fetchEndpoint.render({
-          pending: () => (this.taskValue ? this.displayPending() : noChange),
-          complete: (data) => this.searchVerticalNavTemplate(data.response),
-          error: (error) => html`${error}`,
-        })}
-        ${this.activeVertical !== 'all'
-          ? html`
-              <outline-yext
-                vertical-key="${this.activeVertical}"
-              ></outline-yext>
-            `
-          : html`
+      <div class="wrapper">
+        <outline-container-baseline>
+          <div class="${classMap(classes)}"></div>
+          ${this.fetchEndpoint.render({
+            pending: () => (this.taskValue ? this.displayPending() : noChange),
+            complete: (data) => this.searchVerticalNavTemplate(data.response),
+            error: (error) => html`${error}`,
+          })}
+          ${this.activeVertical !== 'all'
+            ? html`
+                <outline-yext
+                  vertical-key="${this.activeVertical}"
+                ></outline-yext>
+              `
+            : html`
 
 
               <main>
@@ -785,7 +781,8 @@ export class OutlineYextUniversal extends LitElement {
               </main>
             </outline-container-baseline>
           `}
-      </outline-container-baseline>
+        </outline-container-baseline>
+      </div>
     `;
   }
 }
