@@ -385,7 +385,7 @@ export class OutlineYext extends LitElement {
       wrapper: true,
       isMobile: this.resizeController.currentBreakpointRange === 0,
     };
-    console.log(this.totalCount);
+
     return html`
       <div>
         <div class="${classMap(classes)}">
