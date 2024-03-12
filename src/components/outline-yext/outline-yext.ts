@@ -8,6 +8,7 @@ import { Task } from '@lit/task';
 import { AdoptedStylesheets } from '@phase2/outline-adopted-stylesheets-controller';
 import componentStyles from './outline-yext.css?inline';
 import { ResizeController } from '../../controllers/resize-controller';
+import '../outline-yext-pager/outline-yext-pager';
 
 import type {
   SearchSettings,
@@ -289,15 +290,17 @@ export class OutlineYext extends LitElement {
   }
 
   // from https://hitchhikers.yext.com/docs/contentdeliveryapis/search/verticalsearch
-  displayTotalCount() {
+  displayTotalCountTemplate() {
     if (this.totalCount) {
       const range1 = this.searchSettings.offset + 1;
       const range2 = Math.min(
         this.searchSettings.offset + this.searchSettings.limit,
         this.totalCount
       );
-      return html`Showing <strong>${range1}-${range2}</strong> of
-        ${this.totalCount} results `;
+      return html`<div class="total-count">
+        Showing <strong>${range1}-${range2}</strong> of ${this.totalCount}
+        results
+      </div>`;
     }
     return null;
   }
@@ -378,13 +381,12 @@ export class OutlineYext extends LitElement {
       wrapper: true,
       isMobile: this.resizeController.currentBreakpointRange === 0,
     };
+    console.log(this.totalCount);
     return html`
-      <outline-container-baseline>
+      <div>
         <div class="${classMap(classes)}">
-          <h2>${this.verticalKey}</h2>
-          ${this.displayTotalCount()}
-          <br />
           <main>
+            ${this.displayTotalCountTemplate()}
             ${this.fetchEndpoint.render({
               pending: () =>
                 this.taskValue ? this.displayPending() : noChange,
@@ -407,7 +409,7 @@ export class OutlineYext extends LitElement {
               : null}
           </main>
         </div>
-      </outline-container-baseline>
+      </div>
     `;
   }
 }

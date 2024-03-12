@@ -15,7 +15,6 @@ import type {
   Result,
   UniversalSearchResponse,
   ResponseSearchSuggestions,
-  ResultData,
   Module,
 } from './outline-yext-types';
 
@@ -838,22 +837,7 @@ export class OutlineYextUniversal extends LitElement {
                   complete: (data) => this.displayAll(data.response),
                   error: (error) => html`${error}`,
                 })}
-                ${
-                  this.totalCount
-                    ? html`
-                        <outline-yext-pager
-                          current-page=${this.searchSettings.offset /
-                            this.searchSettings.limit +
-                          1}
-                          total-pages=${Math.ceil(
-                            this.totalCount / this.searchSettings.limit
-                          )}
-                          @click=${(e: Event) => this.handlePageChange(e)}
-                          aria-live="polite"
-                        ></outline-yext-pager>
-                      `
-                    : null
-                }
+
               </main>
             </outline-container-baseline>
           `}

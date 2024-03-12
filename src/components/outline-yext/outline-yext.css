@@ -1,8 +1,6 @@
 :host {
   display: block;
   position: relative;
-  max-width: 90%;
-  margin: 0 auto;
 }
 
 ul {
@@ -11,6 +9,21 @@ ul {
   padding: 0;
 }
 
+main {
+  padding: 3rem 1.875rem;
+  background: var(--c-neutral-gray-100);
+  margin: 1.25rem 0;
+}
+
 .result {
+  margin-bottom: 2rem;
+}
+
+.total-count {
+  color: var(--c-neutral-gray-400, #42525f);
+  font-family: var(--ff-body);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 120%;
   margin-bottom: 2rem;
 }

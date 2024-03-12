@@ -11,7 +11,7 @@
 
   --ff-display: Merriweather, 'Helvetica', 'Arial', 'sans-serif';
   --ff-body: 'Proxima Nova', 'Helvetica', 'Arial', 'sans-serif';
-
+  padding-bottom: 3rem;
   display: block;
   position: relative;
   margin: 0 auto;
@@ -40,6 +40,13 @@ button {
 .wrapper.is-mobile {
   padding: 0;
 }
+
+main {
+  background: var(--c-neutral-gray-100);
+  margin-top: 1.25rem;
+  padding: 1.25rem 1.875rem;
+}
+
 /* END of global / wrapper styling */
 
 /* START of search form styling */
