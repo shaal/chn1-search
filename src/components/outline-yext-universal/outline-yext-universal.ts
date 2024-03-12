@@ -454,13 +454,18 @@ export class OutlineYextUniversal extends LitElement {
     }
   }
 
-  searchBarTemplate(): TemplateResult {
+  searchFormTemplate(): TemplateResult {
     const isMobile = ifDefined(
       this.resizeController.currentBreakpointRange === 0
     );
 
+    const breakpointClass =
+      this.resizeController.currentBreakpointRange === 0
+        ? 'is-mobile'
+        : 'is-desktop';
+
     return html`
-      <div class="search-form ${isMobile ? 'isMobile' : 'isDesktop'}">
+      <div class="search-form ${breakpointClass}">
         <div
           class="search-form__inner"
           @focusout="${(e: FocusEvent) => this._focusOut(e)}"
@@ -470,6 +475,7 @@ export class OutlineYextUniversal extends LitElement {
             method="get"
             id="views-exposed-form-search-search-page"
             accept-charset="UTF-8"
+            class="${breakpointClass}"
           >
             <div
               class="js-form-item form-item js-form-type-textfield form-item-text js-form-item-text"
@@ -560,17 +566,13 @@ export class OutlineYextUniversal extends LitElement {
     this.shadowRoot?.querySelector('outline-yext')?.fetchEndpoint.run();
   }
 
-  searchVerticalNavTemplate(response: UniversalSearchResponse): TemplateResult {
+  mobileVerticalNavTemplate(response: UniversalSearchResponse): TemplateResult {
     return html`
-      <div class="search-verticals-nav">
-        <h2 class="search-verticals-nav-heading">Refine Your Search</h2>
+      <div class="vertical-nav is-mobile">
+        <h2 class="vertical-nav__heading is-mobile">Refine Your Search</h2>
 
-        <ul class="">
-          <li
-            class="vertical vertical--all ${this.activeVertical == 'all'
-              ? 'active'
-              : ''}"
-          >
+        <ul class="vertical-nav__list mobile">
+          <li class=" ${this.activeVertical == 'all' ? 'active' : ''}">
             <button @click="${() => this.handleNavClick('all')}">All</button>
           </li>
           ${repeat(
@@ -579,8 +581,7 @@ export class OutlineYextUniversal extends LitElement {
             (result, index) => html`
               <li
                 data-index=${index}
-                class="vertical ${this.activeVertical ===
-                result.verticalConfigId
+                class=" ${this.activeVertical === result.verticalConfigId
                   ? 'active'
                   : ''}"
               >
@@ -599,23 +600,74 @@ export class OutlineYextUniversal extends LitElement {
     `;
   }
 
-  mobileCloseModalTemplate() {
-    return this.modalFiltersOpenClose
-      ? html`<button
-          type="button"
-          id="closeModal"
-          class="menu-dropdown-close"
-          aria-expanded="${this.modalFiltersOpenClose}"
-          aria-controls="slider-modal"
-          @click=${this.toggleFilterModal}
-        >
-          <outline-icon-baseline
-            name="close"
-            aria-hidden="true"
-          ></outline-icon-baseline>
-          <span class="visually-hidden">Close modal filters</span>
-        </button>`
-      : null;
+  desktopVerticalNavTemplate(
+    response: UniversalSearchResponse
+  ): TemplateResult {
+    return html`
+      <div class="vertical-nav is-desktop">
+        <h2 class="vertical-nav__heading is-desktop">Refine Your Search</h2>
+
+        <ul class="vertical-nav__list is-desktop">
+          <li class=" ${this.activeVertical == 'all' ? 'active' : ''}">
+            <button @click="${() => this.handleNavClick('all')}">All</button>
+          </li>
+          ${repeat(
+            response.modules,
+            (result: Module) => result,
+            (result, index) => html`
+              <li
+                data-index=${index}
+                class=" ${this.activeVertical === result.verticalConfigId
+                  ? 'active'
+                  : ''}"
+              >
+                <button
+                  @click="${() => this.handleNavClick(result.verticalConfigId)}"
+                >
+                  ${result.verticalConfigId
+                    .replace(/_/g, ' ')
+                    .replace(/\b\w/g, (match) => match.toUpperCase())}
+                </button>
+              </li>
+            `
+          )}
+        </ul>
+      </div>
+    `;
+  }
+
+  mobileCloseModalTemplate(response: UniversalSearchResponse) {
+    return html`
+      <div class="vertical-nav is-mobile">
+        <h2 class="vertical-nav__heading is-mobile">Refine Your Search</h2>
+
+        <ul class="vertical-nav__list mobile">
+          <li class=" ${this.activeVertical == 'all' ? 'active' : ''}">
+            <button @click="${() => this.handleNavClick('all')}">All</button>
+          </li>
+          ${repeat(
+            response.modules,
+            (result: Module) => result,
+            (result, index) => html`
+              <li
+                data-index=${index}
+                class=" ${this.activeVertical === result.verticalConfigId
+                  ? 'active'
+                  : ''}"
+              >
+                <button
+                  @click="${() => this.handleNavClick(result.verticalConfigId)}"
+                >
+                  ${result.verticalConfigId
+                    .replace(/_/g, ' ')
+                    .replace(/\b\w/g, (match) => match.toUpperCase())}
+                </button>
+              </li>
+            `
+          )}
+        </ul>
+      </div>
+    `;
   }
 
   mobileStickyCTATemplate() {
@@ -733,17 +785,19 @@ export class OutlineYextUniversal extends LitElement {
     }
     const classes = {
       wrapper: true,
-      isMobile: this.resizeController.currentBreakpointRange === 0,
+      'is-mobile': this.resizeController.currentBreakpointRange === 0,
     };
 
     return html`
-      ${this.searchBarTemplate()}
-      <div class="wrapper">
+      ${this.searchFormTemplate()}
+      <div class="${classMap(classes)}">
         <outline-container-baseline>
-          <div class="${classMap(classes)}"></div>
           ${this.fetchEndpoint.render({
             pending: () => (this.taskValue ? this.displayPending() : noChange),
-            complete: (data) => this.searchVerticalNavTemplate(data.response),
+            complete: (data) =>
+              this.resizeController.currentBreakpointRange === 0
+                ? this.mobileVerticalNavTemplate(data.response)
+                : this.desktopVerticalNavTemplate(data.response),
             error: (error) => html`${error}`,
           })}
           ${this.activeVertical !== 'all'
