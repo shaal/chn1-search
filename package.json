@@ -32,7 +32,20 @@
     "clean:storybook": "rimraf storybook-static",
     "clean:modules": "rimraf node_modules",
     "reset": "yarn clean && yarn install",
-    "restart": "yarn reset && yarn dev"
+    "restart": "yarn reset && yarn dev",
+    "format": "npm-run-all -s format:css",
+    "format:code": "eslint --fix . && prettier --write .",
+    "format:svg": "svgo -f ./src -r --config=svgo.config.js",
+    "format:css": "postcss ./src/**/*.css --replace --config package.json",
+    "fix": "yarn format"
+  },
+  "postcss": {
+    "map": false,
+    "plugins": {
+      "css-declaration-sorter": {
+        "order": "smacss"
+      }
+    }
   },
   "keywords": [
     "web-components",
@@ -60,11 +73,13 @@
     "@types/react-dom": "^18",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
+    "css-declaration-sorter": "^7.1.1",
     "eslint": "^8.56.0",
     "eslint-plugin-storybook": "^0.8.0",
     "glob": "^10.3.10",
     "npm-run-all": "^4.1.5",
     "postcss": "^8.3.0",
+    "postcss-cli": "^11.0.0",
     "postcss-discard-comments": "^5.1.0",
     "postcss-load-config": "^5.0.3",
     "postcss-nested": "^6.0.1",

@@ -3,13 +3,12 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { ifDefined } from 'lit/directives/if-defined.js';
 import { classMap } from 'lit/directives/class-map.js';
-
+import componentStyles from './outline-yext-universal.css?inline';
 import { Task } from '@lit/task';
 
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
-import componentStyles from './outline-yext-universal.css?inline';
-import { AdoptedStylesheets } from '@phase2/outline-adopted-stylesheets-controller';
 import { ResizeController } from '../../controllers/resize-controller';
+import { AdoptedStylesheets } from '@phase2/outline-adopted-stylesheets-controller';
 import { debounce } from '../../utilities/debounce';
 import type {
   SearchSettings,
@@ -29,15 +28,12 @@ import '../outline-yext/outline-yext';
 
 @customElement('outline-yext-universal')
 export class OutlineYextUniversal extends LitElement {
-
-  // EncapsulatedStylesheets: AdoptedStylesheets | undefined;
-
   createRenderRoot() {
     const root = super.createRenderRoot();
     // this.EncapsulatedStylesheets = this.shadowRoot
     //   ? new AdoptedStylesheets(this, componentStyles, this.shadowRoot)
     //   : undefined;
-    new AdoptedStylesheets(this, componentStyles, this.shadowRoot!)
+    new AdoptedStylesheets(this, componentStyles, this.shadowRoot!);
     return root;
   }
 
@@ -338,21 +334,21 @@ export class OutlineYextUniversal extends LitElement {
     }
 
     return html`
-      <div class="search-verticals-results--all">
+      <div class="results-list">
         ${repeat(
           response.modules,
           (module: Module) => module,
           (module) => html`
-            <div class="search-vertical-result-section">
+            <div class="results-section">
               <h2>${module.verticalConfigId}</h2>
-              <div>
+              <div class="result">
                 ${repeat(
                   module.results.slice(0, 3),
                   (result) => result,
                   (result) => html`
-                    <a href="${result.data.c_uRL}"
-                      ><h3>${result.data.name}</h3></a
-                    >
+                    <h3>
+                      <a href="${result.data.c_uRL}">${result.data.name}</a>
+                    </h3>
                     <p>${result.data.c_body}</p>
                   `
                 )}
@@ -399,6 +395,7 @@ export class OutlineYextUniversal extends LitElement {
     this.searchSettings.input = inputSearch;
 
     this.fetchEndpoint.run();
+    this.activeVertical = 'all';
   }
 
   // Single instance was created outside of the handleInput so that the debounce is not called multiple times
@@ -413,13 +410,13 @@ export class OutlineYextUniversal extends LitElement {
     params.set('input', `${this.searchSettings.input.toLocaleLowerCase()}`);
 
     // Encode the autocomplete before constructing the URL
-    const url = `${this.urlHref}/${
-      this.accountId
-    }/search/vertical/autocomplete?v=${this.apiVersion}&${params.toString()}`;
+    const url = `${this.urlHref}/${this.accountId}/search/autocomplete?v=${
+      this.apiVersion
+    }&${params.toString()}`;
 
     const response = await fetch(url);
     const suggestions: ResponseSearchSuggestions = await response.json();
-    console.log(suggestions);
+
     // this.searchSuggestions = suggestions.response.results.slice(
     //   0,
     //   this.showResults
@@ -561,40 +558,43 @@ export class OutlineYextUniversal extends LitElement {
     this.cleanSearchSuggestions();
   }
 
+  handleNavClick(vertical: string) {
+    this.activeVertical = vertical;
+    vertical !== 'all' &&
+      this.shadowRoot
+        ?.querySelector('outline-yext')
+        ?.setAttribute('vertical-key', this.activeVertical);
+    this.shadowRoot?.querySelector('outline-yext')?.fetchEndpoint.run();
+  }
+
   searchVerticalNavTemplate(response: UniversalSearchResponse): TemplateResult {
     return html`
       <div class="search-verticals-nav">
         <h2>Refine Your Search</h2>
+
         <ul class="">
           <li
             class="vertical vertical--all ${this.activeVertical == 'all'
               ? 'active'
               : ''}"
           >
-            <button
-              @click="${() => {
-                this.activeVertical = 'all';
-              }}"
-            >
-              All (${this.sumResultsCount(response)})
-            </button>
+            <button @click="${() => this.handleNavClick('all')}">All</button>
           </li>
           ${repeat(
             response.modules,
             (result: Module) => result,
-            (result) => html`
+            (result, index) => html`
               <li
+                data-index=${index}
                 class="vertical ${this.activeVertical ===
                 result.verticalConfigId
                   ? 'active'
                   : ''}"
               >
                 <button
-                  @click="${() => {
-                    this.activeVertical = result.verticalConfigId;
-                  }}"
+                  @click="${() => this.handleNavClick(result.verticalConfigId)}"
                 >
-                  ${result.verticalConfigId} (${result.resultsCount})
+                  ${result.verticalConfigId}
                 </button>
               </li>
             `
@@ -750,41 +750,41 @@ export class OutlineYextUniversal extends LitElement {
           complete: (data) => this.searchVerticalNavTemplate(data.response),
           error: (error) => html`${error}`,
         })}
+        ${this.activeVertical !== 'all'
+          ? html`
+              <outline-yext
+                vertical-key="${this.activeVertical}"
+              ></outline-yext>
+            `
+          : html`
 
-          <main>
-            ${
-              this.activeVertical !== 'all'
-                ? html`
-                    <outline-yext
-                      vertical-key="${this.activeVertical}"
-                    ></outline-yext>
-                  `
-                : this.fetchEndpoint.render({
-                    pending: () =>
-                      this.taskValue ? this.displayPending() : noChange,
-                    complete: (data) => this.displayAll(data.response),
-                    error: (error) => html`${error}`,
-                  })
-            }
 
-            ${
-              this.totalCount
-                ? html`
-                    <outline-yext-pager
-                      current-page=${this.searchSettings.offset /
-                        this.searchSettings.limit +
-                      1}
-                      total-pages=${Math.ceil(
-                        this.totalCount / this.searchSettings.limit
-                      )}
-                      @click=${(e: Event) => this.handlePageChange(e)}
-                      aria-live="polite"
-                    ></outline-yext-pager>
-                  `
-                : null
-            }
-          </main>
-        </div>
+              <main>
+                ${this.fetchEndpoint.render({
+                  pending: () =>
+                    this.taskValue ? this.displayPending() : noChange,
+                  complete: (data) => this.displayAll(data.response),
+                  error: (error) => html`${error}`,
+                })}
+                ${
+                  this.totalCount
+                    ? html`
+                        <outline-yext-pager
+                          current-page=${this.searchSettings.offset /
+                            this.searchSettings.limit +
+                          1}
+                          total-pages=${Math.ceil(
+                            this.totalCount / this.searchSettings.limit
+                          )}
+                          @click=${(e: Event) => this.handlePageChange(e)}
+                          aria-live="polite"
+                        ></outline-yext-pager>
+                      `
+                    : null
+                }
+              </main>
+            </outline-container-baseline>
+          `}
       </outline-container-baseline>
     `;
   }

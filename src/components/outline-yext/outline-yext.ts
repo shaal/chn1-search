@@ -13,8 +13,6 @@ import type {
   SearchSettings,
   Result,
   VerticalSearchResponseStructure,
-  ResponseSearchSuggestions,
-  ResultData,
 } from '../outline-yext-universal/outline-yext-types';
 
 /**
@@ -28,7 +26,7 @@ export class OutlineYext extends LitElement {
     // this.EncapsulatedStylesheets = this.shadowRoot
     //   ? new AdoptedStylesheets(this, componentStyles, this.shadowRoot)
     //   : undefined;
-    new AdoptedStylesheets(this, componentStyles, this.shadowRoot!)
+    new AdoptedStylesheets(this, componentStyles, this.shadowRoot!);
     return root;
   }
 
@@ -95,6 +93,7 @@ export class OutlineYext extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     this.readParamsFromUrl();
+    this.pageTitle = this.verticalKey || '';
   }
 
   /**
@@ -251,6 +250,7 @@ export class OutlineYext extends LitElement {
         meta: {};
         response: VerticalSearchResponseStructure;
       } = await response.json();
+
       this.totalCount = jsonResponse.response.resultsCount;
 
       const endTime = performance.now();
@@ -328,8 +328,9 @@ export class OutlineYext extends LitElement {
           response.results,
           (result) => result,
           (result, index) => html`
-            <li class="result">
-              <div>${index}</div>
+            <li class="result" data-index=${index}>
+              <h3><a href="${result.data.c_url}">${result.data.name}</a></h3>
+              <div>${result.data.c_body}</div>
             </li>
           `
         )}
@@ -369,10 +370,10 @@ export class OutlineYext extends LitElement {
   }
 
   render(): TemplateResult {
-    console.log(365);
     if (this.fetchEndpoint.value !== undefined) {
       this.taskValue = this.fetchEndpoint.value;
     }
+
     const classes = {
       wrapper: true,
       isMobile: this.resizeController.currentBreakpointRange === 0,
@@ -380,6 +381,9 @@ export class OutlineYext extends LitElement {
     return html`
       <outline-container-baseline>
         <div class="${classMap(classes)}">
+          <h2>${this.verticalKey}</h2>
+          ${this.displayTotalCount()}
+          <br />
           <main>
             ${this.fetchEndpoint.render({
               pending: () =>
