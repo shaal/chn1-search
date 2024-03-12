@@ -1,11 +1,14 @@
 :root {
   /* Brand specific primary colors. */
   --c-brand-orange: #f15d22;
-  --c-brand-blue: #2f83b3;
-  --c-neutral-gray-200: #eff3f4;
-  --c-neutral-gray-300: #42525f;
-  --c-neutral-gray-400: #313233;
-  --c-neutral-white: #f9fcfe;
+  --c-brand-blue-200: #3791c4;
+  --c-brand-blue-300: #2f83b3;
+  --c-neutral-gray-100: #f9fcfe;
+  --c-neutral-gray-200: #dbdee0;
+  --c-neutral-gray-300: #eff3f4;
+  --c-neutral-gray-400: #42525f;
+  --c-neutral-gray-500: #313233;
+  --c-neutral-white: #ffffff;
 
   --brand-primary: #2563eb;
   --brand-secondary: #059669;

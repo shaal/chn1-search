@@ -91,6 +91,7 @@ export class OutlineYextUniversal extends LitElement {
   searchSuggestions: Result[] = [];
 
   @state() modalFiltersOpenClose = false;
+  @state() dropdownVerticalsOpen = false;
 
   @state() searchFacetValues!: {
     [key: string]: string;
@@ -557,13 +558,14 @@ export class OutlineYextUniversal extends LitElement {
     this.cleanSearchSuggestions();
   }
 
-  handleNavClick(vertical: string) {
+  handleVerticalNavClick(vertical: string) {
     this.activeVertical = vertical;
     vertical !== 'all' &&
       this.shadowRoot
         ?.querySelector('outline-yext')
         ?.setAttribute('vertical-key', this.activeVertical);
     this.shadowRoot?.querySelector('outline-yext')?.fetchEndpoint.run();
+    this.dropdownVerticalsOpen = false;
   }
 
   convertToTitleCase(str: String) {
@@ -578,33 +580,55 @@ export class OutlineYextUniversal extends LitElement {
         <h2 class="vertical-nav__heading is-mobile">Refine Your Search</h2>
 
         <div class="vertical-nav__dropdown">
-          <button class="vertical-nav__dropdown-button">
+          <button
+            class="vertical-nav__dropdown-button ${this.dropdownVerticalsOpen
+              ? 'is-open'
+              : ''}"
+            aria-expanded="${this.dropdownVerticalsOpen}"
+            aria-label="Select content type"
+            aria-controls="vertical-dropdown-content"
+            @click=${() =>
+              (this.dropdownVerticalsOpen = !this.dropdownVerticalsOpen)}
+          >
             ${this.convertToTitleCase(this.activeVertical)}
           </button>
-          <ul class="vertical-nav__list mobile">
-            <li class=" ${this.activeVertical == 'all' ? 'active' : ''}">
-              <button @click="${() => this.handleNavClick('all')}">All</button>
-            </li>
-            ${repeat(
-              response.modules,
-              (result: Module) => result,
-              (result, index) => html`
-                <li
-                  data-index=${index}
-                  class=" ${this.activeVertical === result.verticalConfigId
-                    ? 'active'
-                    : ''}"
+          <div
+            id="vertical-dropdown-content"
+            class="vertical-nav__dropdown-wrapper ${this.dropdownVerticalsOpen
+              ? 'is-open'
+              : ''}"
+          >
+            <ul class="vertical-nav__list mobile">
+              <li class=" ${this.activeVertical == 'all' ? 'active' : ''}">
+                <button
+                  @click="${() => this.handleVerticalNavClick('all')}"
+                  class="verticla-nav__item"
                 >
-                  <button
-                    @click="${() =>
-                      this.handleNavClick(result.verticalConfigId)}"
+                  All
+                </button>
+              </li>
+              ${repeat(
+                response.modules,
+                (result: Module) => result,
+                (result, index) => html`
+                  <li
+                    data-index=${index}
+                    class=" ${this.activeVertical === result.verticalConfigId
+                      ? 'active'
+                      : ''}"
                   >
-                    ${this.convertToTitleCase(result.verticalConfigId)}
-                  </button>
-                </li>
-              `
-            )}
-          </ul>
+                    <button
+                      class="verticla-nav__item"
+                      @click="${() =>
+                        this.handleVerticalNavClick(result.verticalConfigId)}"
+                    >
+                      ${this.convertToTitleCase(result.verticalConfigId)}
+                    </button>
+                  </li>
+                `
+              )}
+            </ul>
+          </div>
         </div>
       </div>
     `;
@@ -619,7 +643,9 @@ export class OutlineYextUniversal extends LitElement {
 
         <ul class="vertical-nav__list is-desktop">
           <li class=" ${this.activeVertical == 'all' ? 'active' : ''}">
-            <button @click="${() => this.handleNavClick('all')}">All</button>
+            <button @click="${() => this.handleVerticalNavClick('all')}">
+              All
+            </button>
           </li>
           ${repeat(
             response.modules,
@@ -632,7 +658,8 @@ export class OutlineYextUniversal extends LitElement {
                   : ''}"
               >
                 <button
-                  @click="${() => this.handleNavClick(result.verticalConfigId)}"
+                  @click="${() =>
+                    this.handleVerticalNavClick(result.verticalConfigId)}"
                 >
                   ${result.verticalConfigId
                     .replace(/_/g, ' ')
