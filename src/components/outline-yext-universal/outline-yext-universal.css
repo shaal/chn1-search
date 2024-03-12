@@ -1,6 +1,7 @@
 :host {
   --c-brand-orange: #f15d22;
-  --c-brand-blue: #2f83b3;
+  --c-brand-blue-200: #3791c4;
+  --c-brand-blue-300: #2f83b3;
   --c-neutral-gray-200: #eff3f4;
   --c-neutral-gray-300: #42525f;
   --c-neutral-gray-400: #313233;
@@ -73,15 +74,16 @@ button {
   height: 49px;
   width: 100px;
   padding: 1rem;
-  background: var(--c-brand-blue, #2f83b3);
+  background: var(--c-brand-blue-300, #2f83b3);
   margin-left: -4px;
   border-top-right-radius: 4px;
   border-bottom-right-radius: 4px;
-  border: 1px solid var(--c-brand-blue, #2f83b3);
+  border: 1px solid var(--c-brand-blue-300, #2f83b3);
   color: var(--c-neutral-white, #f9fcfe);
   cursor: pointer;
   &:hover,
   &:focus {
+    background: var(--c-brand-blue-200, #3791c4);
   }
 }
 
@@ -131,7 +133,7 @@ button {
 
   &:hover,
   &:focus {
-    color: var(--c-brand-blue, #2f83b3);
+    color: var(--c-brand-blue-300, #2f83b3);
   }
 }
 
@@ -146,7 +148,7 @@ button {
   display: block;
   height: 3px;
   width: 100%;
-  background-color: var(--c-brand-blue, #2f83b3);
+  background-color: var(--c-brand-blue-300, #2f83b3);
 }
 /* END of vertical nav styling */
 
