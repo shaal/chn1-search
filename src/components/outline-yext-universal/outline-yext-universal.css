@@ -200,6 +200,26 @@ button {
   background: var(--CHN-Blue, #2f83b3);
   color: white;
 }
+
+.vertical-nav__dropdown {
+}
+
+.vertical-nav__dropdown-button {
+  border-bottom: 1px solid var(--CHN-Dark-Gray, #435563);
+  background: var(--CHN-Gray, #eff3f4);
+  display: flex;
+  padding: 8px 16px;
+  justify-content: space-between;
+  align-items: center;
+  align-self: stretch;
+  &::after {
+    content: '';
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M15.2812 19.5312C15.4062 19.7188 15.5938 19.7812 15.8125 19.7812C16 19.7812 16.1875 19.7188 16.3438 19.5312L22.4062 13.4688C22.5312 13.3438 22.625 13.1562 22.625 12.9375C22.625 12.75 22.5312 12.5625 22.4062 12.4062L21.7188 11.7188C21.5625 11.5938 21.375 11.5 21.1875 11.5C20.9688 11.5 20.7812 11.5625 20.6562 11.6875L15.8125 16.5312L10.9688 11.6875C10.8125 11.5625 10.625 11.5 10.4375 11.5C10.2188 11.5 10.0312 11.5938 9.90625 11.7188L9.21875 12.4062C9.0625 12.5625 9 12.75 9 12.9375C9 13.1562 9.0625 13.3438 9.21875 13.4688L15.2812 19.5312Z" fill="%23435563"/></svg>');
+    background-repeat: no-repeat;
+    width: 32px;
+    height: 32px;
+  }
+}
 /* END of vertical nav styling */
 
 /* START of search results styling */

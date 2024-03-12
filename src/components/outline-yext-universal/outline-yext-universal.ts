@@ -566,36 +566,46 @@ export class OutlineYextUniversal extends LitElement {
     this.shadowRoot?.querySelector('outline-yext')?.fetchEndpoint.run();
   }
 
+  convertToTitleCase(str: String) {
+    return str
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (match) => match.toUpperCase());
+  }
+
   mobileVerticalNavTemplate(response: UniversalSearchResponse): TemplateResult {
     return html`
       <div class="vertical-nav is-mobile">
         <h2 class="vertical-nav__heading is-mobile">Refine Your Search</h2>
 
-        <ul class="vertical-nav__list mobile">
-          <li class=" ${this.activeVertical == 'all' ? 'active' : ''}">
-            <button @click="${() => this.handleNavClick('all')}">All</button>
-          </li>
-          ${repeat(
-            response.modules,
-            (result: Module) => result,
-            (result, index) => html`
-              <li
-                data-index=${index}
-                class=" ${this.activeVertical === result.verticalConfigId
-                  ? 'active'
-                  : ''}"
-              >
-                <button
-                  @click="${() => this.handleNavClick(result.verticalConfigId)}"
+        <div class="vertical-nav__dropdown">
+          <button class="vertical-nav__dropdown-button">
+            ${this.convertToTitleCase(this.activeVertical)}
+          </button>
+          <ul class="vertical-nav__list mobile">
+            <li class=" ${this.activeVertical == 'all' ? 'active' : ''}">
+              <button @click="${() => this.handleNavClick('all')}">All</button>
+            </li>
+            ${repeat(
+              response.modules,
+              (result: Module) => result,
+              (result, index) => html`
+                <li
+                  data-index=${index}
+                  class=" ${this.activeVertical === result.verticalConfigId
+                    ? 'active'
+                    : ''}"
                 >
-                  ${result.verticalConfigId
-                    .replace(/_/g, ' ')
-                    .replace(/\b\w/g, (match) => match.toUpperCase())}
-                </button>
-              </li>
-            `
-          )}
-        </ul>
+                  <button
+                    @click="${() =>
+                      this.handleNavClick(result.verticalConfigId)}"
+                  >
+                    ${this.convertToTitleCase(result.verticalConfigId)}
+                  </button>
+                </li>
+              `
+            )}
+          </ul>
+        </div>
       </div>
     `;
   }
@@ -636,38 +646,23 @@ export class OutlineYextUniversal extends LitElement {
     `;
   }
 
-  mobileCloseModalTemplate(response: UniversalSearchResponse) {
-    return html`
-      <div class="vertical-nav is-mobile">
-        <h2 class="vertical-nav__heading is-mobile">Refine Your Search</h2>
-
-        <ul class="vertical-nav__list mobile">
-          <li class=" ${this.activeVertical == 'all' ? 'active' : ''}">
-            <button @click="${() => this.handleNavClick('all')}">All</button>
-          </li>
-          ${repeat(
-            response.modules,
-            (result: Module) => result,
-            (result, index) => html`
-              <li
-                data-index=${index}
-                class=" ${this.activeVertical === result.verticalConfigId
-                  ? 'active'
-                  : ''}"
-              >
-                <button
-                  @click="${() => this.handleNavClick(result.verticalConfigId)}"
-                >
-                  ${result.verticalConfigId
-                    .replace(/_/g, ' ')
-                    .replace(/\b\w/g, (match) => match.toUpperCase())}
-                </button>
-              </li>
-            `
-          )}
-        </ul>
-      </div>
-    `;
+  mobileCloseModalTemplate() {
+    return this.modalFiltersOpenClose
+      ? html`<button
+          type="button"
+          id="closeModal"
+          class="menu-dropdown-close"
+          aria-expanded="${this.modalFiltersOpenClose}"
+          aria-controls="slider-modal"
+          @click=${this.toggleFilterModal}
+        >
+          <outline-icon-baseline
+            name="close"
+            aria-hidden="true"
+          ></outline-icon-baseline>
+          <span class="visually-hidden">Close modal filters</span>
+        </button>`
+      : null;
   }
 
   mobileStickyCTATemplate() {
