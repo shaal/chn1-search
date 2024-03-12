@@ -15,7 +15,6 @@ import type {
   Result,
   UniversalSearchResponse,
   ResponseSearchSuggestions,
-  ResultData,
   Module,
 } from './outline-yext-types';
 
@@ -46,7 +45,7 @@ export class OutlineYextUniversal extends LitElement {
   version = 'PRODUCTION';
   locale = 'en';
   sortBys = 'relevance';
-  pageTitle = 'Universal Search';
+  pageTitle = '';
   experienceKey = 'universal-search';
   verticalKey = 'all';
 
@@ -91,6 +90,7 @@ export class OutlineYextUniversal extends LitElement {
   searchSuggestions: Result[] = [];
 
   @state() modalFiltersOpenClose = false;
+  @state() dropdownVerticalsOpen = false;
 
   @state() searchFacetValues!: {
     [key: string]: string;
@@ -345,11 +345,17 @@ export class OutlineYextUniversal extends LitElement {
                 ${repeat(
                   module.results.slice(0, 3),
                   (result) => result,
-                  (result) => html`
-                    <h3>
-                      <a href="${result.data.c_uRL}">${result.data.name}</a>
-                    </h3>
-                    <p>${result.data.c_body}</p>
+                  (result, index) => html`
+                    <div data-index=${index}>
+                      <h3>
+                        <a
+                          href="${window.location.origin}/node/${result.data
+                            .uid}"
+                          >${result.data.name}</a
+                        >
+                      </h3>
+                      <p>${unsafeHTML(result.data.c_body)}</p>
+                    </div>
                   `
                 )}
               </div>
@@ -454,94 +460,93 @@ export class OutlineYextUniversal extends LitElement {
     }
   }
 
-  searchBarTemplate(): TemplateResult {
+  searchFormTemplate(): TemplateResult {
     const isMobile = ifDefined(
       this.resizeController.currentBreakpointRange === 0
     );
 
-    return html`
-      <outline-container-baseline class="${isMobile ? 'isMobile' : null}">
-        <div class="search-hero ${isMobile ? 'isMobile' : 'isDesktop'}">
-          <outline-heading-baseline level-size="2xl">
-            <h1>${this.pageTitle}</h1>
-          </outline-heading-baseline>
+    const breakpointClass =
+      this.resizeController.currentBreakpointRange === 0
+        ? 'is-mobile'
+        : 'is-desktop';
 
-          <div
-            class="exposed-filters"
-            @focusout="${(e: FocusEvent) => this._focusOut(e)}"
+    return html`
+      <div class="search-form ${breakpointClass}">
+        <div
+          class="search-form__inner"
+          @focusout="${(e: FocusEvent) => this._focusOut(e)}"
+        >
+          <form
+            action="/search"
+            method="get"
+            id="views-exposed-form-search-search-page"
+            accept-charset="UTF-8"
+            class="${breakpointClass}"
           >
-            <outline-form-baseline form-type="search">
-              <form
-                action="/search"
-                method="get"
-                id="views-exposed-form-search-search-page"
-                accept-charset="UTF-8"
-              >
-                <div
-                  class="js-form-item form-item js-form-type-textfield form-item-text js-form-item-text"
-                >
-                  <label
-                    for="edit-search-api-fulltext"
-                    class="form-item__label font-body"
-                    >Keyword</label
-                  >
-                  <input
-                    placeholder="Location name, services, specialty, city, zip code"
-                    type="text"
-                    id="edit-search-api-fulltext"
-                    name="field_keyword"
-                    .value=${this.searchSettings.input}
-                    @input=${this.handleInput}
-                    @focus="${this._focusIn}"
-                    maxlength="128"
-                    class="form-text form-element form-element--type-text form-element--api-textfield"
-                  />
-                </div>
-                <div
-                  data-drupal-selector="edit-actions"
-                  class="form-actions js-form-wrapper form-wrapper"
-                >
-                  <button
-                    class="btn btn--search btn--small form-submit"
-                    data-drupal-selector="edit-submit"
-                    type="submit"
-                    id="edit-submit"
-                    value="Search"
-                    @click=${(e: Event) => this.search(e)}
-                  >
-                    <span>Search</span>
-                  </button>
-                </div>
-              </form>
-            </outline-form-baseline>
-            <ul
-              aria-live="polite"
-              class="${this.isFocus
-                ? 'open-suggestion'
-                : 'close-suggestion'} suggested-list"
+            <div
+              class="js-form-item form-item js-form-type-textfield form-item-text js-form-item-text"
             >
-              <li class="suggested-title">Suggested Searches</li>
-              ${this.searchSuggestions.length > 0
-                ? this.searchSuggestions.map(
-                    (suggestion) => html`<li>
-                      <button
-                        type="button"
-                        @click="${() => this.handleSuggestion(suggestion)}"
-                      >
-                        ${unsafeHTML(
-                          this.highlightWord(
-                            suggestion.value,
-                            this.searchSettings.input
-                          )
-                        )}
-                      </button>
-                    </li> `
-                  )
-                : undefined}
-            </ul>
-          </div>
+              <label
+                for="edit-search-api-fulltext"
+                class="sr-only form-item__label"
+                >Keyword</label
+              >
+              <input
+                placeholder=""
+                type="text"
+                id="edit-search-api-fulltext"
+                name="field_keyword"
+                .value=${this.searchSettings.input}
+                @input=${this.handleInput}
+                @focus="${this._focusIn}"
+                maxlength="128"
+                class="form-text form-element form-element--type-text form-element--api-textfield"
+              />
+            </div>
+            <div
+              data-drupal-selector="edit-actions"
+              class="form-actions js-form-wrapper form-wrapper"
+            >
+              <button
+                class="btn btn--search form-submit"
+                data-drupal-selector="edit-submit"
+                type="submit"
+                id="edit-submit"
+                value="Search"
+                @click=${(e: Event) => this.search(e)}
+              >
+                <span>Search</span>
+              </button>
+            </div>
+          </form>
+
+          <ul
+            aria-live="polite"
+            class="${this.isFocus
+              ? 'open-suggestion'
+              : 'close-suggestion'} suggested-list"
+          >
+            <!-- <li class="suggested-title">Suggested Searches</li> -->
+            ${this.searchSuggestions.length > 0
+              ? this.searchSuggestions.map(
+                  (suggestion) => html`<li>
+                    <button
+                      type="button"
+                      @click="${() => this.handleSuggestion(suggestion)}"
+                    >
+                      ${unsafeHTML(
+                        this.highlightWord(
+                          suggestion.value,
+                          this.searchSettings.input
+                        )
+                      )}
+                    </button>
+                  </li> `
+                )
+              : undefined}
+          </ul>
         </div>
-      </outline-container-baseline>
+      </div>
     `;
   }
 
@@ -558,27 +563,94 @@ export class OutlineYextUniversal extends LitElement {
     this.cleanSearchSuggestions();
   }
 
-  handleNavClick(vertical: string) {
+  handleVerticalNavClick(vertical: string) {
     this.activeVertical = vertical;
     vertical !== 'all' &&
       this.shadowRoot
         ?.querySelector('outline-yext')
         ?.setAttribute('vertical-key', this.activeVertical);
     this.shadowRoot?.querySelector('outline-yext')?.fetchEndpoint.run();
+    this.dropdownVerticalsOpen = false;
   }
 
-  searchVerticalNavTemplate(response: UniversalSearchResponse): TemplateResult {
-    return html`
-      <div class="search-verticals-nav">
-        <h2>Refine Your Search</h2>
+  convertToTitleCase(str: String) {
+    return str
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (match) => match.toUpperCase());
+  }
 
-        <ul class="">
-          <li
-            class="vertical vertical--all ${this.activeVertical == 'all'
-              ? 'active'
+  mobileVerticalNavTemplate(response: UniversalSearchResponse): TemplateResult {
+    return html`
+      <div class="vertical-nav is-mobile">
+        <h2 class="vertical-nav__heading is-mobile">Refine Your Search</h2>
+
+        <div class="vertical-nav__dropdown">
+          <button
+            class="vertical-nav__dropdown-button ${this.dropdownVerticalsOpen
+              ? 'is-open'
+              : ''}"
+            aria-expanded="${this.dropdownVerticalsOpen}"
+            aria-label="Select content type"
+            aria-controls="vertical-dropdown-content"
+            @click=${() =>
+              (this.dropdownVerticalsOpen = !this.dropdownVerticalsOpen)}
+          >
+            ${this.convertToTitleCase(this.activeVertical)}
+          </button>
+          <div
+            id="vertical-dropdown-content"
+            class="vertical-nav__dropdown-wrapper ${this.dropdownVerticalsOpen
+              ? 'is-open'
               : ''}"
           >
-            <button @click="${() => this.handleNavClick('all')}">All</button>
+            <ul class="vertical-nav__list mobile">
+              <li class=" ${this.activeVertical == 'all' ? 'active' : ''}">
+                <button
+                  @click="${() => this.handleVerticalNavClick('all')}"
+                  class="verticla-nav__item"
+                >
+                  All
+                </button>
+              </li>
+              ${repeat(
+                response.modules,
+                (result: Module) => result,
+                (result, index) => html`
+                  <li
+                    data-index=${index}
+                    class=" ${this.activeVertical === result.verticalConfigId
+                      ? 'active'
+                      : ''}"
+                  >
+                    <button
+                      class="verticla-nav__item"
+                      @click="${() =>
+                        this.handleVerticalNavClick(result.verticalConfigId)}"
+                    >
+                      ${this.convertToTitleCase(result.verticalConfigId)}
+                    </button>
+                  </li>
+                `
+              )}
+            </ul>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  desktopVerticalNavTemplate(
+    response: UniversalSearchResponse
+  ): TemplateResult {
+    return html`
+      <div class="vertical-nav is-desktop">
+        <h2 class="vertical-nav__heading is-desktop">Refine Your Search</h2>
+
+        <ul class="vertical-nav__list is-desktop">
+          <li class=" ${this.activeVertical == 'all' ? 'active' : ''}">
+            <button @click="${() => this.handleVerticalNavClick('all')}">
+              All
+            </button>
           </li>
           ${repeat(
             response.modules,
@@ -586,15 +658,17 @@ export class OutlineYextUniversal extends LitElement {
             (result, index) => html`
               <li
                 data-index=${index}
-                class="vertical ${this.activeVertical ===
-                result.verticalConfigId
+                class=" ${this.activeVertical === result.verticalConfigId
                   ? 'active'
                   : ''}"
               >
                 <button
-                  @click="${() => this.handleNavClick(result.verticalConfigId)}"
+                  @click="${() =>
+                    this.handleVerticalNavClick(result.verticalConfigId)}"
                 >
-                  ${result.verticalConfigId}
+                  ${result.verticalConfigId
+                    .replace(/_/g, ' ')
+                    .replace(/\b\w/g, (match) => match.toUpperCase())}
                 </button>
               </li>
             `
@@ -738,16 +812,18 @@ export class OutlineYextUniversal extends LitElement {
     }
     const classes = {
       wrapper: true,
-      isMobile: this.resizeController.currentBreakpointRange === 0,
+      'is-mobile': this.resizeController.currentBreakpointRange === 0,
     };
 
     return html`
-      ${this.searchBarTemplate()}
-      <outline-container-baseline>
-        <div class="${classMap(classes)}"></div>
+      ${this.searchFormTemplate()}
+      <div class="${classMap(classes)}">
         ${this.fetchEndpoint.render({
           pending: () => (this.taskValue ? this.displayPending() : noChange),
-          complete: (data) => this.searchVerticalNavTemplate(data.response),
+          complete: (data) =>
+            this.resizeController.currentBreakpointRange === 0
+              ? this.mobileVerticalNavTemplate(data.response)
+              : this.desktopVerticalNavTemplate(data.response),
           error: (error) => html`${error}`,
         })}
         ${this.activeVertical !== 'all'
@@ -757,8 +833,6 @@ export class OutlineYextUniversal extends LitElement {
               ></outline-yext>
             `
           : html`
-
-
               <main>
                 ${this.fetchEndpoint.render({
                   pending: () =>
@@ -766,26 +840,9 @@ export class OutlineYextUniversal extends LitElement {
                   complete: (data) => this.displayAll(data.response),
                   error: (error) => html`${error}`,
                 })}
-                ${
-                  this.totalCount
-                    ? html`
-                        <outline-yext-pager
-                          current-page=${this.searchSettings.offset /
-                            this.searchSettings.limit +
-                          1}
-                          total-pages=${Math.ceil(
-                            this.totalCount / this.searchSettings.limit
-                          )}
-                          @click=${(e: Event) => this.handlePageChange(e)}
-                          aria-live="polite"
-                        ></outline-yext-pager>
-                      `
-                    : null
-                }
               </main>
-            </outline-container-baseline>
-          `}
-      </outline-container-baseline>
+            `}
+      </div>
     `;
   }
 }

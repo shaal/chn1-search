@@ -1,0 +1,103 @@
+:host {
+  --c-brand-orange: #f15d22;
+  --ff-body: 'Proxima Nova', 'Helvetica', 'Arial', 'sans-serif';
+
+  --pager-item-padding: 10px;
+  --pager-item-width: 30px;
+  --pager-item-font-size: 1rem;
+  --pager-item-color: var(--c-brand-orange);
+}
+
+.visually-hidden,
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: polygon(0 0, 0 0, 0 0);
+  white-space: nowrap;
+}
+
+a {
+  all: unset;
+}
+
+ul.pager-items {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  font-family: var(--ff-body);
+  justify-content: center;
+}
+
+.pager-item {
+  display: flex;
+  align-items: center;
+  font-size: var(--pager-item-font-size);
+  cursor: pointer;
+  border-radius: 5px;
+  border: 1px solid var(--c-brand-orange);
+  background: var(--c-neutral-gray-100);
+  color: var(--c-brand-orange);
+  font-weight: bold;
+}
+
+.pager-item a:focus,
+.pager-item a:focus-visible {
+  outline-offset: -2px;
+}
+
+.pager-item--current,
+.pager-item a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  padding: var(--pager-item-padding) 0;
+}
+
+.pager-item--current,
+.pager-item--page a {
+  border: 1px solid var(--c-neutral-slate);
+  width: var(--pager-item-width);
+  min-width: var(--pager-item-width);
+}
+
+.pager-item--page:not(.pager-item--current) a:hover {
+  background-color: var(--c-pistachio-mild);
+  border-color: var(--c-pistachio-mild);
+}
+
+.pager-item--previous a,
+.pager-item--next a {
+  gap: 4px;
+  font-weight: var(--fw-bold);
+  color: var(--pager-item-color);
+  background-color: var(--c-neutral-white);
+  width: var(--pager-item-width);
+}
+
+.pager-item--previous:hover a,
+.pager-item--next:hover a,
+.pager-item--page:hover,
+.pager-item--current {
+  border-color: var(--c-brand-orange);
+  background: var(--c-brand-orange);
+  color: var(--c-neutral-white);
+  font-weight: var(--fw-bold);
+}
+
+.pager-item--ellipsis {
+  width: auto;
+  justify-content: center;
+  display: flex;
+  border: transparent;
+  color: var(--c-neutral-gray-500);
+}

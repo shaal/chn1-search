@@ -51,7 +51,6 @@ export type ResultItemData = {
   type: string;
   name: string;
   c_body: string;
-  c_uRL: string;
   uid: string;
 };
 
@@ -104,7 +103,11 @@ export type VerticalSearchResponseStructure = {
 };
 
 export type verticalSearchResults = {
-  data: {};
+  data: {
+    uid: string;
+    name: string;
+    c_body: string;
+  };
   highlightedFields: Record<string, unknown>;
   distance: number;
   distanceFromFilter: number;
