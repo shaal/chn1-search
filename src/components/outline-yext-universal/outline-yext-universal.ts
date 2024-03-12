@@ -345,11 +345,17 @@ export class OutlineYextUniversal extends LitElement {
                 ${repeat(
                   module.results.slice(0, 3),
                   (result) => result,
-                  (result) => html`
-                    <h3>
-                      <a href="${result.data.c_uRL}">${result.data.name}</a>
-                    </h3>
-                    <p>${result.data.c_body}</p>
+                  (result, index) => html`
+                    <div data-index=${index}>
+                      <h3>
+                        <a
+                          href="${window.location.origin}/node/${result.data
+                            .uid}"
+                          >${result.data.name}</a
+                        >
+                      </h3>
+                      <p>${unsafeHTML(result.data.c_body)}</p>
+                    </div>
                   `
                 )}
               </div>
@@ -812,24 +818,21 @@ export class OutlineYextUniversal extends LitElement {
     return html`
       ${this.searchFormTemplate()}
       <div class="${classMap(classes)}">
-        <outline-container-baseline>
-          ${this.fetchEndpoint.render({
-            pending: () => (this.taskValue ? this.displayPending() : noChange),
-            complete: (data) =>
-              this.resizeController.currentBreakpointRange === 0
-                ? this.mobileVerticalNavTemplate(data.response)
-                : this.desktopVerticalNavTemplate(data.response),
-            error: (error) => html`${error}`,
-          })}
-          ${this.activeVertical !== 'all'
-            ? html`
-                <outline-yext
-                  vertical-key="${this.activeVertical}"
-                ></outline-yext>
-              `
-            : html`
-
-
+        ${this.fetchEndpoint.render({
+          pending: () => (this.taskValue ? this.displayPending() : noChange),
+          complete: (data) =>
+            this.resizeController.currentBreakpointRange === 0
+              ? this.mobileVerticalNavTemplate(data.response)
+              : this.desktopVerticalNavTemplate(data.response),
+          error: (error) => html`${error}`,
+        })}
+        ${this.activeVertical !== 'all'
+          ? html`
+              <outline-yext
+                vertical-key="${this.activeVertical}"
+              ></outline-yext>
+            `
+          : html`
               <main>
                 ${this.fetchEndpoint.render({
                   pending: () =>
@@ -837,11 +840,8 @@ export class OutlineYextUniversal extends LitElement {
                   complete: (data) => this.displayAll(data.response),
                   error: (error) => html`${error}`,
                 })}
-
               </main>
-            </outline-container-baseline>
-          `}
-        </outline-container-baseline>
+            `}
       </div>
     `;
   }

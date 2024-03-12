@@ -3,7 +3,7 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
 
 import { classMap } from 'lit/directives/class-map.js';
-
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { Task } from '@lit/task';
 import { AdoptedStylesheets } from '@phase2/outline-adopted-stylesheets-controller';
 import componentStyles from './outline-yext.css?inline';
@@ -332,8 +332,12 @@ export class OutlineYext extends LitElement {
           (result) => result,
           (result, index) => html`
             <li class="result" data-index=${index}>
-              <h3><a href="${result.data.c_url}">${result.data.name}</a></h3>
-              <div>${result.data.c_body}</div>
+              <h3>
+                <a href="${window.location.origin}/node/${result.data.uid}">
+                  ${result.data.name}
+                </a>
+              </h3>
+              <p>${unsafeHTML(result.data.c_body)}</p>
             </li>
           `
         )}
