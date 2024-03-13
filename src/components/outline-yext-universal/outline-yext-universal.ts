@@ -464,10 +464,6 @@ export class OutlineYextUniversal extends LitElement {
   }
 
   searchFormTemplate(): TemplateResult {
-    const isMobile = ifDefined(
-      this.resizeController.currentBreakpointRange === 0
-    );
-
     const breakpointClass =
       this.resizeController.currentBreakpointRange === 0
         ? 'is-mobile'
