@@ -247,6 +247,10 @@ export class OutlineYextUniversal extends LitElement {
         this.searchSettings[`${cleanKey}`] = parsedValue;
       }
     }
+
+    this.setActiveVertical(
+      currentParams.get('yext_activeVertical')?.replace(/"/g, '') || 'all'
+    );
   }
 
   rawFilters: {} | undefined;
@@ -399,9 +403,8 @@ export class OutlineYextUniversal extends LitElement {
     const inputSearch = this.searchSettings.input;
     this.searchSettings = structuredClone(this.defaultSearchSettings);
     this.searchSettings.input = inputSearch;
-
-    this.fetchEndpoint.run();
     this.activeVertical = 'all';
+    this.fetchEndpoint.run();
   }
 
   // Single instance was created outside of the handleInput so that the debounce is not called multiple times
@@ -461,10 +464,6 @@ export class OutlineYextUniversal extends LitElement {
   }
 
   searchFormTemplate(): TemplateResult {
-    const isMobile = ifDefined(
-      this.resizeController.currentBreakpointRange === 0
-    );
-
     const breakpointClass =
       this.resizeController.currentBreakpointRange === 0
         ? 'is-mobile'
@@ -563,7 +562,7 @@ export class OutlineYextUniversal extends LitElement {
     this.cleanSearchSuggestions();
   }
 
-  handleVerticalNavClick(vertical: string) {
+  setActiveVertical(vertical: string) {
     this.activeVertical = vertical;
     vertical !== 'all' &&
       this.shadowRoot
@@ -571,6 +570,13 @@ export class OutlineYextUniversal extends LitElement {
         ?.setAttribute('vertical-key', this.activeVertical);
     this.shadowRoot?.querySelector('outline-yext')?.fetchEndpoint.run();
     this.dropdownVerticalsOpen = false;
+
+    // Store input and vertical state in the URL.
+    const newParams = new URLSearchParams();
+    newParams.set('activeVertical', vertical);
+    newParams.set('input', this.searchSettings.input);
+
+    this.updateUrlWithSearchSettings(newParams);
   }
 
   convertToTitleCase(str: String) {
@@ -606,8 +612,8 @@ export class OutlineYextUniversal extends LitElement {
             <ul class="vertical-nav__list mobile">
               <li class=" ${this.activeVertical == 'all' ? 'active' : ''}">
                 <button
-                  @click="${() => this.handleVerticalNavClick('all')}"
-                  class="verticla-nav__item"
+                  @click="${() => this.setActiveVertical('all')}"
+                  class="vertical-nav__item"
                 >
                   All
                 </button>
@@ -623,9 +629,9 @@ export class OutlineYextUniversal extends LitElement {
                       : ''}"
                   >
                     <button
-                      class="verticla-nav__item"
+                      class="vertical-nav__item"
                       @click="${() =>
-                        this.handleVerticalNavClick(result.verticalConfigId)}"
+                        this.setActiveVertical(result.verticalConfigId)}"
                     >
                       ${this.convertToTitleCase(result.verticalConfigId)}
                     </button>
@@ -648,9 +654,7 @@ export class OutlineYextUniversal extends LitElement {
 
         <ul class="vertical-nav__list is-desktop">
           <li class=" ${this.activeVertical == 'all' ? 'active' : ''}">
-            <button @click="${() => this.handleVerticalNavClick('all')}">
-              All
-            </button>
+            <button @click="${() => this.setActiveVertical('all')}">All</button>
           </li>
           ${repeat(
             response.modules,
@@ -664,7 +668,7 @@ export class OutlineYextUniversal extends LitElement {
               >
                 <button
                   @click="${() =>
-                    this.handleVerticalNavClick(result.verticalConfigId)}"
+                    this.setActiveVertical(result.verticalConfigId)}"
                 >
                   ${result.verticalConfigId
                     .replace(/_/g, ' ')
