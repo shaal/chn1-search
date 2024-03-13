@@ -578,6 +578,7 @@ export class OutlineYextUniversal extends LitElement {
     // Add vertical param to url
     const newParams = new URLSearchParams();
     newParams.set('activeVertical', vertical);
+    newParams.set('input', this.searchSettings.input);
 
     this.updateUrlWithSearchSettings(newParams);
   }
@@ -616,7 +617,7 @@ export class OutlineYextUniversal extends LitElement {
               <li class=" ${this.activeVertical == 'all' ? 'active' : ''}">
                 <button
                   @click="${() => this.setActiveVertical('all')}"
-                  class="verticla-nav__item"
+                  class="vertical-nav__item"
                 >
                   All
                 </button>
@@ -632,7 +633,7 @@ export class OutlineYextUniversal extends LitElement {
                       : ''}"
                   >
                     <button
-                      class="verticla-nav__item"
+                      class="vertical-nav__item"
                       @click="${() =>
                         this.setActiveVertical(result.verticalConfigId)}"
                     >
