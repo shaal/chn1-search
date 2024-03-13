@@ -575,7 +575,7 @@ export class OutlineYextUniversal extends LitElement {
     this.shadowRoot?.querySelector('outline-yext')?.fetchEndpoint.run();
     this.dropdownVerticalsOpen = false;
 
-    // Add vertical param to url
+    // Store input and vertical state in the URL.
     const newParams = new URLSearchParams();
     newParams.set('activeVertical', vertical);
     newParams.set('input', this.searchSettings.input);
