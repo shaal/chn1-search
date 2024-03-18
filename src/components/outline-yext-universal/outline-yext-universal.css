@@ -149,7 +149,8 @@ main {
 
 .vertical-nav ul.is-desktop {
   display: flex;
-  gap: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
 }
 
 .vertical-nav li,
