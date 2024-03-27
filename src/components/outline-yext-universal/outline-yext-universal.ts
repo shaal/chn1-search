@@ -344,21 +344,37 @@ export class OutlineYextUniversal extends LitElement {
           (module: Module) => module,
           (module) => html`
             <div class="results-section">
-              <h2>${module.verticalConfigId}</h2>
+              <div class="results-section-heading">
+                <h2 class="results-section-type">
+                  ${module.verticalConfigId
+                    .replace(/_/g, ' ')
+                    .replace(/\b\w/g, (match) => match.toUpperCase())}
+                </h2>
+                <button
+                  class=""
+                  @click="${() =>
+                    this.setActiveVertical(module.verticalConfigId)}"
+                >
+                  View All
+                </button>
+              </div>
+
               <div class="result">
                 ${repeat(
                   module.results.slice(0, 3),
                   (result) => result,
                   (result, index) => html`
                     <div data-index=${index}>
-                      <h3>
+                      <h3 class="result-title">
                         <a
                           href="${window.location.origin}/node/${result.data
                             .uid}"
                           >${result.data.name}</a
                         >
                       </h3>
-                      <p>${unsafeHTML(result.data.c_body)}</p>
+                      <div class="result-body">
+                        <p>${unsafeHTML(result.data.c_body)}</p>
+                      </div>
                     </div>
                   `
                 )}
