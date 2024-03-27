@@ -9,13 +9,13 @@ import { Task } from '@lit/task';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { ResizeController } from '../../controllers/resize-controller';
 import { AdoptedStyleSheets } from '../../controllers/adopted-stylesheets.ts';
-import { debounce } from '../../utilities/debounce';
+// import { debounce } from '../../utilities/debounce';
 import type {
   SearchSettings,
   Result,
   ResultData,
   UniversalSearchResponse,
-  ResponseSearchSuggestions,
+  // ResponseSearchSuggestions,
   Module,
 } from './outline-yext-types';
 
@@ -164,7 +164,7 @@ export class OutlineYextUniversal extends LitElement {
       this.requestUrlBase
     }?${staticParams.toString()}&${dynamicParams.toString()}`;
 
-    let urlObject = new URL(requestURL);
+    const urlObject = new URL(requestURL);
 
     urlObject.searchParams.delete('limit');
 
@@ -442,8 +442,9 @@ export class OutlineYextUniversal extends LitElement {
   }
 
   // Single instance was created outside of the handleInput so that the debounce is not called multiple times
-  debouncedFunction = debounce(this.fetchSuggestion.bind(this), 150);
+  // debouncedFunction = debounce(this.fetchSuggestion.bind(this), 150);
 
+  /*
   async fetchSuggestion() {
     const params = new URLSearchParams();
     params.set('api_key', this.apiKey);
@@ -466,12 +467,13 @@ export class OutlineYextUniversal extends LitElement {
     // );
     this.isFocus = this.searchSuggestions.length > 0;
   }
+  */
 
   handleInput(e: InputEvent) {
     e.preventDefault;
     this.searchSettings.input = (e.target as HTMLInputElement).value;
     if (this.searchSettings.input.length > 3) {
-      this.debouncedFunction();
+      // this.debouncedFunction();
     } else {
       this.cleanSearchSuggestions();
     }

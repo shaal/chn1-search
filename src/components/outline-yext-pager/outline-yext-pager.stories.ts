@@ -1,5 +1,5 @@
 import { html, TemplateResult } from 'lit';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+// import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 import './outline-yext-pager';
 
@@ -20,4 +20,4 @@ const Template = (): TemplateResult =>
   `;
 
 export const YextPager = Template.bind({});
-YextPager.args = {};
+// YextPager.args = {};

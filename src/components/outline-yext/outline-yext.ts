@@ -63,8 +63,8 @@ export class OutlineYext extends LitElement {
   @property({ type: String, attribute: 'vertical-key' })
   verticalKey?: string = 'blog';
 
-  @property({ type: Boolean, reflect: true, attribute: 'debug' })
-  debug: null;
+  // @property({ type: Boolean, reflect: true, attribute: 'debug' })
+  // debug: null;
 
   @property({ type: Number, reflect: true, attribute: 'show-results' })
   showResults = 5;
@@ -137,7 +137,7 @@ export class OutlineYext extends LitElement {
     staticParams.set('v', this.apiVersion);
     staticParams.set('api_key', this.apiKey);
     staticParams.set('experienceKey', this.experienceKey);
-    staticParams.set('verticalKey', this.verticalKey);
+    staticParams.set('verticalKey', this.verticalKey || '');
     staticParams.set('version', this.version);
     staticParams.set('locale', this.locale);
     dynamicParams.set('retrieveFacets', 'true');

@@ -21,7 +21,7 @@ export class OutlineYextPager extends LitElement {
   currentPage = 0;
 
   @property({ type: Number, reflect: true, attribute: 'total-pages' })
-  totalPages: number;
+  totalPages = 100;
 
   @property({ type: Number, reflect: true, attribute: 'max-pages-in-pager' })
   maxPagesInPager = 4;
