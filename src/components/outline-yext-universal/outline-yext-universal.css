@@ -9,7 +9,7 @@
   --c-neutral-gray-500: #313233;
   --c-neutral-white: #ffffff;
 
-  --ff-display: Merriweather, 'Helvetica', 'Arial', 'sans-serif';
+  --ff-display: Merriweather;
   --ff-body: 'Proxima Nova', 'Helvetica', 'Arial', 'sans-serif';
   padding-bottom: 3rem;
   display: block;
@@ -44,7 +44,7 @@ button {
 main {
   background: var(--c-neutral-gray-100);
   margin-top: 1.25rem;
-  padding: 1.25rem 1.875rem;
+  padding: 3.125rem 2.5rem;
 }
 
 /* END of global / wrapper styling */
@@ -134,7 +134,7 @@ main {
 
   .vertical-nav__heading {
     color: var(--c-neutral-gray-400, #42525f);
-    font-family: Merriweather;
+    font-family: var(--ff-display);
     font-size: 1.25rem;
     font-style: normal;
     font-weight: 400;
@@ -160,9 +160,6 @@ main {
 
 .vertical-nav button {
   color: var(--c-neutral-gray-400, #42525f);
-  leading-trim: both;
-  text-edge: cap;
-  font-feature-settings: 'clig' off, 'liga' off;
   font-family: var(--ff-body);
   font-size: 1rem;
   font-weight: 700;
@@ -250,8 +247,59 @@ main {
 /* END of vertical nav styling */
 
 /* START of search results styling */
+.results-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 3.125rem;
+  .results-section-type {
+    font-family: var(--ff-display);
+    color: var(--c-neutral-gray-400);
+    font-size: 1.25rem;
+    font-weight: 400;
+    line-height: 120%;
+    margin: 0;
+  }
+  button {
+    color: var(--c-neutral-gray-400);
+    font-family: var(--ff-body);
+    font-size: 1rem;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 120%;
+    text-decoration-line: underline;
+    cursor: pointer;
+  }
+}
+
 .result {
   margin-bottom: 2rem;
+}
+
+.result-title {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  a {
+    color: var(--c-brand-orange);
+    text-decoration: none;
+    font-family: var(--ff-body);
+    font-size: 1.5rem;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 120%;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.result-body {
+  color: var(--c-neutral-gray-500);
+  font-family: var(--ff-body);
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 150%;
   p {
     word-wrap: break-word;
   }

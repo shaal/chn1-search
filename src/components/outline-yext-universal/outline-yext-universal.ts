@@ -362,8 +362,21 @@ export class OutlineYextUniversal extends LitElement {
   private renderResultsSection(module: Module): TemplateResult {
     return html`
       <div class="results-section">
-        <h2>${module.verticalConfigId}</h2>
-        <div class="result">
+        <div class="results-section-heading">
+          <h2 class="results-section-type">
+            ${module.verticalConfigId
+              .replace(/_/g, ' ')
+              .replace(/\b\w/g, (match) => match.toUpperCase())}
+          </h2>
+          <button
+            class=""
+            @click="${() =>
+              this.setActiveVertical(module.verticalConfigId)}"
+          >
+            View All
+          </button>
+        </div>
+              <div class="result">
           ${module.results.slice(0, 3).map((result, index) => this.renderResultItem(result, index))}
         </div>
       </div>
@@ -380,13 +393,14 @@ export class OutlineYextUniversal extends LitElement {
     console.log('Result: ', result)
     return html`
       <div data-index=${index}>
-        <h3>
-          <a href="${window.location.origin}/node/${result.data.uid}">
+      <h3 class="result-title">
+                <a href="${window.location.origin}/node/${result.data.uid}">
             ${result.data.name}
           </a>
         </h3>
+        <div class="result-body">
         <p>${unsafeHTML(result.data.c_body)}</p>
-      </div>
+      </div>      </div>
     `;
   }
 
