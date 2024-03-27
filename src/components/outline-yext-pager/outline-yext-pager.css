@@ -15,10 +15,10 @@
   height: 1px;
   margin: -1px;
   padding: 0;
-  border: 0;
   overflow: hidden;
-  clip-path: polygon(0 0, 0 0, 0 0);
+  border: 0;
   white-space: nowrap;
+  clip-path: polygon(0 0, 0 0, 0 0);
 }
 
 a {
@@ -28,25 +28,25 @@ a {
 ul.pager-items {
   display: flex;
   flex-wrap: nowrap;
-  gap: 0.5rem;
-  list-style: none;
-  padding: 0;
+  justify-content: center;
   margin: 0;
+  padding: 0;
+  gap: 0.5rem;
 
   font-family: var(--ff-body);
-  justify-content: center;
+  list-style: none;
 }
 
 .pager-item {
   display: flex;
   align-items: center;
-  font-size: var(--pager-item-font-size);
-  cursor: pointer;
-  border-radius: 5px;
   border: 1px solid var(--c-brand-orange);
+  border-radius: 5px;
   background: var(--c-neutral-gray-100);
   color: var(--c-brand-orange);
   font-weight: bold;
+  font-size: var(--pager-item-font-size);
+  cursor: pointer;
 }
 
 .pager-item a:focus,
@@ -59,29 +59,29 @@ ul.pager-items {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
   padding: var(--pager-item-padding) 0;
+  border-radius: 4px;
 }
 
 .pager-item--current,
 .pager-item--page a {
-  border: 1px solid var(--c-neutral-slate);
   width: var(--pager-item-width);
   min-width: var(--pager-item-width);
+  border: 1px solid var(--c-neutral-slate);
 }
 
 .pager-item--page:not(.pager-item--current) a:hover {
-  background-color: var(--c-pistachio-mild);
   border-color: var(--c-pistachio-mild);
+  background-color: var(--c-pistachio-mild);
 }
 
 .pager-item--previous a,
 .pager-item--next a {
-  gap: 4px;
-  font-weight: var(--fw-bold);
-  color: var(--pager-item-color);
-  background-color: var(--c-neutral-white);
   width: var(--pager-item-width);
+  gap: 4px;
+  background-color: var(--c-neutral-white);
+  color: var(--pager-item-color);
+  font-weight: var(--fw-bold);
 }
 
 .pager-item--previous:hover a,
@@ -95,9 +95,9 @@ ul.pager-items {
 }
 
 .pager-item--ellipsis {
-  width: auto;
-  justify-content: center;
   display: flex;
+  justify-content: center;
+  width: auto;
   border: transparent;
   color: var(--c-neutral-gray-500);
 }

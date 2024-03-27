@@ -195,7 +195,7 @@ export class OutlineYextUniversal extends LitElement {
       }
     }
 
-    keysToDelete.forEach((key) => {
+    keysToDelete.forEach(key => {
       searchParams.delete(key);
     });
 
@@ -341,7 +341,11 @@ export class OutlineYextUniversal extends LitElement {
 
     return html`
       <div class="results-list">
-        ${response.modules.map((module) => this.renderResultsSection(module))}
+        ${repeat(
+          response.modules,
+          (module: Module) => module,
+          module => this.renderResultsSection(module)
+        )}
       </div>
     `;
   }
@@ -366,18 +370,21 @@ export class OutlineYextUniversal extends LitElement {
           <h2 class="results-section-type">
             ${module.verticalConfigId
               .replace(/_/g, ' ')
-              .replace(/\b\w/g, (match) => match.toUpperCase())}
+              .replace(/\b\w/g, match => match.toUpperCase())}
           </h2>
           <button
             class=""
-            @click="${() =>
-              this.setActiveVertical(module.verticalConfigId)}"
+            @click="${() => this.setActiveVertical(module.verticalConfigId)}"
           >
             View All
           </button>
         </div>
-              <div class="result">
-          ${module.results.slice(0, 3).map((result, index) => this.renderResultItem(result, index))}
+        <div class="result">
+          ${repeat(
+            module.results.slice(0, 3),
+            result => result,
+            (result, index) => this.renderResultItem(result, index)
+          )}
         </div>
       </div>
     `;
@@ -390,17 +397,18 @@ export class OutlineYextUniversal extends LitElement {
    * @returns {TemplateResult} - The rendered result item.
    */
   private renderResultItem(result: ResultData, index: number): TemplateResult {
-    console.log('Result: ', result)
+    console.log('Result: ', result);
     return html`
       <div data-index=${index}>
-      <h3 class="result-title">
-                <a href="${window.location.origin}/node/${result.data.uid}">
+        <h3 class="result-title">
+          <a href="${window.location.origin}/node/${result.data.uid}">
             ${result.data.name}
           </a>
         </h3>
         <div class="result-body">
-        <p>${unsafeHTML(result.data.c_body)}</p>
-      </div>      </div>
+          <p>${unsafeHTML(result.data.c_body)}</p>
+        </div>
+      </div>
     `;
   }
 
@@ -564,19 +572,20 @@ export class OutlineYextUniversal extends LitElement {
             <!-- <li class="suggested-title">Suggested Searches</li> -->
             ${this.searchSuggestions.length > 0
               ? this.searchSuggestions.map(
-                  (suggestion) => html`<li>
-                    <button
-                      type="button"
-                      @click="${() => this.handleSuggestion(suggestion)}"
-                    >
-                      ${unsafeHTML(
-                        this.highlightWord(
-                          suggestion.value,
-                          this.searchSettings.input
-                        )
-                      )}
-                    </button>
-                  </li> `
+                  suggestion =>
+                    html`<li>
+                      <button
+                        type="button"
+                        @click="${() => this.handleSuggestion(suggestion)}"
+                      >
+                        ${unsafeHTML(
+                          this.highlightWord(
+                            suggestion.value,
+                            this.searchSettings.input
+                          )
+                        )}
+                      </button>
+                    </li> `
                 )
               : undefined}
           </ul>
@@ -618,7 +627,7 @@ export class OutlineYextUniversal extends LitElement {
   convertToTitleCase(str: String) {
     return str
       .replace(/_/g, ' ')
-      .replace(/\b\w/g, (match) => match.toUpperCase());
+      .replace(/\b\w/g, match => match.toUpperCase());
   }
 
   mobileVerticalNavTemplate(response: UniversalSearchResponse): TemplateResult {
@@ -708,7 +717,7 @@ export class OutlineYextUniversal extends LitElement {
                 >
                   ${result.verticalConfigId
                     .replace(/_/g, ' ')
-                    .replace(/\b\w/g, (match) => match.toUpperCase())}
+                    .replace(/\b\w/g, match => match.toUpperCase())}
                 </button>
               </li>
             `
@@ -851,7 +860,7 @@ export class OutlineYextUniversal extends LitElement {
       this.taskValue = this.fetchEndpoint.value;
     }
     const classes = {
-      wrapper: true,
+      'wrapper': true,
       'is-mobile': this.resizeController.currentBreakpointRange === 0,
     };
 
@@ -860,11 +869,11 @@ export class OutlineYextUniversal extends LitElement {
       <div class="${classMap(classes)}">
         ${this.fetchEndpoint.render({
           pending: () => (this.taskValue ? this.displayPending() : noChange),
-          complete: (data) =>
+          complete: data =>
             this.resizeController.currentBreakpointRange === 0
               ? this.mobileVerticalNavTemplate(data.response)
               : this.desktopVerticalNavTemplate(data.response),
-          error: (error) => html`${error}`,
+          error: error => html`${error}`,
         })}
         ${this.activeVertical !== 'all'
           ? html`
@@ -877,8 +886,8 @@ export class OutlineYextUniversal extends LitElement {
                 ${this.fetchEndpoint.render({
                   pending: () =>
                     this.taskValue ? this.displayPending() : noChange,
-                  complete: (data) => this.displayAll(data.response),
-                  error: (error) => html`${error}`,
+                  complete: data => this.displayAll(data.response),
+                  error: error => html`${error}`,
                 })}
               </main>
             `}

@@ -113,7 +113,7 @@ export class OutlineYextPager extends LitElement {
             pageNumbers,
             currentPage,
             maxPagesInPager
-          ).map((key) => {
+          ).map(key => {
             const isCurrent = currentPage === key;
             const title = isCurrent ? 'current page' : `Go to page ${key}`;
             return html`
