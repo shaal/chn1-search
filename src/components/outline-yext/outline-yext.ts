@@ -394,7 +394,11 @@ export class OutlineYext extends LitElement {
             ${this.fetchEndpoint.render({
               pending: () =>
                 this.taskValue ? this.displayPending() : noChange,
-              complete: (data) => this.displayAll(data!.response),
+              complete: (data) => {
+                if (data) {
+                  this.displayAll(data.response);
+                }
+              },
               error: (error) => html`${error}`,
             })}
             ${this.totalCount
