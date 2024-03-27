@@ -1,18 +1,19 @@
 import { LitElement, html, noChange, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
-import { ifDefined } from 'lit/directives/if-defined.js';
+// import { ifDefined } from 'lit/directives/if-defined.js';
 import { classMap } from 'lit/directives/class-map.js';
 import componentStyles from './outline-yext-universal.css?inline';
 import { Task } from '@lit/task';
 
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { ResizeController } from '../../controllers/resize-controller';
-import { AdoptedStylesheets } from '@phase2/outline-adopted-stylesheets-controller';
+import { AdoptedStyleSheets } from '../../controllers/adopted-stylesheets.ts';
 import { debounce } from '../../utilities/debounce';
 import type {
   SearchSettings,
   Result,
+  ResultData,
   UniversalSearchResponse,
   ResponseSearchSuggestions,
   Module,
@@ -27,14 +28,10 @@ import '../outline-yext/outline-yext';
 
 @customElement('outline-yext-universal')
 export class OutlineYextUniversal extends LitElement {
-  createRenderRoot() {
-    const root = super.createRenderRoot();
-    // this.EncapsulatedStylesheets = this.shadowRoot
-    //   ? new AdoptedStylesheets(this, componentStyles, this.shadowRoot)
-    //   : undefined;
-    new AdoptedStylesheets(this, componentStyles, this.shadowRoot!);
-    return root;
-  }
+  adoptedStyleSheets = new AdoptedStyleSheets(this, {
+    // globalCSS: globalStyles,
+    encapsulatedCSS: componentStyles,
+  });
 
   urlHref = 'https://cdn.yextapis.com/v2/accounts';
   accountId = 'me';
@@ -332,40 +329,63 @@ export class OutlineYextUniversal extends LitElement {
     `;
   }
 
-  displayAll(response: UniversalSearchResponse) {
+  /**
+   * Renders the entire results list.
+   * @param {UniversalSearchResponse} response - The search response object.
+   * @returns {TemplateResult} - The rendered results list.
+   */
+  private displayAll(response: UniversalSearchResponse): TemplateResult {
     if (response.modules?.length === 0) {
-      return html` <h2>No results found</h2> `;
+      return this.renderNoResultsFound();
     }
 
     return html`
       <div class="results-list">
-        ${repeat(
-          response.modules,
-          (module: Module) => module,
-          (module) => html`
-            <div class="results-section">
-              <h2>${module.verticalConfigId}</h2>
-              <div class="result">
-                ${repeat(
-                  module.results.slice(0, 3),
-                  (result) => result,
-                  (result, index) => html`
-                    <div data-index=${index}>
-                      <h3>
-                        <a
-                          href="${window.location.origin}/node/${result.data
-                            .uid}"
-                          >${result.data.name}</a
-                        >
-                      </h3>
-                      <p>${unsafeHTML(result.data.c_body)}</p>
-                    </div>
-                  `
-                )}
-              </div>
-            </div>
-          `
-        )}
+        ${response.modules.map((module) => this.renderResultsSection(module))}
+      </div>
+    `;
+  }
+
+  /**
+   * Renders a "No results found" message.
+   * @returns {TemplateResult} - The rendered message.
+   */
+  private renderNoResultsFound(): TemplateResult {
+    return html`<h2>No results found</h2>`;
+  }
+
+  /**
+   * Renders a section of results.
+   * @param {Module} module - The module containing results to render.
+   * @returns {TemplateResult} - The rendered results section.
+   */
+  private renderResultsSection(module: Module): TemplateResult {
+    return html`
+      <div class="results-section">
+        <h2>${module.verticalConfigId}</h2>
+        <div class="result">
+          ${module.results.slice(0, 3).map((result, index) => this.renderResultItem(result, index))}
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Renders an individual result item.
+   * @param {ResultData} result - The result data to render.
+   * @param {number} index - The index of the result in the list.
+   * @returns {TemplateResult} - The rendered result item.
+   */
+  private renderResultItem(result: ResultData, index: number): TemplateResult {
+    console.log('Result: ', result)
+    return html`
+      <div data-index=${index}>
+        <h3>
+          <a href="${window.location.origin}/node/${result.data.uid}">
+            ${result.data.name}
+          </a>
+        </h3>
+        <p>${unsafeHTML(result.data.c_body)}</p>
       </div>
     `;
   }
