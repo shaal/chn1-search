@@ -63,8 +63,8 @@ export class OutlineYext extends LitElement {
   @property({ type: String, attribute: 'vertical-key' })
   verticalKey?: string = 'blog';
 
-  @property({ type: Boolean, reflect: true, attribute: 'debug' })
-  debug: null;
+  // @property({ type: Boolean, reflect: true, attribute: 'debug' })
+  // debug: null;
 
   @property({ type: Number, reflect: true, attribute: 'show-results' })
   showResults = 5;
@@ -137,7 +137,7 @@ export class OutlineYext extends LitElement {
     staticParams.set('v', this.apiVersion);
     staticParams.set('api_key', this.apiKey);
     staticParams.set('experienceKey', this.experienceKey);
-    staticParams.set('verticalKey', this.verticalKey);
+    staticParams.set('verticalKey', this.verticalKey || '');
     staticParams.set('version', this.version);
     staticParams.set('locale', this.locale);
     dynamicParams.set('retrieveFacets', 'true');
@@ -185,7 +185,7 @@ export class OutlineYext extends LitElement {
       }
     }
 
-    keysToDelete.forEach((key) => {
+    keysToDelete.forEach(key => {
       searchParams.delete(key);
     });
 
@@ -329,7 +329,7 @@ export class OutlineYext extends LitElement {
       <ul class="results-list">
         ${repeat(
           response.results,
-          (result) => result,
+          result => result,
           (result, index) => html`
             <li class="result" data-index=${index}>
               <h3>
@@ -394,12 +394,12 @@ export class OutlineYext extends LitElement {
             ${this.fetchEndpoint.render({
               pending: () =>
                 this.taskValue ? this.displayPending() : noChange,
-              complete: (data) => {
+              complete: data => {
                 if (data) {
                   this.displayAll(data.response);
                 }
               },
-              error: (error) => html`${error}`,
+              error: error => html`${error}`,
             })}
             ${this.totalCount
               ? html`

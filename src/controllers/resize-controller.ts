@@ -12,15 +12,15 @@ export type breakpointsRangeType = {
  */
 export class ResizeController implements ReactiveController {
   host: ReactiveControllerHost & HTMLElement;
-  resizeObserver: ResizeObserver;
+  resizeObserver!: ResizeObserver;
   elementToObserve: Element;
   options: {
     debounce: number;
     breakpoints: number[];
     triggerElement: ReactiveControllerHost & HTMLElement;
   };
-  currentComponentWidth: number;
-  currentBreakpointRange: number;
+  currentComponentWidth: number = 0;
+  currentBreakpointRange: number = 0;
   breakpointsRangeArray: breakpointsRangeType[] = [];
 
   /**
@@ -34,6 +34,7 @@ export class ResizeController implements ReactiveController {
       debounce?: number;
       breakpoints?: number[];
       triggerElement?: ReactiveControllerHost & HTMLElement;
+      elementToObserve?: Element;
     } = {}
   ) {
     const defaultOptions = {
@@ -41,6 +42,7 @@ export class ResizeController implements ReactiveController {
       breakpoints: [768],
       triggerElement: host,
     };
+    this.elementToObserve = options.elementToObserve || host;
 
     /**
      * Remove any undefined variables from options object

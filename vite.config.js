@@ -13,9 +13,7 @@ import { terser } from 'rollup-plugin-terser';
 // https://vitejs.dev/config/
 export default defineConfig({
   base: './',
-  plugins: [
-    ts(),
-  ],
+  plugins: [ts()],
   define: {
     'Reflect.decorate': 'undefined',
   },
@@ -66,13 +64,15 @@ export default defineConfig({
         //     ]),
         // ),
         ...Object.fromEntries(
-          glob.sync('src/**/*.ts', {
-            ignore: ['src/components/index.ts', '**/*.d.ts']
-          }).map((file) => {
-            const pathWithoutExtension = file.replace(/\.ts$/, '');
-            const entryName = pathWithoutExtension.substring(4); // Remove 'src/' prefix
-            return [entryName, `./${file}`];
-          })
+          glob
+            .sync('src/**/*.ts', {
+              ignore: ['src/components/index.ts', '**/*.d.ts'],
+            })
+            .map(file => {
+              const pathWithoutExtension = file.replace(/\.ts$/, '');
+              const entryName = pathWithoutExtension.substring(4); // Remove 'src/' prefix
+              return [entryName, `./${file}`];
+            })
         ),
       },
       formats: [
@@ -81,21 +81,23 @@ export default defineConfig({
       ],
     },
     rollupOptions: {
-      plugins: [terser({
-        format: {
-          comments: false,
+      plugins: [
+        terser({
+          format: {
+            comments: false,
           },
-        mangle: {
+          mangle: {
             keep_classnames: false,
             reserved: [],
           },
-      })],
+        }),
+      ],
     },
     minify: 'terser',
     sourcemap: true,
     target: 'esnext',
     TerserOptions: {
-      maxWorkers: 16
+      maxWorkers: 16,
     },
   },
 });

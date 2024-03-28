@@ -1,20 +1,21 @@
 import { LitElement, html, noChange, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
-import { ifDefined } from 'lit/directives/if-defined.js';
+// import { ifDefined } from 'lit/directives/if-defined.js';
 import { classMap } from 'lit/directives/class-map.js';
 import componentStyles from './outline-yext-universal.css?inline';
 import { Task } from '@lit/task';
 
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { ResizeController } from '../../controllers/resize-controller';
-import { AdoptedStylesheets } from '@phase2/outline-adopted-stylesheets-controller';
-import { debounce } from '../../utilities/debounce';
+import { AdoptedStyleSheets } from '../../controllers/adopted-stylesheets.ts';
+// import { debounce } from '../../utilities/debounce';
 import type {
   SearchSettings,
   Result,
+  ResultData,
   UniversalSearchResponse,
-  ResponseSearchSuggestions,
+  // ResponseSearchSuggestions,
   Module,
 } from './outline-yext-types';
 
@@ -27,14 +28,10 @@ import '../outline-yext/outline-yext';
 
 @customElement('outline-yext-universal')
 export class OutlineYextUniversal extends LitElement {
-  createRenderRoot() {
-    const root = super.createRenderRoot();
-    // this.EncapsulatedStylesheets = this.shadowRoot
-    //   ? new AdoptedStylesheets(this, componentStyles, this.shadowRoot)
-    //   : undefined;
-    new AdoptedStylesheets(this, componentStyles, this.shadowRoot!);
-    return root;
-  }
+  adoptedStyleSheets = new AdoptedStyleSheets(this, {
+    // globalCSS: globalStyles,
+    encapsulatedCSS: componentStyles,
+  });
 
   urlHref = 'https://cdn.yextapis.com/v2/accounts';
   accountId = 'me';
@@ -167,7 +164,7 @@ export class OutlineYextUniversal extends LitElement {
       this.requestUrlBase
     }?${staticParams.toString()}&${dynamicParams.toString()}`;
 
-    let urlObject = new URL(requestURL);
+    const urlObject = new URL(requestURL);
 
     urlObject.searchParams.delete('limit');
 
@@ -198,7 +195,7 @@ export class OutlineYextUniversal extends LitElement {
       }
     }
 
-    keysToDelete.forEach((key) => {
+    keysToDelete.forEach(key => {
       searchParams.delete(key);
     });
 
@@ -332,9 +329,14 @@ export class OutlineYextUniversal extends LitElement {
     `;
   }
 
-  displayAll(response: UniversalSearchResponse) {
+  /**
+   * Renders the entire results list.
+   * @param {UniversalSearchResponse} response - The search response object.
+   * @returns {TemplateResult} - The rendered results list.
+   */
+  private displayAll(response: UniversalSearchResponse): TemplateResult {
     if (response.modules?.length === 0) {
-      return html` <h2>No results found</h2> `;
+      return this.renderNoResultsFound();
     }
 
     return html`
@@ -342,46 +344,70 @@ export class OutlineYextUniversal extends LitElement {
         ${repeat(
           response.modules,
           (module: Module) => module,
-          (module) => html`
-            <div class="results-section">
-              <div class="results-section-heading">
-                <h2 class="results-section-type">
-                  ${module.verticalConfigId
-                    .replace(/_/g, ' ')
-                    .replace(/\b\w/g, (match) => match.toUpperCase())}
-                </h2>
-                <button
-                  class=""
-                  @click="${() =>
-                    this.setActiveVertical(module.verticalConfigId)}"
-                >
-                  View All
-                </button>
-              </div>
-
-              <div class="result">
-                ${repeat(
-                  module.results.slice(0, 3),
-                  (result) => result,
-                  (result, index) => html`
-                    <div data-index=${index}>
-                      <h3 class="result-title">
-                        <a
-                          href="${window.location.origin}/node/${result.data
-                            .uid}"
-                          >${result.data.name}</a
-                        >
-                      </h3>
-                      <div class="result-body">
-                        <p>${unsafeHTML(result.data.c_body)}</p>
-                      </div>
-                    </div>
-                  `
-                )}
-              </div>
-            </div>
-          `
+          module => this.renderResultsSection(module)
         )}
+      </div>
+    `;
+  }
+
+  /**
+   * Renders a "No results found" message.
+   * @returns {TemplateResult} - The rendered message.
+   */
+  private renderNoResultsFound(): TemplateResult {
+    return html`<h2>No results found</h2>`;
+  }
+
+  /**
+   * Renders a section of results.
+   * @param {Module} module - The module containing results to render.
+   * @returns {TemplateResult} - The rendered results section.
+   */
+  private renderResultsSection(module: Module): TemplateResult {
+    return html`
+      <div class="results-section">
+        <div class="results-section-heading">
+          <h2 class="results-section-type">
+            ${module.verticalConfigId
+              .replace(/_/g, ' ')
+              .replace(/\b\w/g, match => match.toUpperCase())}
+          </h2>
+          <button
+            class=""
+            @click="${() => this.setActiveVertical(module.verticalConfigId)}"
+          >
+            View All
+          </button>
+        </div>
+        <div class="result">
+          ${repeat(
+            module.results.slice(0, 3),
+            result => result,
+            (result, index) => this.renderResultItem(result, index)
+          )}
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * Renders an individual result item.
+   * @param {ResultData} result - The result data to render.
+   * @param {number} index - The index of the result in the list.
+   * @returns {TemplateResult} - The rendered result item.
+   */
+  private renderResultItem(result: ResultData, index: number): TemplateResult {
+    console.log('Result: ', result);
+    return html`
+      <div data-index=${index}>
+        <h3 class="result-title">
+          <a href="${window.location.origin}/node/${result.data.uid}">
+            ${result.data.name}
+          </a>
+        </h3>
+        <div class="result-body">
+          <p>${unsafeHTML(result.data.c_body)}</p>
+        </div>
       </div>
     `;
   }
@@ -424,8 +450,9 @@ export class OutlineYextUniversal extends LitElement {
   }
 
   // Single instance was created outside of the handleInput so that the debounce is not called multiple times
-  debouncedFunction = debounce(this.fetchSuggestion.bind(this), 150);
+  // debouncedFunction = debounce(this.fetchSuggestion.bind(this), 150);
 
+  /*
   async fetchSuggestion() {
     const params = new URLSearchParams();
     params.set('api_key', this.apiKey);
@@ -448,12 +475,13 @@ export class OutlineYextUniversal extends LitElement {
     // );
     this.isFocus = this.searchSuggestions.length > 0;
   }
+  */
 
   handleInput(e: InputEvent) {
     e.preventDefault;
     this.searchSettings.input = (e.target as HTMLInputElement).value;
     if (this.searchSettings.input.length > 3) {
-      this.debouncedFunction();
+      // this.debouncedFunction();
     } else {
       this.cleanSearchSuggestions();
     }
@@ -544,19 +572,20 @@ export class OutlineYextUniversal extends LitElement {
             <!-- <li class="suggested-title">Suggested Searches</li> -->
             ${this.searchSuggestions.length > 0
               ? this.searchSuggestions.map(
-                  (suggestion) => html`<li>
-                    <button
-                      type="button"
-                      @click="${() => this.handleSuggestion(suggestion)}"
-                    >
-                      ${unsafeHTML(
-                        this.highlightWord(
-                          suggestion.value,
-                          this.searchSettings.input
-                        )
-                      )}
-                    </button>
-                  </li> `
+                  suggestion =>
+                    html`<li>
+                      <button
+                        type="button"
+                        @click="${() => this.handleSuggestion(suggestion)}"
+                      >
+                        ${unsafeHTML(
+                          this.highlightWord(
+                            suggestion.value,
+                            this.searchSettings.input
+                          )
+                        )}
+                      </button>
+                    </li> `
                 )
               : undefined}
           </ul>
@@ -598,7 +627,7 @@ export class OutlineYextUniversal extends LitElement {
   convertToTitleCase(str: String) {
     return str
       .replace(/_/g, ' ')
-      .replace(/\b\w/g, (match) => match.toUpperCase());
+      .replace(/\b\w/g, match => match.toUpperCase());
   }
 
   mobileVerticalNavTemplate(response: UniversalSearchResponse): TemplateResult {
@@ -688,7 +717,7 @@ export class OutlineYextUniversal extends LitElement {
                 >
                   ${result.verticalConfigId
                     .replace(/_/g, ' ')
-                    .replace(/\b\w/g, (match) => match.toUpperCase())}
+                    .replace(/\b\w/g, match => match.toUpperCase())}
                 </button>
               </li>
             `
@@ -831,7 +860,7 @@ export class OutlineYextUniversal extends LitElement {
       this.taskValue = this.fetchEndpoint.value;
     }
     const classes = {
-      wrapper: true,
+      'wrapper': true,
       'is-mobile': this.resizeController.currentBreakpointRange === 0,
     };
 
@@ -840,11 +869,11 @@ export class OutlineYextUniversal extends LitElement {
       <div class="${classMap(classes)}">
         ${this.fetchEndpoint.render({
           pending: () => (this.taskValue ? this.displayPending() : noChange),
-          complete: (data) =>
+          complete: data =>
             this.resizeController.currentBreakpointRange === 0
               ? this.mobileVerticalNavTemplate(data.response)
               : this.desktopVerticalNavTemplate(data.response),
-          error: (error) => html`${error}`,
+          error: error => html`${error}`,
         })}
         ${this.activeVertical !== 'all'
           ? html`
@@ -857,8 +886,8 @@ export class OutlineYextUniversal extends LitElement {
                 ${this.fetchEndpoint.render({
                   pending: () =>
                     this.taskValue ? this.displayPending() : noChange,
-                  complete: (data) => this.displayAll(data.response),
-                  error: (error) => html`${error}`,
+                  complete: data => this.displayAll(data.response),
+                  error: error => html`${error}`,
                 })}
               </main>
             `}

@@ -51,6 +51,8 @@ export type ResultItemData = {
   type: string;
   name: string;
   c_body: string;
+  c_title: string;
+  c_url: string;
   uid: string;
 };
 
@@ -59,6 +61,7 @@ export type ResultData = {
   highlightedFields: {
     c_body?: HighlightedField;
     name?: HighlightedField;
+    c_title?: HighlightedField;
   };
 };
 
