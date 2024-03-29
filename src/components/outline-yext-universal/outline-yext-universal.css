@@ -14,7 +14,6 @@
   display: block;
   position: relative;
   margin: 0 auto;
-  padding-bottom: 3rem;
   background: var(--c-neutral-gray-300, #eff3f4);
 }
 
@@ -122,6 +121,15 @@ main {
 }
 
 /* END of search form styling */
+
+.yext-results-wrapper {
+  display: none;
+  padding-bottom: 3rem;
+}
+
+.is-visible .yext-results-wrapper {
+  display: block;
+}
 
 /* START of vertical nav styling */
 .vertical-nav {
