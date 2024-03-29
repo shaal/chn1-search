@@ -355,7 +355,18 @@ export class OutlineYextUniversal extends LitElement {
    * @returns {TemplateResult} - The rendered message.
    */
   private renderNoResultsFound(): TemplateResult {
-    return html`<h2>No results found</h2>`;
+    return html`<div class="no-results-message">
+      <h2 class="no-results-heading">Sorry, we couldn’t find anything</h2>
+      <div class="no-results-copy">
+        <p>
+          We couldn't find any matches for your search. Try checking your
+          spelling, refining your search terms, using synonyms, or expanding
+          your search criteria.
+        </p>
+
+        <p>If you need assistance, please call 800-777-7775.</p>
+      </div>
+    </div>`;
   }
 
   /**
@@ -632,61 +643,72 @@ export class OutlineYextUniversal extends LitElement {
 
   mobileVerticalNavTemplate(response: UniversalSearchResponse): TemplateResult {
     return html`
-      <div class="vertical-nav is-mobile">
-        <h2 class="vertical-nav__heading is-mobile">Refine Your Search</h2>
+      ${response.modules.length !== 0
+        ? html`
+            <div class="vertical-nav is-mobile">
+              <h2 class="vertical-nav__heading is-mobile">
+                Refine Your Search
+              </h2>
 
-        <div class="vertical-nav__dropdown">
-          <button
-            class="vertical-nav__dropdown-button ${this.dropdownVerticalsOpen
-              ? 'is-open'
-              : ''}"
-            aria-expanded="${this.dropdownVerticalsOpen}"
-            aria-label="Select content type"
-            aria-controls="vertical-dropdown-content"
-            @click=${() =>
-              (this.dropdownVerticalsOpen = !this.dropdownVerticalsOpen)}
-          >
-            ${this.convertToTitleCase(this.activeVertical)}
-          </button>
-          <div
-            id="vertical-dropdown-content"
-            class="vertical-nav__dropdown-wrapper ${this.dropdownVerticalsOpen
-              ? 'is-open'
-              : ''}"
-          >
-            <ul class="vertical-nav__list mobile">
-              <li class=" ${this.activeVertical == 'all' ? 'active' : ''}">
+              <div class="vertical-nav__dropdown">
                 <button
-                  @click="${() => this.setActiveVertical('all')}"
-                  class="vertical-nav__item"
+                  class="vertical-nav__dropdown-button ${this
+                    .dropdownVerticalsOpen
+                    ? 'is-open'
+                    : ''}"
+                  aria-expanded="${this.dropdownVerticalsOpen}"
+                  aria-label="Select content type"
+                  aria-controls="vertical-dropdown-content"
+                  @click=${() =>
+                    (this.dropdownVerticalsOpen = !this.dropdownVerticalsOpen)}
                 >
-                  All
+                  ${this.convertToTitleCase(this.activeVertical)}
                 </button>
-              </li>
-              ${repeat(
-                response.modules,
-                (result: Module) => result,
-                (result, index) => html`
-                  <li
-                    data-index=${index}
-                    class=" ${this.activeVertical === result.verticalConfigId
-                      ? 'active'
-                      : ''}"
-                  >
-                    <button
-                      class="vertical-nav__item"
-                      @click="${() =>
-                        this.setActiveVertical(result.verticalConfigId)}"
+                <div
+                  id="vertical-dropdown-content"
+                  class="vertical-nav__dropdown-wrapper ${this
+                    .dropdownVerticalsOpen
+                    ? 'is-open'
+                    : ''}"
+                >
+                  <ul class="vertical-nav__list mobile">
+                    <li
+                      class=" ${this.activeVertical == 'all' ? 'active' : ''}"
                     >
-                      ${this.convertToTitleCase(result.verticalConfigId)}
-                    </button>
-                  </li>
-                `
-              )}
-            </ul>
-          </div>
-        </div>
-      </div>
+                      <button
+                        @click="${() => this.setActiveVertical('all')}"
+                        class="vertical-nav__item"
+                      >
+                        All
+                      </button>
+                    </li>
+                    ${repeat(
+                      response.modules,
+                      (result: Module) => result,
+                      (result, index) => html`
+                        <li
+                          data-index=${index}
+                          class=" ${this.activeVertical ===
+                          result.verticalConfigId
+                            ? 'active'
+                            : ''}"
+                        >
+                          <button
+                            class="vertical-nav__item"
+                            @click="${() =>
+                              this.setActiveVertical(result.verticalConfigId)}"
+                          >
+                            ${this.convertToTitleCase(result.verticalConfigId)}
+                          </button>
+                        </li>
+                      `
+                    )}
+                  </ul>
+                </div>
+              </div>
+            </div>
+          `
+        : ``}
     `;
   }
 
@@ -694,36 +716,44 @@ export class OutlineYextUniversal extends LitElement {
     response: UniversalSearchResponse
   ): TemplateResult {
     return html`
-      <div class="vertical-nav is-desktop">
-        <h2 class="vertical-nav__heading is-desktop">Refine Your Search</h2>
+      ${response.modules.length !== 0
+        ? html`
+            <div class="vertical-nav is-desktop">
+              <h2 class="vertical-nav__heading is-desktop">
+                Refine Your Search
+              </h2>
 
-        <ul class="vertical-nav__list is-desktop">
-          <li class=" ${this.activeVertical == 'all' ? 'active' : ''}">
-            <button @click="${() => this.setActiveVertical('all')}">All</button>
-          </li>
-          ${repeat(
-            response.modules,
-            (result: Module) => result,
-            (result, index) => html`
-              <li
-                data-index=${index}
-                class=" ${this.activeVertical === result.verticalConfigId
-                  ? 'active'
-                  : ''}"
-              >
-                <button
-                  @click="${() =>
-                    this.setActiveVertical(result.verticalConfigId)}"
-                >
-                  ${result.verticalConfigId
-                    .replace(/_/g, ' ')
-                    .replace(/\b\w/g, match => match.toUpperCase())}
-                </button>
-              </li>
-            `
-          )}
-        </ul>
-      </div>
+              <ul class="vertical-nav__list is-desktop">
+                <li class=" ${this.activeVertical == 'all' ? 'active' : ''}">
+                  <button @click="${() => this.setActiveVertical('all')}">
+                    All
+                  </button>
+                </li>
+                ${repeat(
+                  response.modules,
+                  (result: Module) => result,
+                  (result, index) => html`
+                    <li
+                      data-index=${index}
+                      class=" ${this.activeVertical === result.verticalConfigId
+                        ? 'active'
+                        : ''}"
+                    >
+                      <button
+                        @click="${() =>
+                          this.setActiveVertical(result.verticalConfigId)}"
+                      >
+                        ${result.verticalConfigId
+                          .replace(/_/g, ' ')
+                          .replace(/\b\w/g, match => match.toUpperCase())}
+                      </button>
+                    </li>
+                  `
+                )}
+              </ul>
+            </div>
+          `
+        : ``}
     `;
   }
 
