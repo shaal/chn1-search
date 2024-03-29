@@ -142,7 +142,7 @@ export class OutlineYextUniversal extends LitElement {
     // staticParams.set('verticalKey', this.verticalKey);
     staticParams.set('version', this.version);
     staticParams.set('locale', this.locale);
-    staticParams.set('input', this.searchSettings.input || 'women');
+    staticParams.set('input', this.searchSettings.input);
     // dynamicParams.set('retrieveFacets', 'true');
     dynamicParams.set(
       'sortBys',
@@ -241,6 +241,7 @@ export class OutlineYextUniversal extends LitElement {
         // remove the 'yext_' at the beginning of key
         const cleanKey = key.replace('yext_', '');
         // Assign the parsed value to the searchSettings object.
+
         this.searchSettings[`${cleanKey}`] = parsedValue;
       }
     }
@@ -248,6 +249,8 @@ export class OutlineYextUniversal extends LitElement {
     this.setActiveVertical(
       currentParams.get('yext_activeVertical')?.replace(/"/g, '') || 'all'
     );
+
+    this.displayResults = this.searchSettings.input !== '';
   }
 
   rawFilters: {} | undefined;
@@ -436,6 +439,8 @@ export class OutlineYextUniversal extends LitElement {
     this.isFocus = false;
   }
 
+  displayResults: boolean = false;
+
   search(e: Event) {
     // prevent form submission
     e.preventDefault();
@@ -446,6 +451,7 @@ export class OutlineYextUniversal extends LitElement {
     this.searchSettings = structuredClone(this.defaultSearchSettings);
     this.searchSettings.input = inputSearch;
     this.activeVertical = 'all';
+    this.displayResults = this.searchSettings.input !== '';
     this.fetchEndpoint.run();
   }
 
@@ -859,38 +865,42 @@ export class OutlineYextUniversal extends LitElement {
     if (this.fetchEndpoint.value !== undefined) {
       this.taskValue = this.fetchEndpoint.value;
     }
+
     const classes = {
       'wrapper': true,
       'is-mobile': this.resizeController.currentBreakpointRange === 0,
+      'is-visible': this.displayResults,
     };
 
     return html`
       ${this.searchFormTemplate()}
       <div class="${classMap(classes)}">
-        ${this.fetchEndpoint.render({
-          pending: () => (this.taskValue ? this.displayPending() : noChange),
-          complete: data =>
-            this.resizeController.currentBreakpointRange === 0
-              ? this.mobileVerticalNavTemplate(data.response)
-              : this.desktopVerticalNavTemplate(data.response),
-          error: error => html`${error}`,
-        })}
-        ${this.activeVertical !== 'all'
-          ? html`
-              <outline-yext
-                vertical-key="${this.activeVertical}"
-              ></outline-yext>
-            `
-          : html`
-              <main>
-                ${this.fetchEndpoint.render({
-                  pending: () =>
-                    this.taskValue ? this.displayPending() : noChange,
-                  complete: data => this.displayAll(data.response),
-                  error: error => html`${error}`,
-                })}
-              </main>
-            `}
+        <div class="yext-results-wrapper">
+          ${this.fetchEndpoint.render({
+            pending: () => (this.taskValue ? this.displayPending() : noChange),
+            complete: data =>
+              this.resizeController.currentBreakpointRange === 0
+                ? this.mobileVerticalNavTemplate(data.response)
+                : this.desktopVerticalNavTemplate(data.response),
+            error: error => html`${error}`,
+          })}
+          ${this.activeVertical !== 'all'
+            ? html`
+                <outline-yext
+                  vertical-key="${this.activeVertical}"
+                ></outline-yext>
+              `
+            : html`
+                <main>
+                  ${this.fetchEndpoint.render({
+                    pending: () =>
+                      this.taskValue ? this.displayPending() : noChange,
+                    complete: data => this.displayAll(data.response),
+                    error: error => html`${error}`,
+                  })}
+                </main>
+              `}
+        </div>
       </div>
     `;
   }
