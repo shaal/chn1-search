@@ -314,6 +314,35 @@ main {
 }
 /* END of search results styling */
 
+/* START of no results styling */
+.no-results-heading {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: var(--c-neutral-gray-400);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 1.25rem;
+  line-height: 120%;
+  font-family: var(--ff-display);
+}
+
+.no-results-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  color: var(--c-neutral-gray-500);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 150%;
+  font-family: var(--ff-body);
+  p {
+    margin: 0;
+  }
+}
+
+/* END of no results styling */
+
 /* START of utility classes */
 .sr-only {
   position: absolute;
