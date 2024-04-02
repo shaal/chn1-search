@@ -14,6 +14,8 @@ import type {
   SearchSettings,
   Result,
   VerticalSearchResponseStructure,
+  verticalSearchResult,
+  HighlightedField,
 } from '../outline-yext-universal/outline-yext-types';
 
 /**
@@ -322,8 +324,8 @@ export class OutlineYext extends LitElement {
     }
 
     // this.randomizationToken = response.randomizationToken;
-    this.userLat = Number(response.locationBias?.latitude);
-    this.userLong = Number(response.locationBias?.longitude);
+    // this.userLat = Number(response.locationBias?.latitude);
+    // this.userLong = Number(response.locationBias?.longitude);
 
     return html`
       <ul class="results-list">
@@ -332,17 +334,123 @@ export class OutlineYext extends LitElement {
           result => result,
           (result, index) => html`
             <li class="result" data-index=${index}>
-              <h3>
-                <a href="${window.location.origin}/node/${result.data.uid}">
-                  ${result.data.name}
-                </a>
-              </h3>
-              <p>${unsafeHTML(result.data.c_body)}</p>
+              ${this.displayTeaser(result)}
             </li>
           `
         )}
       </ul>
     `;
+  }
+
+  displayAllTeasers(response: VerticalSearchResponseStructure) {
+    return html`
+      <ul class="results-list">
+        ${repeat(
+          response.results,
+          result => result,
+          (result, index) => html`
+            <li class="result" data-index=${index}>
+              ${this.displayTeaser(result)}
+            </li>
+          `
+        )}
+      </ul>
+    `;
+  }
+
+  displayTeaser(result: verticalSearchResult) {
+    const cleanData = result.highlightedFields.s_snippet
+      ? this.teaserHighlightAndClean(result.highlightedFields.s_snippet)
+      : this.teaserClean(result.data.c_body);
+
+    switch (this.verticalKey) {
+      case 'blog':
+        return this.blogTeaser(result, cleanData);
+        break;
+      default:
+        return this.defaultTeaser(result, cleanData);
+        break;
+    }
+  }
+
+  teaserClean(input: string) {
+    return input.replace(/<(?!\/?(span|a|p)(?=>|\s.*>))\/?.*?>/gi, '');
+  }
+
+  teaserHighlightAndClean(input: HighlightedField) {
+    const highlightedData = this.highlightText(input);
+
+    return this.teaserClean(highlightedData);
+  }
+
+  blogTeaser(result: verticalSearchResult, cleanData: string) {
+    return html`
+      <h3>
+        <a href="${window.location.origin}/node/${result.data.uid}">
+          ${result.data.name}
+        </a>
+      </h3>
+      <p>${unsafeHTML(cleanData)}</p>
+    `;
+  }
+
+  defaultTeaser(result: verticalSearchResult, cleanData: string) {
+    // If name (teaser's label) has highlighted text, display it. Otherwise display plain name string
+    const name = result.highlightedFields.name
+      ? this.highlightText(result.highlightedFields.name)
+      : result.data.name;
+
+    return html`
+      <h3>
+        <a href="${window.location.origin}/node/${result.data.uid}">
+          ${unsafeHTML(name)}
+        </a>
+      </h3>
+      <p>${unsafeHTML(cleanData)}</p>
+    `;
+  }
+
+  highlightText(content: HighlightedField): string {
+    if (!content.matchedSubstrings || content.matchedSubstrings.length === 0) {
+      return content.value; // No matches, return original content
+    }
+
+    const sortedMatches = content.matchedSubstrings.sort(
+      (a, b) => a.offset - b.offset
+    );
+    let highlightedText = '';
+    let inTag = false;
+    let inAttribute = false;
+
+    for (let i = 0; i < content.value.length; i++) {
+      if (content.value[i] === '<') {
+        inTag = true;
+      } else if (content.value[i] === '>') {
+        inTag = false;
+        inAttribute = false;
+      } else if (inTag && content.value[i] === '"') {
+        inAttribute = !inAttribute;
+      }
+
+      if (sortedMatches.length > 0 && i === sortedMatches[0].offset) {
+        if (!inTag && !inAttribute) {
+          const match = sortedMatches.shift();
+          if (match) {
+            const end = match.offset + match.length;
+            highlightedText += `<span class="highlight">${content.value.substring(i, end)}</span>`;
+            i = end - 1; // Skip ahead to the end of the match
+            continue;
+          }
+        } else {
+          // Skip highlighting this match as it's within a tag or attribute
+          sortedMatches.shift();
+        }
+      }
+
+      highlightedText += content.value[i];
+    }
+
+    return highlightedText;
   }
 
   debugTemplate(data: {}): TemplateResult {
