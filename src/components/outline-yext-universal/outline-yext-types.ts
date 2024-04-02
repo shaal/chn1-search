@@ -51,8 +51,8 @@ export type ResultItemData = {
   type: string;
   name: string;
   c_body: string;
-  c_title: string;
   c_url: string;
+  s_snippet: string;
   uid: string;
 };
 
@@ -62,6 +62,7 @@ export type ResultData = {
     c_body?: HighlightedField;
     name?: HighlightedField;
     c_title?: HighlightedField;
+    s_snippet?: HighlightedField;
   };
 };
 
@@ -83,18 +84,9 @@ export type VerticalSearchResponseStructure = {
   businessId: number;
   queryId: string;
   resultsCount: number;
-  results: verticalSearchResults;
+  results: verticalSearchResult[];
   appliedQueryFilters: unknown[];
-  facets: {
-    fieldId: string;
-    displayName: string;
-    options: {
-      displayName: string;
-      count: number;
-      selected: boolean;
-      filter: SubQueryParam;
-    }[];
-  }[];
+  facets: Facet[];
   searchIntents: unknown[];
   source: string;
   directAnswer: Record<string, unknown>;
@@ -105,13 +97,20 @@ export type VerticalSearchResponseStructure = {
   c_additionalProfiles: Array<string>;
 };
 
-export type verticalSearchResults = {
-  data: {
-    uid: string;
-    name: string;
-    c_body: string;
-  };
-  highlightedFields: Record<string, unknown>;
+export type verticalSearchResult = {
+  data: ResultItemData;
+  highlightedFields: ResultData['highlightedFields'];
   distance: number;
   distanceFromFilter: number;
-}[];
+};
+
+export type Facet = {
+  fieldId: string;
+  displayName: string;
+  options: {
+    displayName: string;
+    count: number;
+    selected: boolean;
+    filter: SubQueryParam;
+  }[];
+};

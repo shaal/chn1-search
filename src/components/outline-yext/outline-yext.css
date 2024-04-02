@@ -27,3 +27,7 @@ main {
   line-height: 120%;
   font-family: var(--ff-body);
 }
+
+.highlight {
+  font-weight: bold;
+}
