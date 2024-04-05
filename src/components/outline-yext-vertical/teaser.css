@@ -1,0 +1,36 @@
+.result {
+  margin-bottom: 2rem;
+}
+
+.result-title {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  a {
+    color: var(--c-brand-orange);
+    font-style: normal;
+    font-weight: 400;
+    font-size: 1.5rem;
+    line-height: 120%;
+    font-family: var(--ff-body);
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.result-body {
+  color: var(--c-neutral-gray-500);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 150%;
+  font-family: var(--ff-body);
+  p {
+    word-wrap: break-word;
+  }
+}
+
+.highlight {
+  font-weight: bold;
+}

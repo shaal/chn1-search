@@ -70,7 +70,8 @@ export type Module = {
   verticalConfigId: string;
   resultsCount: number;
   encodedState: string;
-  results: ResultData[];
+  // results: ResultData[];
+  results: verticalSearchResult[];
 };
 
 export type UniversalSearchResponse = {
