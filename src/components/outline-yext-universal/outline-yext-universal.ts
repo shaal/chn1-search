@@ -10,16 +10,17 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { ResizeController } from '../../controllers/resize-controller';
 import { AdoptedStyleSheets } from '../../controllers/adopted-stylesheets.ts';
 // import { debounce } from '../../utilities/debounce';
+import { displayTeaser } from '../outline-yext-vertical/teaser';
+
 import type {
   SearchSettings,
   Result,
-  ResultData,
   UniversalSearchResponse,
   // ResponseSearchSuggestions,
   Module,
 } from './outline-yext-types';
 
-import '../outline-yext/outline-yext';
+import '../outline-yext-vertical/outline-yext-vertical';
 
 /**
  * The Yext Universal Search component.
@@ -397,34 +398,10 @@ export class OutlineYextUniversal extends LitElement {
           ${repeat(
             module.results.slice(0, 3),
             result => result,
-            (result, index) => this.renderResultItem(result, index)
+            // (result, index) => this.renderResultItem(module.verticalConfigId, result, index)
+            (result, _index) => displayTeaser(module.verticalConfigId, result)
           )}
         </div>
-      </div>
-    `;
-  }
-
-  /**
-   * Renders an individual result item.
-   * @param {ResultData} result - The result data to render.
-   * @param {number} index - The index of the result in the list.
-   * @returns {TemplateResult} - The rendered result item.
-   */
-  private renderResultItem(result: ResultData, index: number): TemplateResult {
-    return html`
-      <div data-index=${index}>
-        <h3 class="result-title">
-          <a href="${window.location.origin}/node/${result.data.uid}">
-            ${result.data.name}
-          </a>
-        </h3>
-        ${result.highlightedFields?.s_snippet?.value
-          ? html`
-              <div class="result-body">
-                <p>${unsafeHTML(result.highlightedFields.s_snippet.value)}</p>
-              </div>
-            `
-          : ''}
       </div>
     `;
   }
@@ -631,9 +608,11 @@ export class OutlineYextUniversal extends LitElement {
     this.activeVertical = vertical;
     vertical !== 'all' &&
       this.shadowRoot
-        ?.querySelector('outline-yext')
+        ?.querySelector('outline-yext-vertical')
         ?.setAttribute('vertical-key', this.activeVertical);
-    this.shadowRoot?.querySelector('outline-yext')?.fetchEndpoint.run();
+    this.shadowRoot
+      ?.querySelector('outline-yext-vertical')
+      ?.fetchEndpoint.run();
     this.dropdownVerticalsOpen = false;
 
     // Store input and vertical state in the URL.
@@ -919,9 +898,9 @@ export class OutlineYextUniversal extends LitElement {
           })}
           ${this.activeVertical !== 'all'
             ? html`
-                <outline-yext
+                <outline-yext-vertical
                   vertical-key="${this.activeVertical}"
-                ></outline-yext>
+                ></outline-yext-vertical>
               `
             : html`
                 <main>
