@@ -50,7 +50,7 @@ export type ResultItemData = {
   id: string;
   type: string;
   name: string;
-  c_body: string;
+  c_bodyMarkedown: string;
   c_url: string;
   s_snippet: string;
   uid: string;
@@ -59,7 +59,7 @@ export type ResultItemData = {
 export type ResultData = {
   data: ResultItemData;
   highlightedFields: {
-    c_body?: HighlightedField;
+    c_bodyMarkedown?: HighlightedField;
     name?: HighlightedField;
     c_title?: HighlightedField;
     s_snippet?: HighlightedField;

@@ -360,9 +360,8 @@ export class OutlineYext extends LitElement {
 
   displayTeaser(result: verticalSearchResult) {
     const cleanData = result.highlightedFields.s_snippet
-      ? this.teaserHighlightAndClean(result.highlightedFields.s_snippet)
-      : this.teaserClean(result.data.c_body);
-
+      ? this.highlightText(result.highlightedFields.s_snippet)
+      : '';
     switch (this.verticalKey) {
       case 'blog':
         return this.blogTeaser(result, cleanData);
@@ -371,16 +370,6 @@ export class OutlineYext extends LitElement {
         return this.defaultTeaser(result, cleanData);
         break;
     }
-  }
-
-  teaserClean(input: string) {
-    return input.replace(/<(?!\/?(span|a|p)(?=>|\s.*>))\/?.*?>/gi, '');
-  }
-
-  teaserHighlightAndClean(input: HighlightedField) {
-    const highlightedData = this.highlightText(input);
-
-    return this.teaserClean(highlightedData);
   }
 
   blogTeaser(result: verticalSearchResult, cleanData: string) {

@@ -411,7 +411,6 @@ export class OutlineYextUniversal extends LitElement {
    * @returns {TemplateResult} - The rendered result item.
    */
   private renderResultItem(result: ResultData, index: number): TemplateResult {
-    console.log('Result: ', result);
     return html`
       <div data-index=${index}>
         <h3 class="result-title">
@@ -419,9 +418,13 @@ export class OutlineYextUniversal extends LitElement {
             ${result.data.name}
           </a>
         </h3>
-        <div class="result-body">
-          <p>${unsafeHTML(result.data.c_body)}</p>
-        </div>
+        ${result.highlightedFields?.s_snippet?.value
+          ? html`
+              <div class="result-body">
+                <p>${unsafeHTML(result.highlightedFields.s_snippet.value)}</p>
+              </div>
+            `
+          : ''}
       </div>
     `;
   }
