@@ -6,7 +6,6 @@ import componentStyles from './outline-button.css?inline';
 /**
  * The Outline Button component
  * @element outline-button
- * @slot - default slot, used for everything.
  */
 
 @customElement('outline-button')
