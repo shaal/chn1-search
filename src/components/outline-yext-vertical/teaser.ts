@@ -62,6 +62,7 @@ export function healthcareProfessionalTeaser(
           `
         : null}
       <outline-button
+        slot="cta"
         button-url="${url}"
         button-title="Request an appointment from profile"
       ></outline-button>

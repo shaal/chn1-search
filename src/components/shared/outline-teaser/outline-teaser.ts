@@ -43,7 +43,7 @@ export class OutlineTeaser extends LitElement {
           `
         : null}
 
-      <div>
+      <div class="content">
         <h3 class="title">
           <a href="${window.location.origin}/node/${this.teaserUrl}}"
             >${unsafeHTML(this.teaserTitle)}</a
@@ -54,6 +54,14 @@ export class OutlineTeaser extends LitElement {
             ? html`${unsafeHTML(this.teaserSnippet)}`
             : html`<slot></slot>`}
         </div>
+
+        ${this.querySelector('[slot="cta"]') !== null
+          ? html`
+              <div class="cta">
+                <slot name="cta"></slot>
+              </div>
+            `
+          : null}
       </div>
     </div>`;
   }
