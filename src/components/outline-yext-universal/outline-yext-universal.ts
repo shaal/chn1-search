@@ -394,12 +394,16 @@ export class OutlineYextUniversal extends LitElement {
             View All
           </button>
         </div>
-        <div class="result">
+        <ul class="results">
           ${repeat(
             module.results.slice(0, 3),
             result => result,
             // (result, index) => this.renderResultItem(module.verticalConfigId, result, index)
-            (result, _index) => displayTeaser(module.verticalConfigId, result)
+            (result, _index) => {
+              return html` <li class="result">
+                ${displayTeaser(module.verticalConfigId, result)}
+              </li>`;
+            }
           )}
         </div>
       </div>
