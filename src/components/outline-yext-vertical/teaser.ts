@@ -81,9 +81,9 @@ export function testimonialTeaser(
       image="${image}"
       title="${title}"
       subtitle="Patient Testimonial"
+      snippet="${snippet}"
       url="${url}"
     >
-      <div>${unsafeHTML(snippet)}</div>
     </outline-teaser>
   `;
 }
