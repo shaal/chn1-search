@@ -58,3 +58,7 @@
     word-wrap: break-word;
   }
 }
+
+.highlight {
+  font-weight: bold;
+}
