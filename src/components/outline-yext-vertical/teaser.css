@@ -1,10 +1,8 @@
 .result {
-  margin-bottom: 2rem;
+  margin-top: 3rem;
 }
 
 .result-title {
-  margin-top: 0;
-  margin-bottom: 1.5rem;
   a {
     color: var(--c-brand-orange);
     font-style: normal;

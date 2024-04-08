@@ -18,10 +18,13 @@ main {
 }
 
 .total-count {
-  margin-bottom: 2rem;
   color: var(--c-neutral-gray-400, #42525f);
   font-weight: 400;
   font-size: 1rem;
   line-height: 120%;
   font-family: var(--ff-body);
+}
+
+outline-yext-pager {
+  margin-top: 3rem;
 }
