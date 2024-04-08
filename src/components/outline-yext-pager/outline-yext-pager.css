@@ -1,11 +1,11 @@
 :host {
-  --c-brand-orange: #f15d22;
+  --c-brand-orange-200: #f15d22;
   --ff-body: 'Proxima Nova', 'Helvetica', 'Arial', 'sans-serif';
 
   --pager-item-padding: 10px;
   --pager-item-width: 30px;
   --pager-item-font-size: 1rem;
-  --pager-item-color: var(--c-brand-orange);
+  --pager-item-color: var(--c-brand-orange-200);
 }
 
 .visually-hidden,
@@ -40,10 +40,10 @@ ul.pager-items {
 .pager-item {
   display: flex;
   align-items: center;
-  border: 1px solid var(--c-brand-orange);
+  border: 1px solid var(--c-brand-orange-200);
   border-radius: 5px;
   background: var(--c-neutral-gray-100);
-  color: var(--c-brand-orange);
+  color: var(--c-brand-orange-200);
   font-weight: bold;
   font-size: var(--pager-item-font-size);
   cursor: pointer;
@@ -88,8 +88,8 @@ ul.pager-items {
 .pager-item--next:hover a,
 .pager-item--page:hover,
 .pager-item--current {
-  border-color: var(--c-brand-orange);
-  background: var(--c-brand-orange);
+  border-color: var(--c-brand-orange-200);
+  background: var(--c-brand-orange-200);
   color: var(--c-neutral-white);
   font-weight: var(--fw-bold);
 }

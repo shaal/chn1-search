@@ -1,6 +1,7 @@
 :root {
   /* Brand specific primary colors. */
-  --c-brand-orange: #f15d22;
+  --c-brand-orange-100: #ff7037;
+  --c-brand-orange-200: #f15d22;
   --c-brand-blue-200: #3791c4;
   --c-brand-blue-300: #2f83b3;
   --c-neutral-gray-100: #f9fcfe;
@@ -193,7 +194,7 @@
   --lh-8xl: 6.75rem;
   --lh-9xl: 7.75rem;
 
-  --ff-display: 'Merriweather', 'Helvetica', 'Arial', 'sans-serif';
+  --ff-display: Merriweather;
   --ff-body: 'Proxima Nova', 'Helvetica', 'Arial', 'sans-serif';
   --ff-demo: 'Proxima Nova', 'Helvetica', 'Arial', 'sans-serif';
 

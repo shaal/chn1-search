@@ -1,8 +1,10 @@
-.result {
-  margin-top: 3rem;
+.has-image {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 78px 1fr;
 }
 
-.result-title {
+.title {
   margin-top: 0;
   a {
     color: var(--c-brand-orange-200);
@@ -18,7 +20,7 @@
   }
 }
 
-.result-body {
+.body {
   color: var(--c-neutral-gray-500);
   font-style: normal;
   font-weight: 400;
@@ -30,6 +32,9 @@
   }
 }
 
-.highlight {
-  font-weight: bold;
+.image img {
+  border-radius: 50%;
+  width: 76px;
+  aspect-ratio: 1/1;
+  overflow: hidden;
 }
