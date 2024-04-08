@@ -77,9 +77,13 @@ export function testimonialTeaser(
   snippet: string
 ) {
   return html`
-    <outline-teaser image="${image}" title="${title}" url="${url}">
-      <h4>Patient Testimonial</h4>
-      <div class="result-body">${unsafeHTML(snippet)}</div>
+    <outline-teaser
+      image="${image}"
+      title="${title}"
+      subtitle="Patient Testimonial"
+      url="${url}"
+    >
+      <div>${unsafeHTML(snippet)}</div>
     </outline-teaser>
   `;
 }

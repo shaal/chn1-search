@@ -33,6 +33,20 @@
   }
 }
 
+.subtitle {
+  color: var(--CHN-Dark-Gray, #435563);
+  leading-trim: both;
+  text-edge: cap;
+  font-feature-settings:
+    'clig' off,
+    'liga' off;
+  font-family: 'Proxima Nova';
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 120%; /* 24px */
+}
+
 .body {
   color: var(--c-neutral-gray-500);
   font-style: normal;

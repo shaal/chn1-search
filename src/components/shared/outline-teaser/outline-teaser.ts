@@ -30,6 +30,9 @@ export class OutlineTeaser extends LitElement {
   @property({ type: String, attribute: 'title' })
   teaserTitle: string | undefined;
 
+  @property({ type: String, attribute: 'subtitle' })
+  teaserSubtitle: string | undefined;
+
   @property({ type: String, attribute: 'snippet' })
   teaserSnippet: string | undefined;
 
@@ -49,6 +52,10 @@ export class OutlineTeaser extends LitElement {
             >${unsafeHTML(this.teaserTitle)}</a
           >
         </h3>
+
+        ${this.teaserSubtitle
+          ? html` <div class="subtitle">${this.teaserSubtitle}</div> `
+          : null}
         <div class="body">
           ${this.teaserSnippet
             ? html`${unsafeHTML(this.teaserSnippet)}`
