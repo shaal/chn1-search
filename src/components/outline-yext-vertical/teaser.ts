@@ -30,43 +30,50 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
         c_specialties || []
       );
     }
+
     case 'testimonial': {
       const { c_testimonial_Photo } = result.data;
       return testimonialTeaser(c_testimonial_Photo, title, url, cleanData);
+    }
+
+    case 'person': {
+      return defaultTeaser(title, url, result.data.c_title);
     }
 
     case 'page': {
       const title = result.highlightedFields.c_title
         ? highlightText(result.highlightedFields.c_title)
         : result.data.c_title;
-      return html`<outline-teaser
-        url="${url}"
-        title="${title}"
-        snippet="${cleanData}"
-      ></outline-teaser>`;
+      return defaultTeaser(title, url, cleanData);
     }
+
     default: {
-      let titlePrefix: string | null;
+      let modifiedTitle: string;
 
       switch (vertical) {
         case 'news':
-          titlePrefix = 'News';
+          modifiedTitle = `News | ${title}`;
           break;
         case 'careers_area':
-        case 'careers_page':
-          titlePrefix = 'Careers';
+          modifiedTitle = `Careers | ${title}`;
           break;
-
+        case 'careers_page':
+          modifiedTitle = `Careers at Community | ${title}`;
+          break;
         default:
-          titlePrefix = null;
+          modifiedTitle = title;
       }
-      return html`<outline-teaser
-        url="${url}"
-        title="${titlePrefix ? `${titlePrefix} | ` : ''} ${title}"
-        snippet="${cleanData}"
-      ></outline-teaser>`;
+      return defaultTeaser(modifiedTitle, url, cleanData);
     }
   }
+}
+
+export function defaultTeaser(title: string, url: string, snippet: string) {
+  return html`<outline-teaser
+    url="${url}"
+    title="${title}"
+    snippet="${snippet}"
+  ></outline-teaser>`;
 }
 
 export function healthcareProfessionalTeaser(

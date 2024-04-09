@@ -50,7 +50,7 @@ export type ResultItemData = {
   id: string;
   type: string;
   name: string;
-  c_title?: string;
+  c_title: string;
   c_bodyMarkedown: string;
   c_url: string;
   c_testimonial_Photo?: string;
