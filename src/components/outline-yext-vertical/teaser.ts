@@ -1,5 +1,5 @@
-import { TemplateResult, html } from 'lit';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { html } from 'lit';
+
 import {
   HighlightedField,
   verticalSearchResult,
@@ -28,7 +28,7 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
         headshot?.url,
         title,
         url,
-        c_specialties
+        c_specialties || []
       );
 
     case 'testimonial':
@@ -47,7 +47,7 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
 }
 
 export function healthcareProfessionalTeaser(
-  image: string,
+  image: string | undefined,
   title: string,
   url: string,
   specialties: string[]
@@ -71,7 +71,7 @@ export function healthcareProfessionalTeaser(
 }
 
 export function testimonialTeaser(
-  image: string,
+  image: string | undefined,
   title: string,
   url: string,
   snippet: string

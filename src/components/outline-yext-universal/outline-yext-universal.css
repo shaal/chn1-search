@@ -266,6 +266,10 @@ main {
     font-family: var(--ff-body);
     text-decoration-line: underline;
     cursor: pointer;
+    &:hover,
+    &:focus {
+      color: var(--c-brand-blue-300, #2f83b3);
+    }
   }
 }
 
@@ -291,7 +295,7 @@ main {
   flex-direction: column;
   margin-top: 1rem;
   gap: 2rem;
-  color: var(--c-neutral-gray-500);
+  color: var(--c-neutral-gray-600);
   font-style: normal;
   font-weight: 400;
   font-size: 1rem;

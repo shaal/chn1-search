@@ -1,7 +1,9 @@
 .has-image {
   display: grid;
   gap: 20px;
-  grid-template-columns: 78px 1fr;
+  &:not(.is-mobile) {
+    grid-template-columns: 78px 1fr;
+  }
 }
 
 .image img {
@@ -34,21 +36,21 @@
 }
 
 .subtitle {
-  color: var(--CHN-Dark-Gray, #435563);
+  color: var(--c-neutral-gray-500);
   leading-trim: both;
   text-edge: cap;
   font-feature-settings:
     'clig' off,
     'liga' off;
-  font-family: 'Proxima Nova';
+  font-family: var(--ff-body);
   font-size: 20px;
   font-style: normal;
   font-weight: 400;
-  line-height: 120%; /* 24px */
+  line-height: 120%;
 }
 
 .body {
-  color: var(--c-neutral-gray-500);
+  color: var(--c-neutral-gray-600);
   font-style: normal;
   font-weight: 400;
   font-size: 1rem;

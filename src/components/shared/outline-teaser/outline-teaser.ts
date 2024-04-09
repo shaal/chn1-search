@@ -1,8 +1,11 @@
 import { LitElement, html, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { AdoptedStylesheets } from '@phase2/outline-adopted-stylesheets-controller';
+import { ResizeController } from '../../../controllers/resize-controller';
+
 import componentStyles from './outline-teaser.css?inline';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { classMap } from 'lit/directives/class-map.js';
 
 /**
  * The Outline Teaser component
@@ -14,30 +17,36 @@ import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 export class OutlineTeaser extends LitElement {
   createRenderRoot() {
     const root = super.createRenderRoot();
-    // this.EncapsulatedStylesheets = this.shadowRoot
-    //   ? new AdoptedStylesheets(this, componentStyles, this.shadowRoot)
-    //   : undefined;
+
     new AdoptedStylesheets(this, componentStyles, this.shadowRoot!);
     return root;
   }
 
+  resizeController = new ResizeController(this, {});
+
   @property({ type: String, attribute: 'image' })
-  teaserImage: string | undefined;
+  teaserImage?: string;
 
   @property({ type: String, attribute: 'url' })
-  teaserUrl: string | undefined;
+  teaserUrl?: string;
 
   @property({ type: String, attribute: 'title' })
-  teaserTitle: string | undefined;
+  teaserTitle?: string;
 
   @property({ type: String, attribute: 'subtitle' })
-  teaserSubtitle: string | undefined;
+  teaserSubtitle?: string;
 
   @property({ type: String, attribute: 'snippet' })
-  teaserSnippet: string | undefined;
+  teaserSnippet?: string;
 
   render(): TemplateResult {
-    return html` <div class="teaser ${this.teaserImage ? 'has-image' : ''}">
+    return html` <div
+      class="${classMap({
+        'teaser': true,
+        'has-image': this.teaserImage && this.teaserImage !== '',
+        'is-mobile': this.resizeController.currentBreakpointRange === 0,
+      })}"
+    >
       ${this.teaserImage
         ? html`
             <div class="image">
