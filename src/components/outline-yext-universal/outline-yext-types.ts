@@ -52,6 +52,9 @@ export type ResultItemData = {
   name: string;
   c_bodyMarkedown: string;
   c_url: string;
+  c_testimonial_Photo?: string;
+  c_specialties?: [];
+  headshot?: { url?: string };
   s_snippet: string;
   uid: string;
 };

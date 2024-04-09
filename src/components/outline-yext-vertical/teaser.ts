@@ -1,52 +1,88 @@
-import { TemplateResult, html } from 'lit';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import { html } from 'lit';
+
 import {
   HighlightedField,
   verticalSearchResult,
 } from '../outline-yext-universal/outline-yext-types';
+import '../shared/outline-button/outline-button';
 
-export function defaultTeaser(
-  url: string,
-  title: string,
-  snippet: string
-): TemplateResult {
-  return html`
-    <h3 class="result-title">
-      <a href="${url}"> ${unsafeHTML(title)} </a>
-    </h3>
-    <div class="result-body">${unsafeHTML(snippet)}</div>
-  `;
-}
+import '../shared/outline-teaser/outline-teaser';
 
 export function displayTeaser(vertical: string, result: verticalSearchResult) {
   const cleanData = result.highlightedFields.s_snippet
     ? highlightText(result.highlightedFields.s_snippet)
-    : '';
+    : result.data.s_snippet;
+
+  // If name (teaser's title) has highlighted text, display it. Otherwise display plain name string
+  const title = result.highlightedFields.name
+    ? highlightText(result.highlightedFields.name)
+    : result.data.name;
+
+  const url = `https://www.ecommunity.com/node/${result.data.uid}`;
+
   switch (vertical) {
-    case 'blog':
-      return blogTeaser(result, cleanData);
-      break;
-    default:
-      {
-        // If name (teaser's title) has highlighted text, display it. Otherwise display plain name string
-        const title = result.highlightedFields.name
-          ? highlightText(result.highlightedFields.name)
-          : result.data.name;
-        const url = `https://www.ecommunity.com/node/${result.data.uid}`;
-        return defaultTeaser(url, title, cleanData);
-      }
-      break;
+    case 'healthcare_professionals': {
+      const { c_specialties, headshot } = result.data;
+      return healthcareProfessionalTeaser(
+        headshot?.url,
+        title,
+        url,
+        c_specialties || []
+      );
+    }
+    case 'testimonial': {
+      const { c_testimonial_Photo } = result.data;
+      return testimonialTeaser(c_testimonial_Photo, title, url, cleanData);
+    }
+    default: {
+      return html`<outline-teaser
+        url="${url}"
+        title="${title}"
+        snippet="${cleanData}"
+      ></outline-teaser>`;
+    }
   }
 }
 
-export function blogTeaser(result: verticalSearchResult, cleanData: string) {
+export function healthcareProfessionalTeaser(
+  image: string | undefined,
+  title: string,
+  url: string,
+  specialties: string[]
+) {
   return html`
-    <h3>
-      <a href="${window.location.origin}/node/${result.data.uid}">
-        ${result.data.name}
-      </a>
-    </h3>
-    <p>${unsafeHTML(cleanData)}</p>
+    <outline-teaser image="${image}" title="${title}" url="${url}">
+      ${specialties?.length > 0
+        ? html`
+            <ul>
+              ${specialties.map((el: string) => html`<li>${el}</li>`)}
+            </ul>
+          `
+        : null}
+      <outline-button
+        slot="cta"
+        button-url="${url}"
+        button-title="Request an appointment from profile"
+      ></outline-button>
+    </outline-teaser>
+  `;
+}
+
+export function testimonialTeaser(
+  image: string | undefined,
+  title: string,
+  url: string,
+  snippet: string
+) {
+  return html`
+    <outline-teaser
+      image="${image}"
+      title="${title}"
+      subtitle="Patient Testimonial"
+      snippet="${snippet}"
+      url="${url}"
+    >
+    </outline-teaser>
   `;
 }
 
