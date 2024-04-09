@@ -13,12 +13,12 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
     ? highlightText(result.highlightedFields.s_snippet)
     : result.data.s_snippet;
 
+  const url = `https://www.ecommunity.com/node/${result.data.uid}`;
   // If name (teaser's title) has highlighted text, display it. Otherwise display plain name string
+
   const title = result.highlightedFields.name
     ? highlightText(result.highlightedFields.name)
     : result.data.name;
-
-  const url = `https://www.ecommunity.com/node/${result.data.uid}`;
 
   switch (vertical) {
     case 'healthcare_professionals': {
@@ -30,18 +30,50 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
         c_specialties || []
       );
     }
+
     case 'testimonial': {
       const { c_testimonial_Photo } = result.data;
       return testimonialTeaser(c_testimonial_Photo, title, url, cleanData);
     }
+
+    case 'person': {
+      return defaultTeaser(title, url, result.data.c_title);
+    }
+
+    case 'page': {
+      const title = result.highlightedFields.c_title
+        ? highlightText(result.highlightedFields.c_title)
+        : result.data.c_title;
+      return defaultTeaser(title, url, cleanData);
+    }
+
     default: {
-      return html`<outline-teaser
-        url="${url}"
-        title="${title}"
-        snippet="${cleanData}"
-      ></outline-teaser>`;
+      let modifiedTitle: string;
+
+      switch (vertical) {
+        case 'news':
+          modifiedTitle = `News | ${title}`;
+          break;
+        case 'careers_area':
+          modifiedTitle = `Careers | ${title}`;
+          break;
+        case 'careers_page':
+          modifiedTitle = `Careers at Community | ${title}`;
+          break;
+        default:
+          modifiedTitle = title;
+      }
+      return defaultTeaser(modifiedTitle, url, cleanData);
     }
   }
+}
+
+export function defaultTeaser(title: string, url: string, snippet: string) {
+  return html`<outline-teaser
+    url="${url}"
+    title="${title}"
+    snippet="${snippet}"
+  ></outline-teaser>`;
 }
 
 export function healthcareProfessionalTeaser(
