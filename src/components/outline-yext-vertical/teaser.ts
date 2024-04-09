@@ -63,9 +63,9 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
 
           if (match && match[1]) {
             prefix = match[1]
-              .split('-') // Split the string by hyphens
-              .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize each word
-              .join(' '); // Join the words with spaces
+              .split('-')
+              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(' ');
           }
 
           break;
