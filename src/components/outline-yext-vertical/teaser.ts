@@ -48,22 +48,40 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
     }
 
     default: {
-      let modifiedTitle: string;
+      let prefix: string = '';
 
       switch (vertical) {
         case 'news':
-          modifiedTitle = `News | ${title}`;
+          prefix = `News`;
           break;
         case 'careers_area':
-          modifiedTitle = `Careers | ${title}`;
+          prefix = `Careers`;
           break;
+        case 'procedure':
+          const regex = /\/([^/]+)(?=\/[^/]+$)/;
+          const match = result.data.c_url.match(regex);
+
+          if (match && match[1]) {
+            prefix = match[1]
+              .split('-')
+              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(' ');
+          }
+
+          break;
+
         case 'careers_page':
-          modifiedTitle = `Careers at Community | ${title}`;
+          prefix = `Careers at Community`;
           break;
+
         default:
-          modifiedTitle = title;
+          prefix = '';
       }
-      return defaultTeaser(modifiedTitle, url, cleanData);
+      return defaultTeaser(
+        `${prefix !== '' && `${prefix} | `} ${title}`,
+        url,
+        cleanData
+      );
     }
   }
 }
