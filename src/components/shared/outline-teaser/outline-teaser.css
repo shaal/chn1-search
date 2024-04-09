@@ -7,10 +7,10 @@
 }
 
 .image img {
-  border-radius: 50%;
-  width: 76px;
   aspect-ratio: 1/1;
+  width: 76px;
   overflow: hidden;
+  border-radius: 50%;
 }
 
 .content {
@@ -39,14 +39,14 @@
   color: var(--c-neutral-gray-500);
   leading-trim: both;
   text-edge: cap;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 120%;
+  font-family: var(--ff-body);
   font-feature-settings:
     'clig' off,
     'liga' off;
-  font-family: var(--ff-body);
-  font-size: 20px;
-  font-style: normal;
-  font-weight: 400;
-  line-height: 120%;
 }
 
 .body {

@@ -21,21 +21,19 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
   const url = `https://www.ecommunity.com/node/${result.data.uid}`;
 
   switch (vertical) {
-    case 'healthcare_professionals':
+    case 'healthcare_professionals': {
       const { c_specialties, headshot } = result.data;
-
       return healthcareProfessionalTeaser(
         headshot?.url,
         title,
         url,
         c_specialties || []
       );
-
-    case 'testimonial':
+    }
+    case 'testimonial': {
       const { c_testimonial_Photo } = result.data;
-
       return testimonialTeaser(c_testimonial_Photo, title, url, cleanData);
-
+    }
     default: {
       return html`<outline-teaser
         url="${url}"

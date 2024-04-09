@@ -1,13 +1,13 @@
 .btn {
   display: inline-block;
+  padding: 0.625rem 0.75rem;
   border-radius: 5px;
   background: var(--c-brand-orange-200);
-  padding: 0.625rem 0.75rem;
   color: var(--c-neutral-white);
-  font-family: var(--ff-body);
-  font-size: 0.95rem;
   font-weight: 700;
+  font-size: 0.95rem;
   line-height: 120%;
+  font-family: var(--ff-body);
   text-decoration: none;
   transition: 0.3s ease;
   &:hover,
