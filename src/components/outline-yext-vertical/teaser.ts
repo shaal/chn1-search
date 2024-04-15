@@ -52,7 +52,6 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
     }
 
     case 'locationsearch': {
-      console.log(result.data);
       const { address, c_locationHoursAndFax, c_googleMapLocations } =
         result.data;
       return locationTeaser(
