@@ -169,7 +169,7 @@ export function locationTeaser(
         ${address.city}, ${address.region} ${address.postalCode}<br />
         <a href="tel:${phone}">${phone}</a>
         <br />
-        <a href="fax:${fax}">${fax}</a>
+        <p class="fax">${fax}</p>
         <br />
         <a href="${directionsUrl}">Get directions</a>
       </div>
