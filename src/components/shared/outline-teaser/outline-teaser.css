@@ -49,7 +49,8 @@
     'liga' off;
 }
 
-.body {
+.body,
+.location-information a {
   color: var(--c-neutral-gray-600);
   font-style: normal;
   font-weight: 400;
@@ -57,14 +58,51 @@
   line-height: 150%;
   font-family: var(--ff-body);
   p {
+    margin: 0;
     word-wrap: break-word;
   }
 }
 
-.location-information {
+.body h4 {
+  color: var(--c-neutral-gray-500);
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 120%;
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+}
+
+.body.has-hours {
   display: grid;
-  grid-template-columns: 25% 75%;
   gap: 2rem;
+  grid-template-columns: 25% 75%;
+  &.is-mobile {
+    grid-template-columns: auto;
+  }
+}
+
+.location-information {
+  p {
+    margin: 0;
+  }
+
+  .inner {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+.fax {
+  text-decoration: underline;
+}
+
+.hours p {
+  margin-bottom: 0.5rem;
+}
+
+.cta {
+  margin-top: 1.25rem;
 }
 
 .highlight {

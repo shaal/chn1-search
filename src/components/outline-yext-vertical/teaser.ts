@@ -162,17 +162,18 @@ export function locationTeaser(
   directionsUrl: string
 ) {
   return html`
-    <outline-teaser title="${title}" url="${url}">
+    <outline-teaser
+      title="${title}"
+      url="${url}"
+      phone="${phone}"
+      fax="${fax}"
+      directions-url="${directionsUrl}"
+      hours="${hours}"
+    >
       <div slot="address">
         ${address.line1}<br />
         ${address.city}, ${address.region} ${address.postalCode}<br />
-        <a href="tel:${phone}">${phone}</a>
-        <br />
-        <p class="fax">${fax}</p>
-        <br />
-        <a href="${directionsUrl}">Get directions</a>
       </div>
-      <div slot="hours">${unsafeHTML(hours)}</div>
     </outline-teaser>
   `;
 }
