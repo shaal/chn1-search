@@ -3,7 +3,6 @@ import { customElement, property, state } from 'lit/decorators.js';
 import { AdoptedStyleSheets } from '../../../controllers/adopted-stylesheets.ts';
 import { ResizeController } from '../../../controllers/resize-controller';
 import encapsulatedStyles from './outline-teaser.css?inline';
-import globalStyles from './outline-teaser.encapsulated.css?inline';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { classMap } from 'lit/directives/class-map.js';
 
@@ -16,7 +15,6 @@ import { classMap } from 'lit/directives/class-map.js';
 @customElement('outline-teaser')
 export class OutlineTeaser extends LitElement {
   adoptedStyleSheets = new AdoptedStyleSheets(this, {
-    globalCSS: globalStyles,
     encapsulatedCSS: encapsulatedStyles,
   });
 
