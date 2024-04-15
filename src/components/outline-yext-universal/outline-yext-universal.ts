@@ -4,8 +4,8 @@ import { repeat } from 'lit/directives/repeat.js';
 // import { ifDefined } from 'lit/directives/if-defined.js';
 import { classMap } from 'lit/directives/class-map.js';
 import componentStyles from './outline-yext-universal.css?inline';
-import { Task } from '@lit/task';
 
+import { Task } from '@lit/task';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { ResizeController } from '../../controllers/resize-controller';
 import { AdoptedStyleSheets } from '../../controllers/adopted-stylesheets.ts';
@@ -383,9 +383,8 @@ export class OutlineYextUniversal extends LitElement {
       <div class="results-section">
         <div class="results-section-heading">
           <h2 class="results-section-type">
-            ${module.verticalConfigId
-              .replace(/_/g, ' ')
-              .replace(/\b\w/g, match => match.toUpperCase())}
+
+              ${this.setVerticalTitle(module.verticalConfigId)}
           </h2>
           <button
             class=""
@@ -627,10 +626,14 @@ export class OutlineYextUniversal extends LitElement {
     this.updateUrlWithSearchSettings(newParams);
   }
 
-  convertToTitleCase(str: String) {
-    return str
-      .replace(/_/g, ' ')
-      .replace(/\b\w/g, match => match.toUpperCase());
+  setVerticalTitle(title: string): TemplateResult {
+    return html`
+      ${title === 'locationsearch'
+        ? 'Location'
+        : title
+            .replace(/_/g, ' ')
+            .replace(/\b\w/g, match => match.toUpperCase())}
+    `;
   }
 
   mobileVerticalNavTemplate(response: UniversalSearchResponse): TemplateResult {
@@ -654,7 +657,7 @@ export class OutlineYextUniversal extends LitElement {
                   @click=${() =>
                     (this.dropdownVerticalsOpen = !this.dropdownVerticalsOpen)}
                 >
-                  ${this.convertToTitleCase(this.activeVertical)}
+                  ${this.setVerticalTitle(this.activeVertical)}
                 </button>
                 <div
                   id="vertical-dropdown-content"
@@ -690,7 +693,7 @@ export class OutlineYextUniversal extends LitElement {
                             @click="${() =>
                               this.setActiveVertical(result.verticalConfigId)}"
                           >
-                            ${this.convertToTitleCase(result.verticalConfigId)}
+                            ${this.setVerticalTitle(result.verticalConfigId)}
                           </button>
                         </li>
                       `
@@ -735,9 +738,7 @@ export class OutlineYextUniversal extends LitElement {
                         @click="${() =>
                           this.setActiveVertical(result.verticalConfigId)}"
                       >
-                        ${result.verticalConfigId
-                          .replace(/_/g, ' ')
-                          .replace(/\b\w/g, match => match.toUpperCase())}
+                        ${this.setVerticalTitle(result.verticalConfigId)}
                       </button>
                     </li>
                   `

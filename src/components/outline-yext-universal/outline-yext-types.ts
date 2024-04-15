@@ -46,6 +46,14 @@ export type HighlightedField = {
   }[];
 };
 
+export type Address = {
+  city: string;
+  countryCode: string;
+  line1: string;
+  postalCode: string;
+  region: string;
+};
+
 export type ResultItemData = {
   id: string;
   type: string;
@@ -58,6 +66,9 @@ export type ResultItemData = {
   headshot?: { url?: string };
   s_snippet: string;
   uid: string;
+  address?: Address;
+  c_locationHoursAndFax?: string;
+  c_googleMapLocations?: string;
 };
 
 export type ResultData = {

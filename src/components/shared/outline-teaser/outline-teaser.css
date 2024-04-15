@@ -61,6 +61,12 @@
   }
 }
 
+.location-information {
+  display: grid;
+  grid-template-columns: 25% 75%;
+  gap: 2rem;
+}
+
 .highlight {
   font-weight: bold;
 }

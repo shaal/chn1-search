@@ -2,7 +2,6 @@ import { LitElement, html, TemplateResult } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { AdoptedStylesheets } from '@phase2/outline-adopted-stylesheets-controller';
 import { ResizeController } from '../../../controllers/resize-controller';
-
 import componentStyles from './outline-teaser.css?inline';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { classMap } from 'lit/directives/class-map.js';
@@ -65,10 +64,29 @@ export class OutlineTeaser extends LitElement {
         ${this.teaserSubtitle
           ? html` <div class="subtitle">${this.teaserSubtitle}</div> `
           : null}
+
         <div class="body">
           ${this.teaserSnippet
             ? html`${unsafeHTML(this.teaserSnippet)}`
             : html`<slot></slot>`}
+          <div class="location-information">
+            ${this.querySelector('[slot="address"]') !== null
+              ? html`
+                  <div class="address">
+                    <h4>Location</h4>
+                    <slot name="address"></slot>
+                  </div>
+                `
+              : null}
+            ${this.querySelector('[slot="hours"]') !== null
+              ? html`
+                  <div class="hours">
+                    <h4>Hours</h4>
+                    <slot name="hours"></slot>
+                  </div>
+                `
+              : null}
+          </div>
         </div>
 
         ${this.querySelector('[slot="cta"]') !== null
