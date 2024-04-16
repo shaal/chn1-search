@@ -63,7 +63,9 @@ export class OutlineTeaser extends LitElement {
               `
             : null}
           ${this.teaserPhone
-            ? html`<a href="tel:${this.teaserPhone}">${this.teaserPhone}</a>`
+            ? html`<a href="tel:${this.teaserPhone}" class="phone"
+                >${this.teaserPhone}</a
+              >`
             : null}
           ${this.teaserFax ? html` <p class="fax">${this.teaserFax}</p>` : null}
           ${this.teaserDirectionsUrl
