@@ -101,9 +101,7 @@ export class OutlineTeaser extends LitElement {
 
       <div class="content">
         <h3 class="title">
-          <a href="${window.location.origin}/node/${this.teaserUrl}}"
-            >${unsafeHTML(this.teaserTitle)}</a
-          >
+          <a href="${this.teaserUrl}">${unsafeHTML(this.teaserTitle)}</a>
         </h3>
 
         ${this.teaserSubtitle

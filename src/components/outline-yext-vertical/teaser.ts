@@ -1,4 +1,5 @@
 import { html } from 'lit';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 import {
   Address,
@@ -14,7 +15,7 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
     ? highlightText(result.highlightedFields.s_snippet)
     : result.data.s_snippet;
 
-  const url = `https://www.ecommunity.com/node/${result.data.uid}`;
+  const url = `https://www.ecommunity.com${result.data.c_url}`;
 
   // If name (teaser's title) has highlighted text, display it. Otherwise display plain name string
   const title = result.highlightedFields.name
@@ -57,8 +58,8 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
         title,
         url,
         address,
-        '317-355-5347',
-        '317-355-5347',
+        '',
+        '',
         c_locationHoursAndFax,
         c_googleMapLocations
       );
@@ -146,11 +147,11 @@ export function testimonialTeaser(
 export function locationTeaser(
   title: string,
   url: string,
-  address: Address,
+  address: Address | undefined,
   phone: string,
   fax: string,
-  hours: string,
-  directionsUrl: string
+  hours: string | undefined,
+  directionsUrl: string | undefined
 ) {
   return html`
     <outline-teaser
@@ -161,10 +162,14 @@ export function locationTeaser(
       directions-url="${directionsUrl}"
       hours="${hours}"
     >
+      ${address
+        ? unsafeHTML(`
       <div slot="address">
         ${address.line1}<br />
         ${address.city}, ${address.region} ${address.postalCode}<br />
       </div>
+      `)
+        : null}
     </outline-teaser>
   `;
 }
