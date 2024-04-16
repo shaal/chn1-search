@@ -64,18 +64,18 @@
 }
 
 .body h4 {
-  color: var(--c-neutral-gray-500);
-  font-size: 1.25rem;
-  font-weight: 400;
-  line-height: 120%;
   margin-top: 0;
   margin-bottom: 0.75rem;
+  color: var(--c-neutral-gray-500);
+  font-weight: 400;
+  font-size: 1.25rem;
+  line-height: 120%;
 }
 
 .body.has-hours {
   display: grid;
-  gap: 2rem;
   grid-template-columns: 25% 75%;
+  gap: 2rem;
   &.is-mobile {
     grid-template-columns: auto;
   }
@@ -100,12 +100,12 @@
   align-items: center;
   gap: 0.75rem;
   &:before {
-    content: '';
-    background-repeat: no-repeat;
+    display: block;
 
     width: 16px;
     height: 16px;
-    display: block;
+    background-repeat: no-repeat;
+    content: '';
   }
 }
 

@@ -8,7 +8,6 @@ import {
 import '../shared/outline-button/outline-button';
 
 import '../shared/outline-teaser/outline-teaser';
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 export function displayTeaser(vertical: string, result: verticalSearchResult) {
   const cleanData = result.highlightedFields.s_snippet
@@ -16,8 +15,8 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
     : result.data.s_snippet;
 
   const url = `https://www.ecommunity.com/node/${result.data.uid}`;
-  // If name (teaser's title) has highlighted text, display it. Otherwise display plain name string
 
+  // If name (teaser's title) has highlighted text, display it. Otherwise display plain name string
   const title = result.highlightedFields.name
     ? highlightText(result.highlightedFields.name)
     : result.data.name;
@@ -77,15 +76,7 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
           prefix = `Careers`;
           break;
         case 'procedure':
-          // Extract category from URL and format it for display
-          const regex = /\/([^/]+)(?=\/[^/]+$)/;
-          const match = result.data.c_url.match(regex);
-          if (match && match[1]) {
-            prefix = match[1]
-              .split('-')
-              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-              .join(' ');
-          }
+          prefix = getCategoryFromURL(result.data.c_url);
           break;
         case 'careers_page':
           prefix = `Careers at Community`;
@@ -176,6 +167,18 @@ export function locationTeaser(
       </div>
     </outline-teaser>
   `;
+}
+
+function getCategoryFromURL(url: string): string {
+  const regex = /\/([^/]+)(?=\/[^/]+$)/;
+  const match = url.match(regex);
+
+  return match && match[1]
+    ? match[1]
+        .split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ')
+    : '';
 }
 
 function highlightText(content: HighlightedField): string {
