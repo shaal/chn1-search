@@ -13,7 +13,7 @@ export type SubQueryParam = {
 };
 
 export interface SearchSettings {
-  [key: string]: string | number | QueryParam;
+  [key: string]: string | number | QueryParam | Object;
   input: string;
   limit: number;
   offset: number;
