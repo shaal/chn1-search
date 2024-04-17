@@ -1,6 +1,8 @@
 import { html } from 'lit';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 import {
+  Address,
   HighlightedField,
   verticalSearchResult,
 } from '../outline-yext-universal/outline-yext-types';
@@ -13,9 +15,9 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
     ? highlightText(result.highlightedFields.s_snippet)
     : result.data.s_snippet;
 
-  const url = `https://www.ecommunity.com/node/${result.data.uid}`;
-  // If name (teaser's title) has highlighted text, display it. Otherwise display plain name string
+  const url = `https://www.ecommunity.com${result.data.c_url}`;
 
+  // If name (teaser's title) has highlighted text, display it. Otherwise display plain name string
   const title = result.highlightedFields.name
     ? highlightText(result.highlightedFields.name)
     : result.data.name;
@@ -41,13 +43,30 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
     }
 
     case 'page': {
-      const title = result.highlightedFields.c_title
+      // Highlight the title if it exists in the highlightedFields
+      const highlightedTitle = result.highlightedFields.c_title
         ? highlightText(result.highlightedFields.c_title)
         : result.data.c_title;
-      return defaultTeaser(title, url, cleanData);
+
+      return defaultTeaser(highlightedTitle, url, cleanData);
+    }
+
+    case 'locationsearch': {
+      const { address, c_locationHoursAndFax, c_googleMapLocations } =
+        result.data;
+      return locationTeaser(
+        title,
+        url,
+        address,
+        '',
+        '',
+        c_locationHoursAndFax,
+        c_googleMapLocations
+      );
     }
 
     default: {
+      // Handle cases where no specific vertical is matched
       let prefix: string = '';
 
       switch (vertical) {
@@ -58,30 +77,18 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
           prefix = `Careers`;
           break;
         case 'procedure':
-          const regex = /\/([^/]+)(?=\/[^/]+$)/;
-          const match = result.data.c_url.match(regex);
-
-          if (match && match[1]) {
-            prefix = match[1]
-              .split('-')
-              .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-              .join(' ');
-          }
-
+          prefix = getCategoryFromURL(result.data.c_url);
           break;
-
         case 'careers_page':
           prefix = `Careers at Community`;
           break;
-
         default:
           prefix = '';
       }
-      return defaultTeaser(
-        `${prefix !== '' && `${prefix} | `} ${title}`,
-        url,
-        cleanData
-      );
+
+      // Combine prefix and title for display
+      const teaserTitle = `${prefix === '' ? '' : `${prefix} | `} ${title}`;
+      return defaultTeaser(teaserTitle, url, cleanData);
     }
   }
 }
@@ -91,7 +98,8 @@ export function defaultTeaser(title: string, url: string, snippet: string) {
     url="${url}"
     title="${title}"
     snippet="${snippet}"
-  ></outline-teaser>`;
+  >
+  </outline-teaser>`;
 }
 
 export function healthcareProfessionalTeaser(
@@ -134,6 +142,48 @@ export function testimonialTeaser(
     >
     </outline-teaser>
   `;
+}
+
+export function locationTeaser(
+  title: string,
+  url: string,
+  address: Address | undefined,
+  phone: string,
+  fax: string,
+  hours: string | undefined,
+  directionsUrl: string | undefined
+) {
+  return html`
+    <outline-teaser
+      title="${title}"
+      url="${url}"
+      phone="${phone}"
+      fax="${fax}"
+      directions-url="${directionsUrl}"
+      hours="${hours}"
+    >
+      ${address
+        ? unsafeHTML(`
+      <div slot="address">
+        ${address.line1}<br />
+        ${address.city}, ${address.region} ${address.postalCode}<br />
+      </div>
+      `)
+        : null}
+    </outline-teaser>
+  `;
+}
+
+function getCategoryFromURL(url: string): string {
+  const regex = /\/([^/]+)(?=\/[^/]+$)/;
+  const match = url.match(regex);
+
+  return match && match[1]
+    ? match[1]
+        .split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ')
+    : '';
 }
 
 function highlightText(content: HighlightedField): string {
