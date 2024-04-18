@@ -5,17 +5,18 @@ import {
   VerticalSearchResponseStructure,
 } from './yext-types';
 
+import {
+  apiKey,
+  apiVersion,
+  accountId,
+  experienceKey,
+  locale,
+  urlHref,
+  version,
+} from './yext-config';
+
 const startTime = performance.now();
 let lastFetchTime = 0;
-
-// @todo is any of this different per component?
-const urlHref = 'https://cdn.yextapis.com/v2/accounts';
-const accountId = 'me';
-const apiVersion = '20230406';
-const apiKey = '0f3c031ce836961cf921558aca570af3';
-const experienceKey = 'universal-search';
-const version = 'PRODUCTION';
-const locale = 'en';
 
 export interface YextSearchDataResponse {
   meta: {};
