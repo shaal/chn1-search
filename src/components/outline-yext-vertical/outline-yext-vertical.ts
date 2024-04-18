@@ -21,6 +21,7 @@ import {
   defaultSearchSettings,
   getStoredSearchSettings,
   getYextData,
+  syncSearchSettingsInStore,
   setStoredSearchSettings,
 } from '../../libraries/data-yext';
 
@@ -41,9 +42,7 @@ export class OutlineYextVertical extends LitElement {
 
   pageTitle = '';
 
-  defaultSearchSettings: SearchSettings = defaultSearchSettings;
-
-  searchSettings: SearchSettings = structuredClone(this.defaultSearchSettings);
+  searchSettings: SearchSettings | undefined;
 
   fields = 'firstName,lastName,data.id';
 
@@ -82,8 +81,8 @@ export class OutlineYextVertical extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
+    syncSearchSettingsInStore();
     this.searchSettings = getStoredSearchSettings();
-    setStoredSearchSettings(this.searchSettings);
     this.pageTitle = this.verticalKey || '';
   }
 
@@ -97,6 +96,10 @@ export class OutlineYextVertical extends LitElement {
    * @param {Event} event - The page change event, typically a click event.
    */
   handlePageChange(event: Event) {
+    if (!this.searchSettings) {
+      return;
+    }
+
     const pageClicked = (event.target as HTMLElement).getAttribute(
       'current-page'
     );
@@ -120,8 +123,11 @@ export class OutlineYextVertical extends LitElement {
     () => [this.entities]
   );
 
-  // from https://hitchhikers.yext.com/docs/contentdeliveryapis/search/verticalsearch
   displayTotalCountTemplate() {
+    if (!this.searchSettings) {
+      return;
+    }
+
     if (this.totalCount) {
       const range1 = this.searchSettings.offset + 1;
       const range2 = Math.min(
@@ -183,6 +189,10 @@ export class OutlineYextVertical extends LitElement {
   }
 
   _focusIn() {
+    if (!this.searchSettings) {
+      return;
+    }
+
     if (
       this.searchSettings.input.length > 3 &&
       this.searchSuggestions.length > 0
@@ -203,6 +213,10 @@ export class OutlineYextVertical extends LitElement {
   }
 
   render(): TemplateResult {
+    if (!this.searchSettings) {
+      return html``;
+    }
+
     if (this.fetchEndpoint.value !== undefined) {
       this.taskValue = this.fetchEndpoint.value;
     }

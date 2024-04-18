@@ -21,8 +21,8 @@ export const defaultSearchSettings: SearchSettings = {
   input: '',
   offset: 0,
   limit: 16,
-  filters: {},
-  facetFilters: {},
+  filters: {}, // @todo, this is required, but the values have not been tested.
+  facetFilters: {}, // @todo this has not been tested.
   sortBys: [{ type: 'RELEVANCE' }],
 };
 
@@ -130,11 +130,18 @@ export const setStoredSearchSettings = (searchSettings: SearchSettings) => {
   setDynamicSearchParams(dynamicParams);
 };
 
+export const syncSearchSettingsInStore = () => {
+  const searchSettings = getStoredSearchSettings();
+  setStoredSearchSettings(searchSettings);
+}
+
+/**
+ * See https://hitchhikers.yext.com/docs/contentdeliveryapis/search/universalsearch
+ * See https://hitchhikers.yext.com/docs/contentdeliveryapis/search/verticalsearch
+ */
 export const getYextData: (config: {
   verticalKey?: string;
 }) => Promise<YextVerticalDataResponse> = async ({ verticalKey }) => {
-  const dynamicParams = getDynamicSearchParams();
-
   const queryParams = new URLSearchParams();
 
   queryParams.set('v', apiVersion);
@@ -146,7 +153,7 @@ export const getYextData: (config: {
   queryParams.set('version', version);
   queryParams.set('locale', locale);
 
-  dynamicParams.forEach((value, key) => {
+  getDynamicSearchParams().forEach((value, key) => {
     queryParams.set(key, value);
   });
 
@@ -160,9 +167,8 @@ export const getYextData: (config: {
     response: VerticalSearchResponseStructure;
   } = await response.json();
 
-  const endTime = performance.now();
-
   // @todo why are we storing these times?
+  const endTime = performance.now();
   lastFetchTime = (endTime - startTime) / 1000;
 
   return jsonResponse;
