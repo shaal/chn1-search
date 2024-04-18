@@ -227,7 +227,7 @@ export class OutlineYextVertical extends LitElement {
 
                 return this.displayAll(data.response);
               },
-              error: error => html`${error}`,
+              // error: error => html`${error}`,
             })}
             ${this.totalCount
               ? html`

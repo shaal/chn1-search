@@ -720,7 +720,7 @@ export class OutlineYextUniversal extends LitElement {
                 ? this.mobileVerticalNavTemplate(data.response)
                 : this.desktopVerticalNavTemplate(data.response);
             },
-            error: error => html`${error}`,
+            // error: error => html`${error}`,
           })}
           ${this.activeVertical !== 'all'
             ? html`
@@ -744,7 +744,7 @@ export class OutlineYextUniversal extends LitElement {
 
                       return this.displayAll(data.response);
                     },
-                    error: error => html`${error}`,
+                    // error: error => html`${error}`,
                   })}
                 </main>
               `}
