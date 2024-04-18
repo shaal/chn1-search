@@ -36,6 +36,8 @@ export const isVerticalSearchResponse = (
   return 'modules' in response === false;
 };
 
+// We use the URL query parameters as a store. We could use something else later such as local storage or Redux, so the URL store is abstracted from getting and setting the search settings.
+
 const getDynamicSearchParams = () => {
   const url = new URL(window.location.href);
   const searchParams = new URLSearchParams(url.search);
@@ -97,7 +99,10 @@ export const setStoredSearchSettings = (searchSettings: SearchSettings) => {
 
   for (const [key, value] of Object.entries(searchSettings)) {
     if (value !== '' && value !== null) {
-      dynamicParams.set(key, typeof value === 'string' ? value : JSON.stringify(value));
+      dynamicParams.set(
+        key,
+        typeof value === 'string' ? value : JSON.stringify(value)
+      );
     } else {
       dynamicParams.delete(key);
     }
@@ -142,9 +147,10 @@ export const getYextSearchData: (config: {
     queryParams.set(key, value);
   });
 
-  const jsonResponse = verticalKey && verticalKey !== 'all'
-    ? getYextVerticalSearchData(queryParams)
-    : getYextUniversalSearchData(queryParams);
+  const jsonResponse =
+    verticalKey && verticalKey !== 'all'
+      ? getYextVerticalSearchData(queryParams)
+      : getYextUniversalSearchData(queryParams);
 
   // @todo why are we storing these times?
   const endTime = performance.now();
