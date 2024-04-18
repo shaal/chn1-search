@@ -1,5 +1,6 @@
 import { getStoredSearchSettings } from './yext-store';
 import {
+  ResponseSearchSuggestions,
   UniversalSearchResponse,
   VerticalSearchResponseStructure,
 } from './yext-types';
@@ -118,28 +119,26 @@ const getYextVerticalSearchData = async (queryParams: URLSearchParams) => {
   return jsonResponse;
 };
 
-// @todo this was copy and pasted from other versions without updating. It will need to be refactored to match getYextData.
-/*
-async getYextSuggestions() {
+// This has been minimally tested.
+// See https://hitchhikers.yext.com/docs/contentdeliveryapis/search/universalsearch.
+export const getYextSuggestions = async () => {
+  const searchSettings = getStoredSearchSettings();
+
   const params = new URLSearchParams();
-  params.set('api_key', this.apiKey);
-  params.set('experienceKey', this.experienceKey);
-  // params.set('verticalKey', this.verticalKey);
-  params.set('locale', this.locale);
-  params.set('input', `${this.searchSettings.input.toLocaleLowerCase()}`);
+  params.set('api_key', apiKey);
+  params.set('experienceKey', experienceKey);
+  params.set('locale', locale);
+  params.set('input', `${searchSettings.input.toLocaleLowerCase()}`);
 
-  // Encode the autocomplete before constructing the URL
-  const url = `${this.urlHref}/${this.accountId}/search/autocomplete?v=${
-    this.apiVersion
-  }&${params.toString()}`;
+  const response = await fetch(
+    `${urlHref}/${accountId}/search/autocomplete?v=${apiVersion}&${params.toString()}`
+  );
 
-  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error('Failed to fetch suggestions');
+  }
+
   const suggestions: ResponseSearchSuggestions = await response.json();
 
-  // this.searchSuggestions = suggestions.response.results.slice(
-  //   0,
-  //   this.showResults
-  // );
-  this.isFocus = this.searchSuggestions.length > 0;
-}
-*/
+  return suggestions;
+};
