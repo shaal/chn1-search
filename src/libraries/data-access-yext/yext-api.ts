@@ -39,11 +39,12 @@ export const getYextSearchData: (config: {
   queryParams.set('v', apiVersion);
   queryParams.set('api_key', apiKey);
   queryParams.set('experienceKey', experienceKey);
+  queryParams.set('version', version);
+  queryParams.set('locale', locale);
+
   if (verticalKey) {
     queryParams.set('verticalKey', verticalKey || '');
   }
-  queryParams.set('version', version);
-  queryParams.set('locale', locale);
 
   const storedSearchSettings = getStoredSearchSettings();
 
@@ -51,7 +52,7 @@ export const getYextSearchData: (config: {
     throw new Error('No search input provided');
   }
 
-  Object.keys(storedSearchSettings).forEach((key) => {
+  Object.keys(storedSearchSettings).forEach(key => {
     const value = storedSearchSettings[key];
 
     if (!value) {
@@ -81,7 +82,7 @@ export const getYextSearchData: (config: {
 const getYextUniversalSearchData = async (queryParams: URLSearchParams) => {
   // Be extra careful not to include `limit` or we get errors.
   queryParams.delete('limit');
-  
+
   const response = await fetch(
     `${urlHref}/${accountId}/search/query?${queryParams.toString()}`,
     {}
