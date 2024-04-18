@@ -24,6 +24,8 @@ import {
   setStoredSearchSettings,
   isVerticalSearchResponse,
 } from '../../libraries/data-yext';
+import TotalCount from '../../libraries/ui/total-count';
+import Pending from '../../libraries/ui/pending';
 
 /**
  * The Yext Vertical Search component.
@@ -129,36 +131,6 @@ export class OutlineYextVertical extends LitElement {
     () => [this.entities]
   );
 
-  displayTotalCountTemplate() {
-    if (!this.searchSettings) {
-      return;
-    }
-
-    if (this.totalCount) {
-      const range1 = this.searchSettings.offset + 1;
-      const range2 = Math.min(
-        this.searchSettings.offset + (this.searchSettings.limit ?? 0),
-        this.totalCount
-      );
-      return html`<div class="total-count">
-        Showing <strong>${range1}-${range2}</strong> of ${this.totalCount}
-        results
-      </div>`;
-    }
-    return null;
-  }
-
-  displayPending() {
-    return html`
-      <div class="lds-ring">
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-      </div>
-    `;
-  }
-
   displayAll(response: VerticalSearchResponseStructure) {
     if (response.resultsCount === 0) {
       return html` <h2>No results found</h2> `;
@@ -236,10 +208,14 @@ export class OutlineYextVertical extends LitElement {
       <div>
         <div class="${classMap(classes)}">
           <main>
-            ${this.displayTotalCountTemplate()}
+            ${TotalCount({
+              totalCount: this.totalCount ?? null,
+              limit: this.searchSettings.limit,
+              offset: this.searchSettings.offset,
+            })}
             ${this.fetchEndpoint.render({
               pending: () =>
-                this.taskValue ? this.displayPending() : noChange,
+                this.taskValue ? Pending() : noChange,
               complete: data => {
                 if (!data) {
                   return;

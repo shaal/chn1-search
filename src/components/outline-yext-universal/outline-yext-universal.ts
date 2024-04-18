@@ -29,6 +29,7 @@ import {
   setStoredSearchSettings,
   syncSearchSettingsInStore,
 } from '../../libraries/data-yext';
+import Pending from '../../libraries/ui/pending';
 
 /**
  * The Yext Universal Search component.
@@ -135,34 +136,6 @@ export class OutlineYextUniversal extends LitElement {
     async () => getYextSearchData({ verticalKey: this.verticalKey }),
     () => [this.entities]
   );
-
-  displayTotalCount() {
-    if (!this.searchSettings) {
-      return;
-    }
-
-    if (this.totalCount) {
-      const range1 = this.searchSettings.offset + 1;
-      const range2 = Math.min(
-        this.searchSettings.offset + (this.searchSettings.limit ?? 0),
-        this.totalCount
-      );
-      return html`Showing <strong>${range1}-${range2}</strong> of
-        ${this.totalCount} results `;
-    }
-    return null;
-  }
-
-  displayPending() {
-    return html`
-      <div class="lds-ring">
-        <div></div>
-        <div></div>
-        <div></div>
-        <div></div>
-      </div>
-    `;
-  }
 
   /**
    * Renders the entire results list.
@@ -733,7 +706,7 @@ export class OutlineYextUniversal extends LitElement {
       <div class="${classMap(classes)}">
         <div class="yext-results-wrapper">
           ${this.fetchEndpoint.render({
-            pending: () => (this.taskValue ? this.displayPending() : noChange),
+            pending: () => (this.taskValue ? Pending() : noChange),
             complete: data => {
               if (!data) {
                 return;
@@ -759,7 +732,7 @@ export class OutlineYextUniversal extends LitElement {
                 <main>
                   ${this.fetchEndpoint.render({
                     pending: () =>
-                      this.taskValue ? this.displayPending() : noChange,
+                      this.taskValue ? Pending() : noChange,
                     complete: data => {
                       if (!data) {
                         return;
