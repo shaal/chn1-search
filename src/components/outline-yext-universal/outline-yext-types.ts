@@ -1,4 +1,5 @@
 // Universal search query types
+// @todo move this to the libraries folder.
 export interface Meta {
   uuid: string;
   errors: [];
@@ -13,9 +14,9 @@ export type SubQueryParam = {
 };
 
 export interface SearchSettings {
-  [key: string]: string | number | QueryParam | Object;
+  [key: string]: string | number | QueryParam | Object | null;
   input: string;
-  limit: number;
+  limit: number | null;
   offset: number;
   // facetFilters: QueryParam;
 }

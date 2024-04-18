@@ -18,11 +18,11 @@ import type {
 } from '../outline-yext-universal/outline-yext-types';
 
 import {
-  defaultSearchSettings,
   getStoredSearchSettings,
-  getYextData,
+  getYextSearchData,
   syncSearchSettingsInStore,
   setStoredSearchSettings,
+  isVerticalSearchResponse,
 } from '../../libraries/data-yext';
 
 /**
@@ -43,8 +43,6 @@ export class OutlineYextVertical extends LitElement {
   pageTitle = '';
 
   searchSettings: SearchSettings | undefined;
-
-  fields = 'firstName,lastName,data.id';
 
   totalCount?: null | number;
   randomizationToken?: null | string;
@@ -81,9 +79,17 @@ export class OutlineYextVertical extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-    syncSearchSettingsInStore();
-    this.searchSettings = getStoredSearchSettings();
+    this.initializeSearchSettings();
     this.pageTitle = this.verticalKey || '';
+  }
+
+  initializeSearchSettings() {
+    syncSearchSettingsInStore();
+    this.searchSettings = {
+      ...getStoredSearchSettings(),
+      limit: 16,
+    }
+    setStoredSearchSettings(this.searchSettings);
   }
 
   /**
@@ -106,7 +112,7 @@ export class OutlineYextVertical extends LitElement {
 
     // Check if pageClicked is not null and is a valid number
     if (pageClicked !== null && !isNaN(Number(pageClicked))) {
-      const offset = (Number(pageClicked) - 1) * this.searchSettings.limit;
+      const offset = (Number(pageClicked) - 1) * (this.searchSettings.limit ?? 0);
       this.searchSettings.offset = offset;
       setStoredSearchSettings(this.searchSettings);
       this.fetchEndpoint.run();
@@ -119,7 +125,7 @@ export class OutlineYextVertical extends LitElement {
 
   fetchEndpoint = new Task(
     this,
-    async () => getYextData({ verticalKey: this.verticalKey }),
+    async () => getYextSearchData({ verticalKey: this.verticalKey }),
     () => [this.entities]
   );
 
@@ -131,7 +137,7 @@ export class OutlineYextVertical extends LitElement {
     if (this.totalCount) {
       const range1 = this.searchSettings.offset + 1;
       const range2 = Math.min(
-        this.searchSettings.offset + this.searchSettings.limit,
+        this.searchSettings.offset + (this.searchSettings.limit ?? 0),
         this.totalCount
       );
       return html`<div class="total-count">
@@ -234,17 +240,27 @@ export class OutlineYextVertical extends LitElement {
             ${this.fetchEndpoint.render({
               pending: () =>
                 this.taskValue ? this.displayPending() : noChange,
-              complete: data => data && data.response && this.displayAll(data.response),
+              complete: data => {
+                if (!data) {
+                  return;
+                }
+
+                if (!isVerticalSearchResponse(data.response)) {
+                  return; 
+                }
+
+                return this.displayAll(data.response);
+              },
               error: error => html`${error}`,
             })}
             ${this.totalCount
               ? html`
                   <outline-yext-pager
                     current-page=${this.searchSettings.offset /
-                      this.searchSettings.limit +
+                      (this.searchSettings.limit ?? 0) +
                     1}
                     total-pages=${Math.ceil(
-                      this.totalCount / this.searchSettings.limit
+                      this.totalCount / (this.searchSettings.limit ?? 0)
                     )}
                     @click=${(e: Event) => this.handlePageChange(e)}
                     aria-live="polite"

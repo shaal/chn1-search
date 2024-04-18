@@ -21,6 +21,14 @@ import type {
 } from './outline-yext-types';
 
 import '../outline-yext-vertical/outline-yext-vertical';
+import {
+  defaultSearchSettings,
+  getStoredSearchSettings,
+  getYextSearchData,
+  isVerticalSearchResponse,
+  setStoredSearchSettings,
+  syncSearchSettingsInStore,
+} from '../../libraries/data-yext';
 
 /**
  * The Yext Universal Search component.
@@ -34,29 +42,9 @@ export class OutlineYextUniversal extends LitElement {
     encapsulatedCSS: componentStyles,
   });
 
-  urlHref = 'https://cdn.yextapis.com/v2/accounts';
-  accountId = 'me';
-  contentType = 'search/query';
-  apiKey = '0f3c031ce836961cf921558aca570af3';
-  apiVersion = '20230406';
-  apiVersionEntities = '20230301';
-  version = 'PRODUCTION';
-  locale = 'en';
-  sortBys = 'relevance';
   pageTitle = '';
-  experienceKey = 'universal-search';
-  verticalKey = 'all';
 
-  defaultSearchSettings: SearchSettings = {
-    input: '',
-    limit: 16,
-    offset: 0,
-  };
-
-  searchSettings: SearchSettings = structuredClone(this.defaultSearchSettings);
-
-  fields = 'firstName,lastName,data.id';
-  requestUrlBase = `${this.urlHref}/${this.accountId}/${this.contentType}`;
+  searchSettings: SearchSettings | undefined;
 
   // @property()
   totalCount!: null | number;
@@ -73,11 +61,10 @@ export class OutlineYextUniversal extends LitElement {
   userLat!: number;
   userLong!: number;
 
-  requestURL!: string;
-  lastFetchTime!: null | number;
-
   @state()
   activeVertical: string = 'all';
+
+  verticalKey = 'all';
 
   @state() isFocus = false;
 
@@ -98,7 +85,19 @@ export class OutlineYextUniversal extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-    this.readParamsFromUrl();
+    this.initializeSearchSettings();
+    this.displayResults =
+      this.searchSettings !== undefined && this.searchSettings.input !== '';
+  }
+
+  initializeSearchSettings() {
+    syncSearchSettingsInStore();
+    this.searchSettings = {
+      ...getStoredSearchSettings(),
+      activeVertical: 'all', //@todo are we using this anywhere?
+      limit: null,
+    };
+    setStoredSearchSettings(this.searchSettings);
   }
 
   /**
@@ -111,13 +110,17 @@ export class OutlineYextUniversal extends LitElement {
    * @param {Event} event - The page change event, typically a click event.
    */
   handlePageChange(event: Event) {
+    if (!this.searchSettings) {
+      return;
+    }
+
     const pageClicked = (event.target as HTMLElement).getAttribute(
       'current-page'
     );
 
     // Check if pageClicked is not null and is a valid number
     if (pageClicked !== null && !isNaN(Number(pageClicked))) {
-      const offset = (Number(pageClicked) - 1) * this.searchSettings.limit;
+      const offset = (Number(pageClicked) - 1) * (this.searchSettings.limit ?? 0);
       this.searchSettings.offset = offset;
       this.fetchEndpoint.run();
     }
@@ -125,195 +128,23 @@ export class OutlineYextUniversal extends LitElement {
 
   resizeController = new ResizeController(this, {});
 
-  /**
-   * Constructs a URL for an HTTP request by combining static and dynamic parameters.
-   *
-   * This function assembles a URL for making an HTTP request, incorporating both static
-   * parameters (constants or properties) and dynamic parameters derived from the
-   * `this.searchSettings` object. It uses URLSearchParams objects to manage query parameters.
-   *
-   * @returns {void} This function does not return a value but updates the `this.requestURL` property.
-   */
-  prepareRequestURL() {
-    const staticParams = new URLSearchParams();
-    const dynamicParams = new URLSearchParams();
-    staticParams.set('v', this.apiVersion);
-    staticParams.set('api_key', this.apiKey);
-    staticParams.set('experienceKey', this.experienceKey);
-    // staticParams.set('verticalKey', this.verticalKey);
-    staticParams.set('version', this.version);
-    staticParams.set('locale', this.locale);
-    staticParams.set('input', this.searchSettings.input);
-    // dynamicParams.set('retrieveFacets', 'true');
-    dynamicParams.set(
-      'sortBys',
-      JSON.stringify([{ type: this.sortBys.toUpperCase() }])
-    );
-
-    // Iterate over the search settings and add them to the dynamic parameters.
-    for (const [key, value] of Object.entries(this.searchSettings)) {
-      if (value !== '') {
-        dynamicParams.set(key, JSON.stringify(value));
-      } else {
-        dynamicParams.delete(key);
-      }
-    }
-
-    this.updateUrlWithSearchSettings(dynamicParams);
-
-    const requestURL = `${
-      this.requestUrlBase
-    }?${staticParams.toString()}&${dynamicParams.toString()}`;
-
-    const urlObject = new URL(requestURL);
-
-    urlObject.searchParams.delete('limit');
-
-    this.requestURL = urlObject.toString();
-  }
-
-  /**
-   * Updates the query parameters of the current URL based on the provided parameters.
-   *
-   * This function allows for the modification of query parameters in the current URL. It removes
-   * any existing query parameters with keys starting with 'yext_' and replaces them with new
-   * parameters specified in the provided 'params' object. The updated URL is then reflected in
-   * the browser's address bar without triggering a full page reload.
-   *
-   * @param {URLSearchParams} params - An object containing the new query parameters to be applied.
-   */
-  updateUrlWithSearchSettings(params: URLSearchParams) {
-    // Get the current URL and its search parameters
-    const url = new URL(window.location.href);
-    const searchParams = new URLSearchParams(url.search);
-
-    // Remove all `yext_` parameters from the params object
-    const keysToDelete = [];
-
-    for (const key of searchParams.keys()) {
-      if (key.startsWith('yext_')) {
-        keysToDelete.push(key);
-      }
-    }
-
-    keysToDelete.forEach(key => {
-      searchParams.delete(key);
-    });
-
-    // Update the search parameters with the new params
-    for (const [key, value] of params.entries()) {
-      searchParams.set(`yext_${key}`, value);
-    }
-
-    // Replace the search parameters in the URL
-    url.search = searchParams.toString();
-
-    // Update the browser URL
-    window.history.replaceState(null, '', url.toString());
-  }
-
-  /**
-   * Reads and processes specific query parameters from the current URL and updates search settings.
-   *
-   * This function is used to extract query parameters from the current URL and populate the
-   * `this.searchSettings` object with the extracted values. It specifically looks for query
-   * parameters with keys that start with 'yext_', attempts to parse their values as JSON, and
-   * assigns the parsed or original values to corresponding properties in `this.searchSettings`.
-   * It is typically used for restoring and applying settings or filters based on the URL when
-   * navigating within a web application.
-   */
-  readParamsFromUrl() {
-    const currentUrl = new URL(window.location.href);
-    const currentParams = new URLSearchParams(currentUrl.search);
-
-    let parsedValue: string;
-    // Merge the current parameters with the new parameters.
-    for (const [key, value] of currentParams.entries()) {
-      // Only process keys that start with 'yext_'
-      if (key.startsWith('yext_')) {
-        // Check if the value is a valid JSON string.
-        try {
-          parsedValue = JSON.parse(value);
-        } catch (error) {
-          // The value is not a valid JSON string.
-          parsedValue = value;
-        }
-
-        // remove the 'yext_' at the beginning of key
-        const cleanKey = key.replace('yext_', '');
-        // Assign the parsed value to the searchSettings object.
-
-        this.searchSettings[`${cleanKey}`] = parsedValue;
-      }
-    }
-
-    this.setActiveVertical(
-      currentParams.get('yext_activeVertical')?.replace(/"/g, '') || 'all'
-    );
-
-    this.displayResults = this.searchSettings.input !== '';
-  }
-
   rawFilters: {} | undefined;
 
   fetchEndpoint = new Task(
     this,
-    async () => {
-      const startTime = performance.now();
-      this.prepareRequestURL();
-
-      const response = await fetch(this.requestURL, {});
-
-      const jsonResponse: {
-        meta: {};
-        response: UniversalSearchResponse;
-      } = await response.json();
-
-      const endTime = performance.now();
-      this.lastFetchTime = (endTime - startTime) / 1000;
-
-      return jsonResponse;
-    },
+    async () => getYextSearchData({ verticalKey: this.verticalKey }),
     () => [this.entities]
   );
 
-  /**
-   * Modifies the query parameters of the current URL and updates browser history.
-   *
-   * This function updates the query parameters of the current URL by adding or updating
-   * a parameter named 'yext' with the provided 'entityId'. It then uses the browser's
-   * history API to push a new state, reflecting the URL change in the address bar without
-   * triggering a full page reload. Additionally, it may perform a 'refresh' operation
-   * on a specific element within the shadow DOM, but the exact behavior depends on
-   * the application's implementation.
-   *
-   * @param {string} entityId - The value to set for the 'yext' query parameter.
-   */
-  setURLParams(entityId: string) {
-    // use URLSearchParams to get the query string from window.location.href
-    const params = new URLSearchParams(window.location.search);
-    const origin = window.location.origin;
-    const pathname = window.location.pathname;
-    params.set('yext', entityId);
-
-    const stateObj = { id: '100' };
-    window.history.pushState(
-      stateObj,
-      'Page',
-      `${origin}${pathname}?${params.toString()}`
-    );
-  }
-
-  /**
-   * Only used on individual vertical search
-   *
-   * from https://hitchhikers.yext.com/docs/contentdeliveryapis/search/verticalsearch
-   */
   displayTotalCount() {
+    if (!this.searchSettings) {
+      return;
+    }
+
     if (this.totalCount) {
       const range1 = this.searchSettings.offset + 1;
       const range2 = Math.min(
-        this.searchSettings.offset + this.searchSettings.limit,
+        this.searchSettings.offset + (this.searchSettings.limit ?? 0),
         this.totalCount
       );
       return html`Showing <strong>${range1}-${range2}</strong> of
@@ -422,8 +253,8 @@ export class OutlineYextUniversal extends LitElement {
 
   reset(e: Event) {
     e.preventDefault(); // prevent form submission
-    this.searchSettings = structuredClone(this.defaultSearchSettings);
-    this.sortBys = 'relevance';
+    this.searchSettings = structuredClone(defaultSearchSettings);
+    setStoredSearchSettings(this.searchSettings);
     this.cleanSearchSuggestions();
     this.fetchEndpoint.run();
   }
@@ -440,10 +271,16 @@ export class OutlineYextUniversal extends LitElement {
     e.preventDefault();
     this.cleanSearchSuggestions();
 
+    if (!this.searchSettings) {
+      return;
+    }
+
     // save input before resetting searchSettings and then restore it back
     const inputSearch = this.searchSettings.input;
-    this.searchSettings = structuredClone(this.defaultSearchSettings);
+    this.searchSettings = structuredClone(defaultSearchSettings);
     this.searchSettings.input = inputSearch;
+    setStoredSearchSettings(this.searchSettings);
+
     this.activeVertical = 'all';
     this.displayResults = this.searchSettings.input !== '';
     this.fetchEndpoint.run();
@@ -452,42 +289,27 @@ export class OutlineYextUniversal extends LitElement {
   // Single instance was created outside of the handleInput so that the debounce is not called multiple times
   // debouncedFunction = debounce(this.fetchSuggestion.bind(this), 150);
 
-  /*
-  async fetchSuggestion() {
-    const params = new URLSearchParams();
-    params.set('api_key', this.apiKey);
-    params.set('experienceKey', this.experienceKey);
-    // params.set('verticalKey', this.verticalKey);
-    params.set('locale', this.locale);
-    params.set('input', `${this.searchSettings.input.toLocaleLowerCase()}`);
-
-    // Encode the autocomplete before constructing the URL
-    const url = `${this.urlHref}/${this.accountId}/search/autocomplete?v=${
-      this.apiVersion
-    }&${params.toString()}`;
-
-    const response = await fetch(url);
-    const suggestions: ResponseSearchSuggestions = await response.json();
-
-    // this.searchSuggestions = suggestions.response.results.slice(
-    //   0,
-    //   this.showResults
-    // );
-    this.isFocus = this.searchSuggestions.length > 0;
-  }
-  */
-
   handleInput(e: InputEvent) {
     e.preventDefault;
+
+    if (!this.searchSettings) {
+      return;
+    }
+
     this.searchSettings.input = (e.target as HTMLInputElement).value;
     if (this.searchSettings.input.length > 3) {
       // this.debouncedFunction();
+      // @todo get suggestions.
     } else {
       this.cleanSearchSuggestions();
     }
   }
 
   _focusIn() {
+    if (!this.searchSettings) {
+      return;
+    }
+
     if (
       this.searchSettings.input.length > 3 &&
       this.searchSuggestions.length > 0
@@ -495,6 +317,7 @@ export class OutlineYextUniversal extends LitElement {
       this.isFocus = true;
     }
   }
+
   _focusOut(e: FocusEvent) {
     const currentTarget = e.currentTarget as Node;
     const relatedTarget = e.relatedTarget as Node;
@@ -508,6 +331,10 @@ export class OutlineYextUniversal extends LitElement {
   }
 
   searchFormTemplate(): TemplateResult {
+    if (!this.searchSettings) {
+      return html``;
+    }
+
     const breakpointClass =
       this.resizeController.currentBreakpointRange === 0
         ? 'is-mobile'
@@ -581,7 +408,7 @@ export class OutlineYextUniversal extends LitElement {
                         ${unsafeHTML(
                           this.highlightWord(
                             suggestion.value,
-                            this.searchSettings.input
+                            this.searchSettings?.input ?? ''
                           )
                         )}
                       </button>
@@ -602,28 +429,40 @@ export class OutlineYextUniversal extends LitElement {
   }
 
   handleSuggestion(suggestion: Result) {
+    if (!this.searchSettings) {
+      return;
+    }
+
     this.searchSettings.input = suggestion.value;
     this.fetchEndpoint.run();
     this.cleanSearchSuggestions();
   }
 
   setActiveVertical(vertical: string) {
+    if (!this.searchSettings) {
+      return;
+    }
+
     this.activeVertical = vertical;
-    vertical !== 'all' &&
+
+    if (vertical !== 'all') {
       this.shadowRoot
         ?.querySelector('outline-yext-vertical')
         ?.setAttribute('vertical-key', this.activeVertical);
+    }
+
+    this.dropdownVerticalsOpen = false;
+
+    this.searchSettings = {
+      ...this.searchSettings,
+      input: this.searchSettings.input,
+      activeVertical: vertical,
+    };
+    setStoredSearchSettings(this.searchSettings);
+
     this.shadowRoot
       ?.querySelector('outline-yext-vertical')
       ?.fetchEndpoint.run();
-    this.dropdownVerticalsOpen = false;
-
-    // Store input and vertical state in the URL.
-    const newParams = new URLSearchParams();
-    newParams.set('activeVertical', vertical);
-    newParams.set('input', this.searchSettings.input);
-
-    this.updateUrlWithSearchSettings(newParams);
   }
 
   setVerticalTitle(title: string): TemplateResult {
@@ -711,7 +550,7 @@ export class OutlineYextUniversal extends LitElement {
     response: UniversalSearchResponse
   ): TemplateResult {
     return html`
-      ${response.modules.length !== 0
+      ${response.modules?.length !== 0
         ? html`
             <div class="vertical-nav is-desktop">
               <h2 class="vertical-nav__heading is-desktop">
@@ -895,10 +734,19 @@ export class OutlineYextUniversal extends LitElement {
         <div class="yext-results-wrapper">
           ${this.fetchEndpoint.render({
             pending: () => (this.taskValue ? this.displayPending() : noChange),
-            complete: data =>
-              this.resizeController.currentBreakpointRange === 0
+            complete: data => {
+              if (!data) {
+                return;
+              }
+
+              if (isVerticalSearchResponse(data.response)) {
+                return;
+              }
+
+              return this.resizeController.currentBreakpointRange === 0
                 ? this.mobileVerticalNavTemplate(data.response)
-                : this.desktopVerticalNavTemplate(data.response),
+                : this.desktopVerticalNavTemplate(data.response);
+            },
             error: error => html`${error}`,
           })}
           ${this.activeVertical !== 'all'
@@ -912,7 +760,17 @@ export class OutlineYextUniversal extends LitElement {
                   ${this.fetchEndpoint.render({
                     pending: () =>
                       this.taskValue ? this.displayPending() : noChange,
-                    complete: data => this.displayAll(data.response),
+                    complete: data => {
+                      if (!data) {
+                        return;
+                      }
+
+                      if (isVerticalSearchResponse(data.response)) {
+                        return;
+                      }
+
+                      return this.displayAll(data.response);
+                    },
                     error: error => html`${error}`,
                   })}
                 </main>

@@ -1,5 +1,6 @@
 import {
   SearchSettings,
+  UniversalSearchResponse,
   VerticalSearchResponseStructure,
 } from '../components/outline-yext-universal/outline-yext-types';
 
@@ -9,30 +10,31 @@ let lastFetchTime = 0;
 // @todo is any of this different per component?
 const urlHref = 'https://cdn.yextapis.com/v2/accounts';
 const accountId = 'me';
-const contentType = 'search/vertical/query';
 const apiVersion = '20230406';
 const apiKey = '0f3c031ce836961cf921558aca570af3';
 const experienceKey = 'universal-search';
 const version = 'PRODUCTION';
 const locale = 'en';
-const requestUrlBase = `${urlHref}/${accountId}/${contentType}`;
 
 export const defaultSearchSettings: SearchSettings = {
   input: '',
   offset: 0,
-  limit: 16,
+  limit: null,
   filters: {}, // @todo, this is required, but the values have not been tested.
   facetFilters: {}, // @todo this has not been tested.
   sortBys: [{ type: 'RELEVANCE' }],
 };
 
-export interface YextDataResponse {
+export interface YextSearchDataResponse {
   meta: {};
+  response: UniversalSearchResponse | VerticalSearchResponseStructure;
 }
 
-export interface YextVerticalDataResponse extends YextDataResponse {
-  response?: VerticalSearchResponseStructure;
-}
+export const isVerticalSearchResponse = (
+  response: UniversalSearchResponse | VerticalSearchResponseStructure
+): response is VerticalSearchResponseStructure => {
+  return 'modules' in response === false;
+};
 
 const getDynamicSearchParams = () => {
   const url = new URL(window.location.href);
@@ -79,19 +81,11 @@ export const getStoredSearchSettings = () => {
   const searchSettings: SearchSettings = defaultSearchSettings;
 
   for (const [key, value] of queryParams.entries()) {
-    if (key.startsWith('yext_')) {
-      searchSettings[key.replace('yext_', '')] = value || '';
+    searchSettings[key] = value || '';
 
-      // @todo generalize this.
-      if (key === 'yext_sortBys') {
-        searchSettings.sortBys = JSON.parse(value);
-      }
-      if (key === 'yext_facetFilters') {
-        searchSettings.facetFilters = JSON.parse(value);
-      }
-      if (key === 'yext_filters') {
-        searchSettings.filters = JSON.parse(value);
-      }
+    // If value is a JSON string, parse it.
+    if (value.startsWith('[') || value.startsWith('{')) {
+      searchSettings[key] = JSON.parse(value);
     }
   }
 
@@ -102,8 +96,8 @@ export const setStoredSearchSettings = (searchSettings: SearchSettings) => {
   const dynamicParams = new URLSearchParams();
 
   for (const [key, value] of Object.entries(searchSettings)) {
-    if (value !== '') {
-      dynamicParams.set(key, value.toString());
+    if (value !== '' && value !== null) {
+      dynamicParams.set(key, typeof value === 'string' ? value : JSON.stringify(value));
     } else {
       dynamicParams.delete(key);
     }
@@ -112,36 +106,21 @@ export const setStoredSearchSettings = (searchSettings: SearchSettings) => {
   // Hard code setting to retrieve facets?
   dynamicParams.set('retrieveFacets', 'true');
 
-  // @todo generalize this.
-  if (searchSettings.sortBys) {
-    dynamicParams.set('sortBys', JSON.stringify(searchSettings.sortBys));
-  }
-
-  if (searchSettings.filters) {
-    dynamicParams.set('filters', JSON.stringify(searchSettings.filters));
-  }
-
-  if (searchSettings.facetFilters) {
-    dynamicParams.set(
-      'facetFilters',
-      JSON.stringify(searchSettings.facetFilters)
-    );
-  }
   setDynamicSearchParams(dynamicParams);
 };
 
 export const syncSearchSettingsInStore = () => {
   const searchSettings = getStoredSearchSettings();
   setStoredSearchSettings(searchSettings);
-}
+};
 
 /**
  * See https://hitchhikers.yext.com/docs/contentdeliveryapis/search/universalsearch
  * See https://hitchhikers.yext.com/docs/contentdeliveryapis/search/verticalsearch
  */
-export const getYextData: (config: {
+export const getYextSearchData: (config: {
   verticalKey?: string;
-}) => Promise<YextVerticalDataResponse> = async ({ verticalKey }) => {
+}) => Promise<YextSearchDataResponse> = async ({ verticalKey }) => {
   const queryParams = new URLSearchParams();
 
   queryParams.set('v', apiVersion);
@@ -153,19 +132,19 @@ export const getYextData: (config: {
   queryParams.set('version', version);
   queryParams.set('locale', locale);
 
-  getDynamicSearchParams().forEach((value, key) => {
+  const dynamicParams = getDynamicSearchParams();
+
+  if (!dynamicParams.has('input')) {
+    throw new Error('No search input provided');
+  }
+
+  dynamicParams.forEach((value, key) => {
     queryParams.set(key, value);
   });
 
-  const response = await fetch(
-    `${requestUrlBase}?${queryParams.toString()}`,
-    {}
-  );
-
-  const jsonResponse: {
-    meta: {};
-    response: VerticalSearchResponseStructure;
-  } = await response.json();
+  const jsonResponse = verticalKey && verticalKey !== 'all'
+    ? getYextVerticalSearchData(queryParams)
+    : getYextUniversalSearchData(queryParams);
 
   // @todo why are we storing these times?
   const endTime = performance.now();
@@ -173,3 +152,70 @@ export const getYextData: (config: {
 
   return jsonResponse;
 };
+
+// @todo for TS purposes? Can we combine these and still get useful types?
+const getYextUniversalSearchData = async (queryParams: URLSearchParams) => {
+  const response = await fetch(
+    `${urlHref}/${accountId}/search/query?${queryParams.toString()}`,
+    {}
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch data');
+  }
+
+  const jsonResponse: {
+    meta: {};
+    response: UniversalSearchResponse;
+  } = await response.json();
+
+  return jsonResponse;
+};
+
+const getYextVerticalSearchData = async (queryParams: URLSearchParams) => {
+  // Be extra careful not to include `limit` or we get errors.
+
+  queryParams.delete('limit');
+
+  const response = await fetch(
+    `${urlHref}/${accountId}/search/vertical/query?${queryParams.toString()}`,
+    {}
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch data');
+  }
+
+  const jsonResponse: {
+    meta: {};
+    response: VerticalSearchResponseStructure;
+  } = await response.json();
+
+  return jsonResponse;
+};
+
+// @todo this was copy and pasted from other versions without updating. It will need to be refactored to match getYextData.
+/*
+async getYextSuggestions() {
+  const params = new URLSearchParams();
+  params.set('api_key', this.apiKey);
+  params.set('experienceKey', this.experienceKey);
+  // params.set('verticalKey', this.verticalKey);
+  params.set('locale', this.locale);
+  params.set('input', `${this.searchSettings.input.toLocaleLowerCase()}`);
+
+  // Encode the autocomplete before constructing the URL
+  const url = `${this.urlHref}/${this.accountId}/search/autocomplete?v=${
+    this.apiVersion
+  }&${params.toString()}`;
+
+  const response = await fetch(url);
+  const suggestions: ResponseSearchSuggestions = await response.json();
+
+  // this.searchSuggestions = suggestions.response.results.slice(
+  //   0,
+  //   this.showResults
+  // );
+  this.isFocus = this.searchSuggestions.length > 0;
+}
+*/
