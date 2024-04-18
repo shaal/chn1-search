@@ -2,7 +2,7 @@ import {
   SearchSettings,
   UniversalSearchResponse,
   VerticalSearchResponseStructure,
-} from '../components/outline-yext-universal/outline-yext-types';
+} from './yext-types';
 
 const startTime = performance.now();
 let lastFetchTime = 0;

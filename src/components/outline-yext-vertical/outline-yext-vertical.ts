@@ -15,7 +15,7 @@ import type {
   SearchSettings,
   Result,
   VerticalSearchResponseStructure,
-} from '../outline-yext-universal/outline-yext-types';
+} from '../../libraries/data/yext-types';
 
 import {
   getStoredSearchSettings,
@@ -23,7 +23,7 @@ import {
   syncSearchSettingsInStore,
   setStoredSearchSettings,
   isVerticalSearchResponse,
-} from '../../libraries/data-yext';
+} from '../../libraries/data/data-yext';
 import TotalCount from '../../libraries/ui/total-count';
 import Pending from '../../libraries/ui/pending';
 

@@ -1,5 +1,4 @@
 // Universal search query types
-// @todo move this to the libraries folder.
 export interface Meta {
   uuid: string;
   errors: [];

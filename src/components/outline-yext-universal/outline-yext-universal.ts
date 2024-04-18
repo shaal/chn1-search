@@ -18,7 +18,7 @@ import type {
   UniversalSearchResponse,
   // ResponseSearchSuggestions,
   Module,
-} from './outline-yext-types';
+} from '../../libraries/data/yext-types';
 
 import '../outline-yext-vertical/outline-yext-vertical';
 import {
@@ -28,7 +28,7 @@ import {
   isVerticalSearchResponse,
   setStoredSearchSettings,
   syncSearchSettingsInStore,
-} from '../../libraries/data-yext';
+} from '../../libraries/data/data-yext';
 import Pending from '../../libraries/ui/pending';
 
 /**
