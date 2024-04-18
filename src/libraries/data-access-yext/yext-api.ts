@@ -1,5 +1,5 @@
+import { getStoredSearchSettings } from './yext-store';
 import {
-  SearchSettings,
   UniversalSearchResponse,
   VerticalSearchResponseStructure,
 } from './yext-types';
@@ -16,15 +16,6 @@ const experienceKey = 'universal-search';
 const version = 'PRODUCTION';
 const locale = 'en';
 
-export const defaultSearchSettings: SearchSettings = {
-  input: '',
-  offset: 0,
-  limit: null,
-  filters: {}, // @todo, this is required, but the values have not been tested.
-  facetFilters: {}, // @todo this has not been tested.
-  sortBys: [{ type: 'RELEVANCE' }],
-};
-
 export interface YextSearchDataResponse {
   meta: {};
   response: UniversalSearchResponse | VerticalSearchResponseStructure;
@@ -34,89 +25,6 @@ export const isVerticalSearchResponse = (
   response: UniversalSearchResponse | VerticalSearchResponseStructure
 ): response is VerticalSearchResponseStructure => {
   return 'modules' in response === false;
-};
-
-// We use the URL query parameters as a store. We could use something else later such as local storage or Redux, so the URL store is abstracted from getting and setting the search settings.
-
-const getDynamicSearchParams = () => {
-  const url = new URL(window.location.href);
-  const searchParams = new URLSearchParams(url.search);
-
-  const dynamicParams = new URLSearchParams();
-
-  for (const key of searchParams.keys()) {
-    if (key.startsWith('yext_')) {
-      dynamicParams.set(key.replace('yext_', ''), searchParams.get(key) || '');
-    }
-  }
-
-  return dynamicParams;
-};
-
-const setDynamicSearchParams = (dynamicParams: URLSearchParams) => {
-  // Get the current URL and its search parameters
-  const url = new URL(window.location.href);
-  const searchParams = new URLSearchParams(url.search);
-
-  // Remove all `yext_` parameters from the params object
-  for (const key of searchParams.keys()) {
-    if (key.startsWith('yext_')) {
-      searchParams.delete(key);
-    }
-  }
-
-  // Update the search parameters with the new params
-  for (const [key, value] of dynamicParams.entries()) {
-    searchParams.set(`yext_${key}`, value);
-  }
-
-  // Replace the search parameters in the URL
-  url.search = searchParams.toString();
-
-  // Update the browser URL
-  window.history.replaceState(null, '', url.toString());
-};
-
-export const getStoredSearchSettings = () => {
-  const queryParams = getDynamicSearchParams();
-
-  const searchSettings: SearchSettings = defaultSearchSettings;
-
-  for (const [key, value] of queryParams.entries()) {
-    searchSettings[key] = value || '';
-
-    // If value is a JSON string, parse it.
-    if (value.startsWith('[') || value.startsWith('{')) {
-      searchSettings[key] = JSON.parse(value);
-    }
-  }
-
-  return searchSettings;
-};
-
-export const setStoredSearchSettings = (searchSettings: SearchSettings) => {
-  const dynamicParams = new URLSearchParams();
-
-  for (const [key, value] of Object.entries(searchSettings)) {
-    if (value !== '' && value !== null) {
-      dynamicParams.set(
-        key,
-        typeof value === 'string' ? value : JSON.stringify(value)
-      );
-    } else {
-      dynamicParams.delete(key);
-    }
-  }
-
-  // Hard code setting to retrieve facets?
-  dynamicParams.set('retrieveFacets', 'true');
-
-  setDynamicSearchParams(dynamicParams);
-};
-
-export const syncSearchSettingsInStore = () => {
-  const searchSettings = getStoredSearchSettings();
-  setStoredSearchSettings(searchSettings);
 };
 
 /**
@@ -137,14 +45,24 @@ export const getYextSearchData: (config: {
   queryParams.set('version', version);
   queryParams.set('locale', locale);
 
-  const dynamicParams = getDynamicSearchParams();
+  const storedSearchSettings = getStoredSearchSettings();
 
-  if (!dynamicParams.has('input')) {
+  if (!storedSearchSettings.input) {
     throw new Error('No search input provided');
   }
 
-  dynamicParams.forEach((value, key) => {
-    queryParams.set(key, value);
+  Object.keys(storedSearchSettings).forEach((key) => {
+    const value = storedSearchSettings[key];
+
+    if (!value) {
+      return;
+    }
+
+    if (typeof value === 'object' || Array.isArray(value)) {
+      queryParams.set(key, JSON.stringify(value));
+    } else {
+      queryParams.set(key, value.toString());
+    }
   });
 
   const jsonResponse =
@@ -161,6 +79,9 @@ export const getYextSearchData: (config: {
 
 // @todo for TS purposes? Can we combine these and still get useful types?
 const getYextUniversalSearchData = async (queryParams: URLSearchParams) => {
+  // Be extra careful not to include `limit` or we get errors.
+  queryParams.delete('limit');
+  
   const response = await fetch(
     `${urlHref}/${accountId}/search/query?${queryParams.toString()}`,
     {}
@@ -179,10 +100,6 @@ const getYextUniversalSearchData = async (queryParams: URLSearchParams) => {
 };
 
 const getYextVerticalSearchData = async (queryParams: URLSearchParams) => {
-  // Be extra careful not to include `limit` or we get errors.
-
-  queryParams.delete('limit');
-
   const response = await fetch(
     `${urlHref}/${accountId}/search/vertical/query?${queryParams.toString()}`,
     {}

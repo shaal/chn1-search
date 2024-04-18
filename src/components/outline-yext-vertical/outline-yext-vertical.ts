@@ -15,17 +15,19 @@ import type {
   SearchSettings,
   Result,
   VerticalSearchResponseStructure,
-} from '../../libraries/data/yext-types';
+} from '../../libraries/data-access-yext/yext-types';
 
 import {
   getStoredSearchSettings,
-  getYextSearchData,
   syncSearchSettingsInStore,
   setStoredSearchSettings,
+} from '../../libraries/data-access-yext/yext-store';
+import {
+  getYextSearchData,
   isVerticalSearchResponse,
-} from '../../libraries/data/data-yext';
-import TotalCount from '../../libraries/ui/total-count';
-import Pending from '../../libraries/ui/pending';
+} from '../../libraries/data-access-yext/yext-api';
+import TotalCount from '../../libraries/ui-yext/total-count';
+import Pending from '../../libraries/ui-yext/pending';
 
 /**
  * The Yext Vertical Search component.
@@ -90,7 +92,7 @@ export class OutlineYextVertical extends LitElement {
     this.searchSettings = {
       ...getStoredSearchSettings(),
       limit: 16,
-    }
+    };
     setStoredSearchSettings(this.searchSettings);
   }
 
@@ -114,7 +116,8 @@ export class OutlineYextVertical extends LitElement {
 
     // Check if pageClicked is not null and is a valid number
     if (pageClicked !== null && !isNaN(Number(pageClicked))) {
-      const offset = (Number(pageClicked) - 1) * (this.searchSettings.limit ?? 0);
+      const offset =
+        (Number(pageClicked) - 1) * (this.searchSettings.limit ?? 0);
       this.searchSettings.offset = offset;
       setStoredSearchSettings(this.searchSettings);
       this.fetchEndpoint.run();
@@ -214,15 +217,14 @@ export class OutlineYextVertical extends LitElement {
               offset: this.searchSettings.offset,
             })}
             ${this.fetchEndpoint.render({
-              pending: () =>
-                this.taskValue ? Pending() : noChange,
+              pending: () => (this.taskValue ? Pending() : noChange),
               complete: data => {
                 if (!data) {
                   return;
                 }
 
                 if (!isVerticalSearchResponse(data.response)) {
-                  return; 
+                  return;
                 }
 
                 return this.displayAll(data.response);

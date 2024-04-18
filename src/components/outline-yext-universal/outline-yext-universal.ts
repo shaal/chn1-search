@@ -18,18 +18,20 @@ import type {
   UniversalSearchResponse,
   // ResponseSearchSuggestions,
   Module,
-} from '../../libraries/data/yext-types';
+} from '../../libraries/data-access-yext/yext-types';
 
 import '../outline-yext-vertical/outline-yext-vertical';
 import {
   defaultSearchSettings,
   getStoredSearchSettings,
-  getYextSearchData,
-  isVerticalSearchResponse,
   setStoredSearchSettings,
   syncSearchSettingsInStore,
-} from '../../libraries/data/data-yext';
-import Pending from '../../libraries/ui/pending';
+} from '../../libraries/data-access-yext/yext-store';
+import {
+  getYextSearchData,
+  isVerticalSearchResponse,
+} from '../../libraries/data-access-yext/yext-api';
+import Pending from '../../libraries/ui-yext/pending';
 
 /**
  * The Yext Universal Search component.
@@ -121,7 +123,8 @@ export class OutlineYextUniversal extends LitElement {
 
     // Check if pageClicked is not null and is a valid number
     if (pageClicked !== null && !isNaN(Number(pageClicked))) {
-      const offset = (Number(pageClicked) - 1) * (this.searchSettings.limit ?? 0);
+      const offset =
+        (Number(pageClicked) - 1) * (this.searchSettings.limit ?? 0);
       this.searchSettings.offset = offset;
       this.fetchEndpoint.run();
     }
@@ -731,8 +734,7 @@ export class OutlineYextUniversal extends LitElement {
             : html`
                 <main>
                   ${this.fetchEndpoint.render({
-                    pending: () =>
-                      this.taskValue ? Pending() : noChange,
+                    pending: () => (this.taskValue ? Pending() : noChange),
                     complete: data => {
                       if (!data) {
                         return;
