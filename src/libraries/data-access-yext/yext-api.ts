@@ -15,6 +15,11 @@ import {
   version,
 } from './yext-config';
 
+// We chose to not use Search Core for now based on discussions with Yext.
+// That may be worth revisiting and may be a good replacement for this code.
+// See https://hitchhikers.yext.com/tracks/search-backend/search110-intro-to-search/03-ways-to-build-search/
+// See https://github.com/yext/search-core
+
 const startTime = performance.now();
 let lastFetchTime = 0;
 
