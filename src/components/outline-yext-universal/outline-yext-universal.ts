@@ -143,7 +143,7 @@ export class OutlineYextUniversal extends LitElement {
 
   fetchEndpoint = new Task(
     this,
-    async () => getYextSearchData({}),
+    async () => getYextSearchData(),
     () => [this.entities]
   );
 

@@ -38,9 +38,9 @@ export const isVerticalSearchResponse = (
  * See https://hitchhikers.yext.com/docs/contentdeliveryapis/search/universalsearch
  * See https://hitchhikers.yext.com/docs/contentdeliveryapis/search/verticalsearch
  */
-export const getYextSearchData: (config: {
+export const getYextSearchData: (config?: {
   verticalKey?: string;
-}) => Promise<YextSearchDataResponse> = async ({ verticalKey }) => {
+}) => Promise<YextSearchDataResponse> = async ({ verticalKey } = {}) => {
   const queryParams = new URLSearchParams();
 
   queryParams.set('v', apiVersion);
@@ -50,7 +50,7 @@ export const getYextSearchData: (config: {
   queryParams.set('locale', locale);
 
   if (verticalKey) {
-    queryParams.set('verticalKey', verticalKey || '');
+    queryParams.set('verticalKey', verticalKey ?? '');
   }
 
   const storedSearchSettings = getStoredSearchSettings();
