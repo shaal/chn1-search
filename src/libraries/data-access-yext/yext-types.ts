@@ -13,9 +13,9 @@ export type SubQueryParam = {
 };
 
 export interface SearchSettings {
-  [key: string]: string | number | QueryParam;
+  [key: string]: string | number | QueryParam | Object | null;
   input: string;
-  limit: number;
+  limit: number | null;
   offset: number;
   // facetFilters: QueryParam;
 }
