@@ -67,8 +67,6 @@ export class OutlineYextUniversal extends LitElement {
   @state()
   activeVertical: string = 'all';
 
-  verticalKey = 'all';
-
   @state() isFocus = false;
 
   @state()
@@ -91,15 +89,24 @@ export class OutlineYextUniversal extends LitElement {
     this.initializeSearchSettings();
     this.displayResults =
       this.searchSettings !== undefined && this.searchSettings.input !== '';
+    this.activeVertical =
+      typeof this.searchSettings?.activeVertical === 'string'
+        ? this.searchSettings.activeVertical
+        : 'all';
   }
 
   initializeSearchSettings() {
     syncSearchSettingsInStore();
     this.searchSettings = {
       ...getStoredSearchSettings(),
-      activeVertical: 'all', //@todo are we using this anywhere?
       limit: null,
     };
+
+    // We don't want to overwrite the activeVertical if it's already set.
+    if (!this.searchSettings.activeVertical) {
+      this.searchSettings.activeVertical = 'all';
+    }
+
     setStoredSearchSettings(this.searchSettings);
   }
 
@@ -136,7 +143,7 @@ export class OutlineYextUniversal extends LitElement {
 
   fetchEndpoint = new Task(
     this,
-    async () => getYextSearchData({ verticalKey: this.verticalKey }),
+    async () => getYextSearchData({}),
     () => [this.entities]
   );
 
