@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "lib": ["es2019", "dom", "dom.iterable"],
+    "types": ["vite/client"],
+    "target": "es2017",
+    "declaration": true,
+    "emitDeclarationOnly": false,
+    "outDir": "./dist",
+    "rootDir": "./",
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "isolatedModules": true,
+    "useDefineForClassFields": false,
+    "esModuleInterop": true
+  },
+  "include": ["src/**/*.ts", "src/components/index.ts.del"],
+  "exclude": ["node_modules"]
+}

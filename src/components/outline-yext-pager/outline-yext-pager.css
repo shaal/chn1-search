@@ -1,0 +1,103 @@
+:host {
+  --c-brand-orange-200: #f15d22;
+  --ff-body: 'Proxima Nova', 'Helvetica', 'Arial', 'sans-serif';
+
+  --pager-item-padding: 10px;
+  --pager-item-width: 30px;
+  --pager-item-font-size: 1rem;
+  --pager-item-color: var(--c-brand-orange-200);
+}
+
+.visually-hidden,
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  white-space: nowrap;
+  clip-path: polygon(0 0, 0 0, 0 0);
+}
+
+a {
+  all: unset;
+}
+
+ul.pager-items {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  gap: 0.5rem;
+
+  font-family: var(--ff-body);
+  list-style: none;
+}
+
+.pager-item {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--c-brand-orange-200);
+  border-radius: 5px;
+  background: var(--c-neutral-gray-100);
+  color: var(--c-brand-orange-200);
+  font-weight: bold;
+  font-size: var(--pager-item-font-size);
+  cursor: pointer;
+}
+
+.pager-item a:focus,
+.pager-item a:focus-visible {
+  outline-offset: -2px;
+}
+
+.pager-item--current,
+.pager-item a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--pager-item-padding) 0;
+  border-radius: 4px;
+}
+
+.pager-item--current,
+.pager-item--page a {
+  width: var(--pager-item-width);
+  min-width: var(--pager-item-width);
+  border: 1px solid var(--c-neutral-slate);
+}
+
+.pager-item--page:not(.pager-item--current) a:hover {
+  border-color: var(--c-pistachio-mild);
+  background-color: var(--c-pistachio-mild);
+}
+
+.pager-item--previous a,
+.pager-item--next a {
+  width: var(--pager-item-width);
+  gap: 4px;
+  background-color: var(--c-neutral-white);
+  color: var(--pager-item-color);
+  font-weight: var(--fw-bold);
+}
+
+.pager-item--previous:hover a,
+.pager-item--next:hover a,
+.pager-item--page:hover,
+.pager-item--current {
+  border-color: var(--c-brand-orange-200);
+  background: var(--c-brand-orange-200);
+  color: var(--c-neutral-white);
+  font-weight: var(--fw-bold);
+}
+
+.pager-item--ellipsis {
+  display: flex;
+  justify-content: center;
+  width: auto;
+  border: transparent;
+  color: var(--c-neutral-gray-600);
+}

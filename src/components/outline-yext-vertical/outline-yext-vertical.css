@@ -1,0 +1,30 @@
+@import './teaser.css';
+
+:host {
+  display: block;
+  position: relative;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+main {
+  margin: 1.25rem 0;
+  padding: 3rem 1.875rem;
+  background: var(--c-neutral-gray-100);
+}
+
+.total-count {
+  color: var(--c-neutral-gray-400, #42525f);
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 120%;
+  font-family: var(--ff-body);
+}
+
+outline-yext-pager {
+  margin-top: 3rem;
+}
