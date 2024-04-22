@@ -1,39 +1,41 @@
-# Outline Storybook Starter-kit
+# CHN-Yext
 
-This starter kit provides a comprehensive setup for developing web components using Outline, Storybook, and TypeScript. It aims to streamline the development and testing process by leveraging the power of Storybook for component visualization and testing.
+## Overview
+This package contains the necessary files and configurations to set up and run the CHN-Yext project.
 
-## Tools Utilized
+## Installation and Setup
 
-- **Outline**: Tooling infrastructure for modern web component development. [Outline GitHub](https://github.com/phase2/outline)
-- **Storybook**: Development environment for UI components. [Storybook Docs](https://storybook.js.org/docs/web-components/introduction)
-- **TypeScript**: Statically typed superset of JavaScript. [TypeScript Website](https://www.typescriptlang.org/)
-- **PostCSS**: CSS preprocessor for transforming styles with JavaScript. [PostCSS Website](https://postcss.org/)
-- **Vite**: Next-generation frontend build tool. [Vite Docs](https://vitejs.dev/)
+Follow these steps to get the project up and running on your local machine:
 
-## Getting Started
+### Prerequisites
 
-To begin using this starter kit, follow these steps:
+- Ensure you have [Node.js](https://nodejs.org/) installed on your system.
+- Yarn package manager is required. If you do not have Yarn installed, you can install it by running:
+  ```bash
+  npm install -g yarn
+  ```
 
-1. Clone this `storybook` starter kit.
-   - Inside a separate repository
-   - Nested in another application
-2. Install dependencies with `yarn install`.
-3. Start the development server with `yarn dev`.
+### Installation
 
-## Scripts
+1. Clone the repository to your local machine.
+2. Navigate to the project directory.
+3. Install the dependencies:
+   ```bash
+   yarn install
+   ```
 
-- `yarn start`: Alias for `yarn dev`.
-- `yarn dev`: Alias for `yarn watch`.
-- `yarn watch`: Concurrently runs all watch scripts.
-- `yarn watch:bundle`: Watches Vite build.
-- `yarn watch:vite`: Starts Vite development server.
-- `yarn watch:storybook`: Starts Storybook development server.
-- `yarn build`: Concurrently runs all build scripts.
-- `yarn build:vite`: Builds project using Vite.
-- `yarn build:storybook`: Builds Storybook for production.
-- `yarn clean`: Concurrently runs all clean scripts.
-- `yarn clean:dist`: Removes the dist directory.
-- `yarn clean:storybook`: Removes the storybook-static directory.
-- `yarn clean:modules`: Removes the node_modules directory.
-- `yarn reset`: Cleans and reinstalls dependencies.
-- `yarn restart`: Resets and starts the development server.
+### Building the Project
+
+To build the project, run the following command:
+```bash
+yarn build
+```
+This command compiles the source code and generates output files in the `dist` directory.
+
+### Viewing the Application
+
+After building the project, open the `build.html` file in your web browser to view the application.
+
+## Support
+
+For any issues or questions, please open an issue on the GitHub repository issue tracker.
