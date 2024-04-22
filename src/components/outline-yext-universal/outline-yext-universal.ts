@@ -45,24 +45,13 @@ export class OutlineYextUniversal extends LitElement {
     encapsulatedCSS: componentStyles,
   });
 
-  pageTitle = '';
-
   searchSettings: SearchSettings | undefined;
 
-  // @property()
+  @state()
   totalCount!: null | number;
-  randomizationToken!: null | string;
-
-  filterTempProfiles = false;
 
   @property({ type: Boolean, reflect: true, attribute: 'debug' })
   debug: boolean | undefined;
-
-  @property({ type: Number, reflect: true, attribute: 'show-results' })
-  showResults = 5;
-
-  userLat!: number;
-  userLong!: number;
 
   @state()
   activeVertical: string = 'all';
@@ -70,17 +59,10 @@ export class OutlineYextUniversal extends LitElement {
   @state() isFocus = false;
 
   @state()
-  entities!: [];
-
-  @state()
   searchSuggestions: Result[] = [];
 
   @state() modalFiltersOpenClose = false;
   @state() dropdownVerticalsOpen = false;
-
-  @state() searchFacetValues!: {
-    [key: string]: string;
-  };
 
   taskValue: unknown;
 
@@ -110,41 +92,12 @@ export class OutlineYextUniversal extends LitElement {
     setStoredSearchSettings(this.searchSettings);
   }
 
-  /**
-   * Handles a page change event, updating the data offset and triggering data retrieval.
-   *
-   * This function is typically used in pagination systems to respond to a page change event.
-   * It calculates the data offset based on the clicked page number and updates the offset
-   * in the search settings. Then, it triggers a data retrieval action, such as an API call.
-   *
-   * @param {Event} event - The page change event, typically a click event.
-   */
-  handlePageChange(event: Event) {
-    if (!this.searchSettings) {
-      return;
-    }
-
-    const pageClicked = (event.target as HTMLElement).getAttribute(
-      'current-page'
-    );
-
-    // Check if pageClicked is not null and is a valid number
-    if (pageClicked !== null && !isNaN(Number(pageClicked))) {
-      const offset =
-        (Number(pageClicked) - 1) * (this.searchSettings.limit ?? 0);
-      this.searchSettings.offset = offset;
-      this.fetchEndpoint.run();
-    }
-  }
-
   resizeController = new ResizeController(this, {});
-
-  rawFilters: {} | undefined;
 
   fetchEndpoint = new Task(
     this,
     async () => getYextSearchData(),
-    () => [this.entities]
+    () => []
   );
 
   /**
@@ -221,17 +174,6 @@ export class OutlineYextUniversal extends LitElement {
         </div>
       </div>
     `;
-  }
-
-  sumResultsCount(searchResponse: UniversalSearchResponse): number {
-    const { modules } = searchResponse;
-
-    const totalResultsCount = modules.reduce(
-      (sum, { resultsCount }) => sum + resultsCount,
-      0
-    );
-
-    return totalResultsCount;
   }
 
   reset(e: Event) {
@@ -570,134 +512,6 @@ export class OutlineYextUniversal extends LitElement {
           `
         : ``}
     `;
-  }
-
-  mobileCloseModalTemplate() {
-    return this.modalFiltersOpenClose
-      ? html`<button
-          type="button"
-          id="closeModal"
-          class="menu-dropdown-close"
-          aria-expanded="${this.modalFiltersOpenClose}"
-          aria-controls="slider-modal"
-          @click=${this.toggleFilterModal}
-        >
-          <outline-icon-baseline
-            name="close"
-            aria-hidden="true"
-          ></outline-icon-baseline>
-          <span class="visually-hidden">Close modal filters</span>
-        </button>`
-      : null;
-  }
-
-  mobileStickyCTATemplate() {
-    return this.modalFiltersOpenClose
-      ? html`<div class="container-cta-sticky">
-          <button
-            class="reset-search"
-            type="button"
-            @click=${(e: Event) => this.reset(e)}
-          >
-            Clear
-          </button>
-          <button
-            type="button"
-            id="close-modal-mobile"
-            class="close-modal-mobile btn btn--default btn--small"
-            aria-expanded="${this.modalFiltersOpenClose}"
-            aria-controls="slider-modal"
-            @click=${this.toggleFilterModal}
-          >
-            Show ${this.totalCount} results
-
-            <outline-icon-baseline
-              name="arrowRight"
-              size="1.25rem"
-            ></outline-icon-baseline>
-          </button>
-        </div>`
-      : null;
-  }
-
-  toggleFilterModal() {
-    this.modalFiltersOpenClose = !this.modalFiltersOpenClose;
-    if (this.modalFiltersOpenClose) {
-      document.querySelector('body')!.style.overflow = 'hidden';
-      this._trapKeyboardMobileMenu = this._trapKeyboardMobileMenu.bind(this);
-      document.addEventListener('keydown', this._trapKeyboardMobileMenu);
-    } else {
-      document.querySelector('body')!.style.overflow = 'revert';
-      document.removeEventListener('keydown', this._trapKeyboardMobileMenu);
-      this.backToFocusElementCloseFilter();
-    }
-
-    this.focusCloseButton();
-  }
-
-  backToFocusElementCloseFilter() {
-    const openButtonModal = this.shadowRoot?.querySelector(
-      '#openModal'
-    ) as HTMLButtonElement;
-    if (openButtonModal) {
-      openButtonModal?.focus();
-    }
-  }
-
-  focusCloseButton() {
-    setTimeout(() => {
-      const closeButtonRef = this.shadowRoot
-        ?.querySelector('#slider-modal')
-        ?.querySelector('.menu-dropdown-close') as HTMLButtonElement;
-      if (closeButtonRef) {
-        closeButtonRef?.focus();
-      }
-    }, 300);
-  }
-
-  _trapKeyboardMobileMenu(event: KeyboardEvent) {
-    // Get all focusable elements in the Modal
-    const focusableElements =
-      this.shadowRoot!.querySelector(
-        '#slider-modal'
-      )?.querySelectorAll<HTMLElement>('button, summary');
-    if (!focusableElements) {
-      return;
-    }
-    const firstFocusableElement = focusableElements[0];
-    const lastFocusableElement =
-      focusableElements[focusableElements.length - 1];
-
-    if (event.key === 'Tab') {
-      if (event.shiftKey) {
-        if (
-          document.activeElement?.shadowRoot?.activeElement?.matches(
-            `#${lastFocusableElement.id}`
-          )
-        ) {
-          return;
-        }
-        if (
-          document.activeElement?.shadowRoot?.activeElement?.matches(
-            `#${firstFocusableElement.id}`
-          )
-        ) {
-          lastFocusableElement.focus();
-          event.preventDefault();
-          return;
-        }
-      }
-
-      if (
-        document.activeElement?.shadowRoot?.activeElement?.matches(
-          `#${lastFocusableElement.id}`
-        )
-      ) {
-        firstFocusableElement.focus();
-        event.preventDefault();
-        return;
-      }
-    }
   }
 
   render(): TemplateResult {

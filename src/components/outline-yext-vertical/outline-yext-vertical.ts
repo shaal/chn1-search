@@ -13,7 +13,6 @@ import { displayTeaser } from './teaser';
 
 import type {
   SearchSettings,
-  Result,
   VerticalSearchResponseStructure,
 } from '../../libraries/data-access-yext/yext-types';
 
@@ -37,46 +36,17 @@ import Pending from '../../libraries/ui-yext/pending';
 export class OutlineYextVertical extends LitElement {
   createRenderRoot() {
     const root = super.createRenderRoot();
-    // this.EncapsulatedStylesheets = this.shadowRoot
-    //   ? new AdoptedStylesheets(this, componentStyles, this.shadowRoot)
-    //   : undefined;
     new AdoptedStylesheets(this, componentStyles, this.shadowRoot!);
     return root;
   }
 
-  pageTitle = '';
-
   searchSettings: SearchSettings | undefined;
-
-  randomizationToken?: null | string;
-
-  filterTempProfiles = false;
 
   @property({ type: String, attribute: 'vertical-key' })
   verticalKey = 'blog';
 
   // @property({ type: Boolean, reflect: true, attribute: 'debug' })
   // debug: null;
-
-  @property({ type: Number, reflect: true, attribute: 'show-results' })
-  showResults = 5;
-
-  userLat?: number;
-  userLong?: number;
-
-  @state() isFocus = false;
-
-  @state()
-  entities?: [];
-
-  @state()
-  searchSuggestions: Result[] = [];
-
-  @state() modalFiltersOpenClose = false;
-
-  @state() searchFacetValues?: {
-    [key: string]: string;
-  };
 
   @state()
   totalCount?: null | number;
@@ -86,7 +56,6 @@ export class OutlineYextVertical extends LitElement {
   connectedCallback() {
     super.connectedCallback();
     this.initializeSearchSettings();
-    this.pageTitle = this.verticalKey || '';
   }
 
   initializeSearchSettings() {
@@ -128,22 +97,16 @@ export class OutlineYextVertical extends LitElement {
 
   resizeController = new ResizeController(this, {});
 
-  rawFilters?: {};
-
   fetchEndpoint = new Task(
     this,
     async () => getYextSearchData({ verticalKey: this.verticalKey }),
-    () => [this.entities]
+    () => []
   );
 
   displayAll(response: VerticalSearchResponseStructure) {
     if (this.totalCount === 0) {
       return html` <h2>No results found</h2> `;
     }
-
-    // this.randomizationToken = response.randomizationToken;
-    // this.userLat = Number(response.locationBias?.latitude);
-    // this.userLong = Number(response.locationBias?.longitude);
 
     return html`
       <ul class="results-list">
@@ -169,30 +132,6 @@ export class OutlineYextVertical extends LitElement {
         </div>
       </details>
     `;
-  }
-
-  _focusIn() {
-    if (!this.searchSettings) {
-      return;
-    }
-
-    if (
-      this.searchSettings.input.length > 3 &&
-      this.searchSuggestions.length > 0
-    ) {
-      this.isFocus = true;
-    }
-  }
-  _focusOut(e: FocusEvent) {
-    const currentTarget = e.currentTarget as Node;
-    const relatedTarget = e.relatedTarget as Node;
-    if (relatedTarget === null) {
-      this.isFocus = false;
-    }
-
-    if (!!relatedTarget && !currentTarget.contains(relatedTarget)) {
-      this.isFocus = false;
-    }
   }
 
   render(): TemplateResult {
