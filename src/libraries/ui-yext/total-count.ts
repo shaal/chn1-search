@@ -7,17 +7,20 @@ export const TotalCount = ({
 }: {
   totalCount: number | null;
   limit: number | null;
-  offset: number;
+  offset: number | string;
 }) => {
   if (!totalCount) {
     return;
   }
 
-  const range1 = offset + 1;
-  const range2 = Math.min(offset + (limit ?? 0), totalCount);
+  const range1 = parseInt(offset.toString()) + 1;
+  const range2 = Math.min(
+    parseInt(offset.toString()) + (limit ?? 0),
+    totalCount
+  );
 
   return html`<div class="total-count">
-    Showing <strong>${range1}-${range2}</strong> of ${totalCount} results
+    <strong>${range1}-${range2}</strong> of ${totalCount} results
   </div>`;
 };
 

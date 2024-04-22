@@ -48,7 +48,6 @@ export class OutlineYextVertical extends LitElement {
 
   searchSettings: SearchSettings | undefined;
 
-  totalCount?: null | number;
   randomizationToken?: null | string;
 
   filterTempProfiles = false;
@@ -78,6 +77,9 @@ export class OutlineYextVertical extends LitElement {
   @state() searchFacetValues?: {
     [key: string]: string;
   };
+
+  @state()
+  totalCount?: null | number;
 
   taskValue: unknown;
 
@@ -135,7 +137,7 @@ export class OutlineYextVertical extends LitElement {
   );
 
   displayAll(response: VerticalSearchResponseStructure) {
-    if (response.resultsCount === 0) {
+    if (this.totalCount === 0) {
       return html` <h2>No results found</h2> `;
     }
 
@@ -226,6 +228,13 @@ export class OutlineYextVertical extends LitElement {
                 if (!isVerticalSearchResponse(data.response)) {
                   return;
                 }
+
+                this.totalCount = data.response.resultsCount;
+
+                // @todo why doesn't the component refresh when the totalCount state changes?
+                setTimeout(() => {
+                  this.requestUpdate();
+                }, 0);
 
                 return this.displayAll(data.response);
               },

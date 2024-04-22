@@ -726,6 +726,12 @@ export class OutlineYextUniversal extends LitElement {
                 return;
               }
 
+              this.totalCount = data.response.modules.reduce(
+                (previousValue, { resultsCount }) =>
+                  previousValue + resultsCount,
+                0
+              );
+
               return this.resizeController.currentBreakpointRange === 0
                 ? this.mobileVerticalNavTemplate(data.response)
                 : this.desktopVerticalNavTemplate(data.response);
