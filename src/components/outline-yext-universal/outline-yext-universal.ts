@@ -1,8 +1,7 @@
-import { getYextSuggestions } from './../../libraries/data-access-yext/yext-api';
 import { LitElement, html, noChange, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
-// import { ifDefined } from 'lit/directives/if-defined.js';
+
 import { classMap } from 'lit/directives/class-map.js';
 import componentStyles from './outline-yext-universal.css?inline';
 
@@ -10,7 +9,6 @@ import { Task } from '@lit/task';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { ResizeController } from '../../controllers/resize-controller';
 import { AdoptedStyleSheets } from '../../controllers/adopted-stylesheets.ts';
-// import { debounce } from '../../utilities/debounce';
 import { displayTeaser } from '../outline-yext-vertical/teaser';
 
 import type {
@@ -30,6 +28,7 @@ import {
 import {
   getYextSearchData,
   isVerticalSearchResponse,
+  getYextSuggestions,
 } from '../../libraries/data-access-yext/yext-api';
 import Pending from '../../libraries/ui-yext/pending';
 import { debounce } from '../../utilities/debounce';
