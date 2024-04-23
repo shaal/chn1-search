@@ -21,7 +21,6 @@ import {
 // See https://github.com/yext/search-core
 
 const startTime = performance.now();
-let lastFetchTime = 0;
 
 export interface YextSearchDataResponse {
   meta: {};

@@ -35,7 +35,6 @@ export interface Result {
 export interface ResponseContent {
   input: {
     value: string;
-    queryIntents: any[];
   };
   results: Result[];
 }
