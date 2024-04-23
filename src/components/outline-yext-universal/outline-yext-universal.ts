@@ -1,3 +1,4 @@
+import { getYextSuggestions } from './../../libraries/data-access-yext/yext-api';
 import { LitElement, html, noChange, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
@@ -16,7 +17,6 @@ import type {
   SearchSettings,
   Result,
   UniversalSearchResponse,
-  // ResponseSearchSuggestions,
   Module,
 } from '../../libraries/data-access-yext/yext-types';
 
@@ -32,6 +32,7 @@ import {
   isVerticalSearchResponse,
 } from '../../libraries/data-access-yext/yext-api';
 import Pending from '../../libraries/ui-yext/pending';
+import { debounce } from '../../utilities/debounce';
 
 /**
  * The Yext Universal Search component.
@@ -211,20 +212,30 @@ export class OutlineYextUniversal extends LitElement {
     this.fetchEndpoint.run();
   }
 
+  private async fetchSuggestion() {
+    try {
+      const suggestions = await getYextSuggestions();
+
+      this.searchSuggestions = suggestions.response.results.slice(0, 10);
+    } catch (error) {
+      console.log(error instanceof Error ? error.message : 'Unknown error');
+    }
+  }
+
   // Single instance was created outside of the handleInput so that the debounce is not called multiple times
-  // debouncedFunction = debounce(this.fetchSuggestion.bind(this), 150);
+  debouncedFunction = debounce(this.fetchSuggestion.bind(this), 150);
 
   handleInput(e: InputEvent) {
-    e.preventDefault;
+    e.preventDefault();
 
     if (!this.searchSettings) {
       return;
     }
 
     this.searchSettings.input = (e.target as HTMLInputElement).value;
-    if (this.searchSettings.input.length > 3) {
-      // this.debouncedFunction();
-      // @todo get suggestions.
+
+    if (this.searchSettings.input.length > 2) {
+      this.debouncedFunction();
     } else {
       this.cleanSearchSuggestions();
     }
@@ -236,7 +247,7 @@ export class OutlineYextUniversal extends LitElement {
     }
 
     if (
-      this.searchSettings.input.length > 3 &&
+      this.searchSettings.input.length > 2 &&
       this.searchSuggestions.length > 0
     ) {
       this.isFocus = true;
@@ -321,7 +332,6 @@ export class OutlineYextUniversal extends LitElement {
               ? 'open-suggestion'
               : 'close-suggestion'} suggested-list"
           >
-            <!-- <li class="suggested-title">Suggested Searches</li> -->
             ${this.searchSuggestions.length > 0
               ? this.searchSuggestions.map(
                   suggestion =>
