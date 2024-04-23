@@ -142,6 +142,10 @@ main {
 .suggestion-highlight {
   font-weight: bold;
 }
+
+.close-suggestion {
+  display: none;
+}
 /* END of search suggestions styling */
 
 .yext-results-wrapper {
