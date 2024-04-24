@@ -15,7 +15,10 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
     ? highlightText(result.highlightedFields.s_snippet)
     : result.data.s_snippet;
 
-  const url = `https://www.ecommunity.com${result.data.c_url}`;
+  // Get provider's landing page if c_url does not exist
+  const url = result.data.c_url
+    ? `https://www.ecommunity.com${result.data.c_url}`
+    : result.data.landingPageUrl;
 
   // If name (teaser's title) has highlighted text, display it. Otherwise display plain name string
   const title = result.highlightedFields.name
@@ -52,8 +55,12 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
     }
 
     case 'locationsearch': {
-      const { address, c_locationHoursAndFax, c_googleMapLocations, c_phoneSearch } =
-        result.data;
+      const {
+        address,
+        c_locationHoursAndFax,
+        c_googleMapLocations,
+        c_phoneSearch,
+      } = result.data;
       return locationTeaser(
         title,
         url,
