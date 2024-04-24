@@ -35,6 +35,15 @@
   }
 }
 
+.metadata {
+  color: var(--c-neutral-gray-350);
+  font-family: var(--ff-body);
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 120%;
+  margin-top: -0.5rem;
+}
+
 .subtitle {
   color: var(--c-neutral-gray-500);
   leading-trim: both;
@@ -65,7 +74,7 @@
 
 .body h4 {
   margin-top: 0;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0;
   color: var(--c-neutral-gray-500);
   font-weight: 400;
   font-size: 1.25rem;

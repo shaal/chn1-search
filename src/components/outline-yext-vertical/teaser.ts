@@ -65,14 +65,22 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
       );
     }
 
+    case 'news': {
+      const { c_authorCreatedDate } = result.data;
+      return newsTeaser(
+        `News | ${title}`,
+        url,
+        cleanData,
+        '',
+        c_authorCreatedDate
+      );
+    }
+
     default: {
       // Handle cases where no specific vertical is matched
       let prefix: string = '';
 
       switch (vertical) {
-        case 'news':
-          prefix = `News`;
-          break;
         case 'careers_area':
           prefix = `Careers`;
           break;
@@ -98,6 +106,23 @@ export function defaultTeaser(title: string, url: string, snippet: string) {
     url="${url}"
     title="${title}"
     snippet="${snippet}"
+  >
+  </outline-teaser>`;
+}
+
+export function newsTeaser(
+  title: string,
+  url: string,
+  snippet: string,
+  author: string,
+  date: string
+) {
+  return html`<outline-teaser
+    url="${url}"
+    title="${title}"
+    snippet="${snippet}"
+    author="${author}"
+    date="${date}"
   >
   </outline-teaser>`;
 }
