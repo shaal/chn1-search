@@ -52,13 +52,13 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
     }
 
     case 'locationsearch': {
-      const { address, c_locationHoursAndFax, c_googleMapLocations } =
+      const { address, c_locationHoursAndFax, c_googleMapLocations, c_phoneSearch } =
         result.data;
       return locationTeaser(
         title,
         url,
         address,
-        '',
+        c_phoneSearch,
         '',
         c_locationHoursAndFax,
         c_googleMapLocations
