@@ -1,5 +1,8 @@
 # CHN-Yext
 
+## Preview in Gitpod
+https://gitpod.io/#https://github.com/phase2/chn-yext
+
 ## Overview
 This package contains the necessary files and configurations to set up and run the CHN-Yext project.
 
