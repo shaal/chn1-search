@@ -90,6 +90,7 @@ export class OutlineYextUniversal extends LitElement {
     }
 
     setStoredSearchSettings(this.searchSettings);
+    this.fetchSuggestion();
   }
 
   resizeController = new ResizeController(this, {});
@@ -185,8 +186,8 @@ export class OutlineYextUniversal extends LitElement {
   }
 
   cleanSearchSuggestions() {
-    this.searchSuggestions = [];
     this.isFocus = false;
+    this.searchSuggestions = [];
   }
 
   displayResults: boolean = false;
@@ -194,7 +195,7 @@ export class OutlineYextUniversal extends LitElement {
   search(e: Event) {
     // prevent form submission
     e.preventDefault();
-    this.cleanSearchSuggestions();
+    this.isFocus = false;
 
     if (!this.searchSettings) {
       return;
@@ -208,12 +209,13 @@ export class OutlineYextUniversal extends LitElement {
 
     this.activeVertical = 'all';
     this.displayResults = this.searchSettings.input !== '';
+
     this.fetchEndpoint.run();
   }
 
   private async fetchSuggestion() {
     try {
-      const suggestions = await getYextSuggestions();
+      const suggestions = await getYextSuggestions(this.searchSettings?.input);
 
       this.searchSuggestions = suggestions.response.results.slice(0, 10);
     } catch (error) {
@@ -233,24 +235,33 @@ export class OutlineYextUniversal extends LitElement {
 
     this.searchSettings.input = (e.target as HTMLInputElement).value;
 
-    if (this.searchSettings.input.length > 2) {
+    if (this.searchSettings.input.length > 0) {
       this.debouncedFunction();
     } else {
-      this.cleanSearchSuggestions();
+      this.searchSuggestions = [];
     }
+  }
+
+  handleSuggestion(suggestion: Result) {
+    if (!this.searchSettings) {
+      return;
+    }
+
+    this.searchSettings.input = suggestion.value;
+
+    setStoredSearchSettings(this.searchSettings);
+
+    this.activeVertical = 'all';
+    this.displayResults = this.searchSettings.input !== '';
+    this.fetchEndpoint.run();
+    this.isFocus = false;
   }
 
   _focusIn() {
     if (!this.searchSettings) {
       return;
     }
-
-    if (
-      this.searchSettings.input.length > 2 &&
-      this.searchSuggestions.length > 0
-    ) {
-      this.isFocus = true;
-    }
+    this.isFocus = true;
   }
 
   _focusOut(e: FocusEvent) {
@@ -327,9 +338,7 @@ export class OutlineYextUniversal extends LitElement {
 
           <ul
             aria-live="polite"
-            class="${this.isFocus
-              ? 'open-suggestion'
-              : 'close-suggestion'} suggested-list"
+            class="${!this.isFocus ? 'is-hidden' : ''} suggested-list"
           >
             ${this.searchSuggestions.length > 0
               ? this.searchSuggestions.map(
@@ -360,16 +369,6 @@ export class OutlineYextUniversal extends LitElement {
     return string.replace(regex, function (str) {
       return '<span class="suggestion-highlight">' + str + '</span>';
     });
-  }
-
-  handleSuggestion(suggestion: Result) {
-    if (!this.searchSettings) {
-      return;
-    }
-
-    this.searchSettings.input = suggestion.value;
-    this.fetchEndpoint.run();
-    this.cleanSearchSuggestions();
   }
 
   setActiveVertical(vertical: string) {
