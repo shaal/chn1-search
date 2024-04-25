@@ -47,6 +47,12 @@ export class OutlineTeaser extends LitElement {
   @property({ type: String, attribute: 'hours' })
   teaserHours?: string;
 
+  @property({ type: String, attribute: 'author' })
+  teaserAuthor?: string;
+
+  @property({ type: String, attribute: 'date' })
+  teaserDate?: string;
+
   @state() hasAddressSlot?: boolean;
   @state() hasCtaSlot?: boolean;
 
@@ -104,6 +110,11 @@ export class OutlineTeaser extends LitElement {
           <a href="${this.teaserUrl}">${unsafeHTML(this.teaserTitle)}</a>
         </h3>
 
+        <div class="metadata">
+          ${this.teaserAuthor ? html`By ${this.teaserAuthor}` : null}
+          ${this.teaserAuthor && this.teaserDate ? '|' : null}
+          ${this.teaserDate ? html`For release on ${this.teaserDate}` : null}
+        </div>
         ${this.teaserSubtitle
           ? html` <div class="subtitle">${this.teaserSubtitle}</div> `
           : null}

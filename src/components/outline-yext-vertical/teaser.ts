@@ -15,7 +15,10 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
     ? highlightText(result.highlightedFields.s_snippet)
     : result.data.s_snippet;
 
-  const url = `https://www.ecommunity.com${result.data.c_url}`;
+  // Get provider's landing page if c_url does not exist
+  const url = result.data.c_url
+    ? `https://www.ecommunity.com${result.data.c_url}`
+    : result.data.landingPageUrl;
 
   // If name (teaser's title) has highlighted text, display it. Otherwise display plain name string
   const title = result.highlightedFields.name
@@ -52,8 +55,12 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
     }
 
     case 'locationsearch': {
-      const { address, c_locationHoursAndFax, c_googleMapLocations, c_phoneSearch } =
-        result.data;
+      const {
+        address,
+        c_locationHoursAndFax,
+        c_googleMapLocations,
+        c_phoneSearch,
+      } = result.data;
       return locationTeaser(
         title,
         url,
@@ -65,14 +72,22 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
       );
     }
 
+    case 'news': {
+      const { c_authorCreatedDate } = result.data;
+      return newsTeaser(
+        `News | ${title}`,
+        url,
+        cleanData,
+        '',
+        c_authorCreatedDate
+      );
+    }
+
     default: {
       // Handle cases where no specific vertical is matched
       let prefix: string = '';
 
       switch (vertical) {
-        case 'news':
-          prefix = `News`;
-          break;
         case 'careers_area':
           prefix = `Careers`;
           break;
@@ -98,6 +113,23 @@ export function defaultTeaser(title: string, url: string, snippet: string) {
     url="${url}"
     title="${title}"
     snippet="${snippet}"
+  >
+  </outline-teaser>`;
+}
+
+export function newsTeaser(
+  title: string,
+  url: string,
+  snippet: string,
+  author: string,
+  date: string
+) {
+  return html`<outline-teaser
+    url="${url}"
+    title="${title}"
+    snippet="${snippet}"
+    author="${author}"
+    date="${date}"
   >
   </outline-teaser>`;
 }
