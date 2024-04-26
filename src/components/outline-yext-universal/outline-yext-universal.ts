@@ -251,8 +251,7 @@ export class OutlineYextUniversal extends LitElement {
 
     setStoredSearchSettings(this.searchSettings);
 
-    this.activeVertical = 'all';
-    this.displayResults = this.searchSettings.input !== '';
+    this.displayResults = true;
     this.fetchEndpoint.run();
     this.isFocus = false;
   }
