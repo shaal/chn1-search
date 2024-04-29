@@ -1,5 +1,6 @@
 @import '../outline.theme.css';
 
 body {
-  font-family: Roboto, sans-serif;
+  font-family: var(--ff-body);
+  font-size: 16px;
 }
