@@ -1,3 +1,14 @@
 .result {
   margin-top: 3rem;
 }
+
+.specialty-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.specialty {
+  color: var(--CHN-Dark-Gray, #435563);
+  font-size: 1.25rem;
+}
