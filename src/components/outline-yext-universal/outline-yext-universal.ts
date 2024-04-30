@@ -56,7 +56,7 @@ export class OutlineYextUniversal extends LitElement {
   @state()
   activeVertical: string = 'all';
 
-  @state() isFocus = false;
+  @state() suggestionsIsOpen = false;
 
   @state()
   searchSuggestions: Result[] = [];
@@ -186,7 +186,7 @@ export class OutlineYextUniversal extends LitElement {
   }
 
   cleanSearchSuggestions() {
-    this.isFocus = false;
+    this.suggestionsIsOpen = false;
     this.searchSuggestions = [];
   }
 
@@ -195,7 +195,7 @@ export class OutlineYextUniversal extends LitElement {
   search(e: Event) {
     // prevent form submission
     e.preventDefault();
-    this.isFocus = false;
+    this.suggestionsIsOpen = false;
 
     if (!this.searchSettings) {
       return;
@@ -237,9 +237,10 @@ export class OutlineYextUniversal extends LitElement {
 
     if (this.searchSettings.input.length > 0) {
       this.debouncedFunction();
-      this.isFocus = true;
+      this.suggestionsIsOpen = true;
     } else {
       this.searchSuggestions = [];
+      this.suggestionsIsOpen = false;
     }
   }
 
@@ -254,7 +255,7 @@ export class OutlineYextUniversal extends LitElement {
 
     this.displayResults = true;
     this.fetchEndpoint.run();
-    this.isFocus = false;
+    this.suggestionsIsOpen = false;
   }
 
   _focusIn() {
@@ -262,18 +263,18 @@ export class OutlineYextUniversal extends LitElement {
       return;
     }
 
-    this.isFocus = this.searchSuggestions.length > 0;
+    this.suggestionsIsOpen = this.searchSuggestions.length > 0;
   }
 
   _focusOut(e: FocusEvent) {
     const currentTarget = e.currentTarget as Node;
     const relatedTarget = e.relatedTarget as Node;
     if (relatedTarget === null) {
-      this.isFocus = false;
+      this.suggestionsIsOpen = false;
     }
 
     if (!!relatedTarget && !currentTarget.contains(relatedTarget)) {
-      this.isFocus = false;
+      this.suggestionsIsOpen = false;
     }
   }
 
@@ -339,7 +340,7 @@ export class OutlineYextUniversal extends LitElement {
 
           <ul
             aria-live="polite"
-            class="${!this.isFocus ? 'is-hidden' : ''} suggested-list"
+            class="${!this.suggestionsIsOpen ? 'is-hidden' : ''} suggested-list"
           >
             ${this.searchSuggestions.length > 0
               ? this.searchSuggestions.map(
