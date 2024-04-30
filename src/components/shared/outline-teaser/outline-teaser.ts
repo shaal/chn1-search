@@ -110,11 +110,17 @@ export class OutlineTeaser extends LitElement {
           <a href="${this.teaserUrl}">${unsafeHTML(this.teaserTitle)}</a>
         </h3>
 
-        <div class="metadata">
-          ${this.teaserAuthor ? html`By ${this.teaserAuthor}` : null}
-          ${this.teaserAuthor && this.teaserDate ? '|' : null}
-          ${this.teaserDate ? html`For release on ${this.teaserDate}` : null}
-        </div>
+        ${this.teaserAuthor || this.teaserDate
+          ? html`
+              <div class="metadata">
+                ${this.teaserAuthor ? html`By ${this.teaserAuthor}` : null}
+                ${this.teaserAuthor && this.teaserDate ? '|' : null}
+                ${this.teaserDate
+                  ? html`For release on ${this.teaserDate}`
+                  : null}
+              </div>
+            `
+          : null}
         ${this.teaserSubtitle
           ? html` <div class="subtitle">${this.teaserSubtitle}</div> `
           : null}

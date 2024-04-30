@@ -144,8 +144,10 @@ export function healthcareProfessionalTeaser(
     <outline-teaser image="${image}" title="${title}" url="${url}">
       ${specialties?.length > 0
         ? html`
-            <ul>
-              ${specialties.map((el: string) => html`<li>${el}</li>`)}
+            <ul class="specialty-list">
+              ${specialties.map(
+                (el: string) => html`<li class="specialty">${el}</li>`
+              )}
             </ul>
           `
         : null}
