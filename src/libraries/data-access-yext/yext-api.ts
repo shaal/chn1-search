@@ -127,14 +127,12 @@ const getYextVerticalSearchData = async (queryParams: URLSearchParams) => {
 
 // This has been minimally tested.
 // See https://hitchhikers.yext.com/docs/contentdeliveryapis/search/universalsearch.
-export const getYextSuggestions = async () => {
-  const searchSettings = getStoredSearchSettings();
-
+export const getYextSuggestions = async (input: string = '') => {
   const params = new URLSearchParams();
   params.set('api_key', apiKey);
   params.set('experienceKey', experienceKey);
   params.set('locale', locale);
-  params.set('input', `${searchSettings.input.toLocaleLowerCase()}`);
+  params.set('input', `${input.toLocaleLowerCase()}`);
 
   const response = await fetch(
     `${urlHref}/${accountId}/search/autocomplete?v=${apiVersion}&${params.toString()}`

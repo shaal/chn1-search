@@ -32,9 +32,16 @@ export interface Result {
   verticalKeys: string[];
 }
 
+export interface ResponseContent {
+  input: {
+    value: string;
+  };
+  results: Result[];
+}
+
 export interface ResponseSearchSuggestions {
   meta: Meta;
-  response: Response;
+  response: ResponseContent;
 }
 
 // Universal search response types

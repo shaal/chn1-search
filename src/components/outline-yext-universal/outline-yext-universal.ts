@@ -1,7 +1,7 @@
 import { LitElement, html, noChange, TemplateResult } from 'lit';
 import { customElement, property, state } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';
-// import { ifDefined } from 'lit/directives/if-defined.js';
+
 import { classMap } from 'lit/directives/class-map.js';
 import componentStyles from './outline-yext-universal.css?inline';
 
@@ -9,14 +9,12 @@ import { Task } from '@lit/task';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import { ResizeController } from '../../controllers/resize-controller';
 import { AdoptedStyleSheets } from '../../controllers/adopted-stylesheets.ts';
-// import { debounce } from '../../utilities/debounce';
 import { displayTeaser } from '../outline-yext-vertical/teaser';
 
 import type {
   SearchSettings,
   Result,
   UniversalSearchResponse,
-  // ResponseSearchSuggestions,
   Module,
 } from '../../libraries/data-access-yext/yext-types';
 
@@ -30,8 +28,10 @@ import {
 import {
   getYextSearchData,
   isVerticalSearchResponse,
+  getYextSuggestions,
 } from '../../libraries/data-access-yext/yext-api';
 import Pending from '../../libraries/ui-yext/pending';
+import { debounce } from '../../utilities/debounce';
 
 /**
  * The Yext Universal Search component.
@@ -56,7 +56,7 @@ export class OutlineYextUniversal extends LitElement {
   @state()
   activeVertical: string = 'all';
 
-  @state() isFocus = false;
+  @state() suggestionsIsOpen = false;
 
   @state()
   searchSuggestions: Result[] = [];
@@ -90,6 +90,7 @@ export class OutlineYextUniversal extends LitElement {
     }
 
     setStoredSearchSettings(this.searchSettings);
+    this.fetchSuggestion();
   }
 
   resizeController = new ResizeController(this, {});
@@ -185,8 +186,8 @@ export class OutlineYextUniversal extends LitElement {
   }
 
   cleanSearchSuggestions() {
+    this.suggestionsIsOpen = false;
     this.searchSuggestions = [];
-    this.isFocus = false;
   }
 
   displayResults: boolean = false;
@@ -194,7 +195,7 @@ export class OutlineYextUniversal extends LitElement {
   search(e: Event) {
     // prevent form submission
     e.preventDefault();
-    this.cleanSearchSuggestions();
+    this.suggestionsIsOpen = false;
 
     if (!this.searchSettings) {
       return;
@@ -208,26 +209,53 @@ export class OutlineYextUniversal extends LitElement {
 
     this.activeVertical = 'all';
     this.displayResults = this.searchSettings.input !== '';
+
     this.fetchEndpoint.run();
   }
 
+  private async fetchSuggestion() {
+    try {
+      const suggestions = await getYextSuggestions(this.searchSettings?.input);
+
+      this.searchSuggestions = suggestions.response.results.slice(0, 10);
+    } catch (error) {
+      console.log(error instanceof Error ? error.message : 'Unknown error');
+    }
+  }
+
   // Single instance was created outside of the handleInput so that the debounce is not called multiple times
-  // debouncedFunction = debounce(this.fetchSuggestion.bind(this), 150);
+  debouncedFunction = debounce(this.fetchSuggestion.bind(this), 150);
 
   handleInput(e: InputEvent) {
-    e.preventDefault;
+    e.preventDefault();
 
     if (!this.searchSettings) {
       return;
     }
 
     this.searchSettings.input = (e.target as HTMLInputElement).value;
-    if (this.searchSettings.input.length > 3) {
-      // this.debouncedFunction();
-      // @todo get suggestions.
+
+    if (this.searchSettings.input.length > 0) {
+      this.debouncedFunction();
+      this.suggestionsIsOpen = true;
     } else {
-      this.cleanSearchSuggestions();
+      this.searchSuggestions = [];
+      this.suggestionsIsOpen = false;
     }
+  }
+
+  handleSuggestion(suggestion: Result) {
+    if (!this.searchSettings) {
+      return;
+    }
+
+    this.searchSettings.input = suggestion.value;
+
+    setStoredSearchSettings(this.searchSettings);
+
+    this.displayResults = true;
+    this.fetchEndpoint.run();
+    this.suggestionsIsOpen = false;
   }
 
   _focusIn() {
@@ -235,23 +263,18 @@ export class OutlineYextUniversal extends LitElement {
       return;
     }
 
-    if (
-      this.searchSettings.input.length > 3 &&
-      this.searchSuggestions.length > 0
-    ) {
-      this.isFocus = true;
-    }
+    this.suggestionsIsOpen = this.searchSuggestions.length > 0;
   }
 
   _focusOut(e: FocusEvent) {
     const currentTarget = e.currentTarget as Node;
     const relatedTarget = e.relatedTarget as Node;
     if (relatedTarget === null) {
-      this.isFocus = false;
+      this.suggestionsIsOpen = false;
     }
 
     if (!!relatedTarget && !currentTarget.contains(relatedTarget)) {
-      this.isFocus = false;
+      this.suggestionsIsOpen = false;
     }
   }
 
@@ -317,11 +340,8 @@ export class OutlineYextUniversal extends LitElement {
 
           <ul
             aria-live="polite"
-            class="${this.isFocus
-              ? 'open-suggestion'
-              : 'close-suggestion'} suggested-list"
+            class="${!this.suggestionsIsOpen ? 'is-hidden' : ''} suggested-list"
           >
-            <!-- <li class="suggested-title">Suggested Searches</li> -->
             ${this.searchSuggestions.length > 0
               ? this.searchSuggestions.map(
                   suggestion =>
@@ -351,16 +371,6 @@ export class OutlineYextUniversal extends LitElement {
     return string.replace(regex, function (str) {
       return '<span class="suggestion-highlight">' + str + '</span>';
     });
-  }
-
-  handleSuggestion(suggestion: Result) {
-    if (!this.searchSettings) {
-      return;
-    }
-
-    this.searchSettings.input = suggestion.value;
-    this.fetchEndpoint.run();
-    this.cleanSearchSuggestions();
   }
 
   setActiveVertical(vertical: string) {
