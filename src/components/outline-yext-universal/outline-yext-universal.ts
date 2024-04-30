@@ -218,6 +218,7 @@ export class OutlineYextUniversal extends LitElement {
       const suggestions = await getYextSuggestions(this.searchSettings?.input);
 
       this.searchSuggestions = suggestions.response.results.slice(0, 10);
+      this.suggestionsIsOpen = suggestions.response.results.length > 0;
     } catch (error) {
       console.log(error instanceof Error ? error.message : 'Unknown error');
     }
@@ -237,7 +238,6 @@ export class OutlineYextUniversal extends LitElement {
 
     if (this.searchSettings.input.length > 0) {
       this.debouncedFunction();
-      this.suggestionsIsOpen = true;
     } else {
       this.searchSuggestions = [];
       this.suggestionsIsOpen = false;
