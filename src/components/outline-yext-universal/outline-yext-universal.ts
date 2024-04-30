@@ -237,6 +237,7 @@ export class OutlineYextUniversal extends LitElement {
 
     if (this.searchSettings.input.length > 0) {
       this.debouncedFunction();
+      this.isFocus = true;
     } else {
       this.searchSuggestions = [];
     }
@@ -260,7 +261,8 @@ export class OutlineYextUniversal extends LitElement {
     if (!this.searchSettings) {
       return;
     }
-    this.isFocus = true;
+
+    this.isFocus = this.searchSuggestions.length > 0;
   }
 
   _focusOut(e: FocusEvent) {
