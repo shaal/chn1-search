@@ -134,6 +134,25 @@ export class OutlineYextVertical extends LitElement {
     `;
   }
 
+  setTotalCount() {
+    this.fetchEndpoint.render({
+      pending: () => (this.taskValue ? Pending() : noChange),
+      complete: data => {
+        if (!data) {
+          return;
+        }
+
+        if (!isVerticalSearchResponse(data.response)) {
+          return;
+        }
+
+        this.totalCount = data.response.resultsCount;
+
+        // this.requestUpdate();
+      },
+    });
+  }
+
   render(): TemplateResult {
     if (!this.searchSettings) {
       return html``;
@@ -142,6 +161,8 @@ export class OutlineYextVertical extends LitElement {
     if (this.fetchEndpoint.value !== undefined) {
       this.taskValue = this.fetchEndpoint.value;
     }
+
+    this.setTotalCount();
 
     const classes = {
       wrapper: true,
@@ -168,16 +189,8 @@ export class OutlineYextVertical extends LitElement {
                   return;
                 }
 
-                this.totalCount = data.response.resultsCount;
-
-                // @todo why doesn't the component refresh when the totalCount state changes?
-                setTimeout(() => {
-                  this.requestUpdate();
-                }, 0);
-
                 return this.displayAll(data.response);
               },
-              // error: error => html`${error}`,
             })}
             ${this.totalCount
               ? html`
