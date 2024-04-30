@@ -137,7 +137,6 @@ main {
     background-color: var(--c-neutral-gray-300);
     button {
       text-decoration: underline;
-      /* color: var(--c-brand-blue, #2f83b3); */
     }
   }
 
