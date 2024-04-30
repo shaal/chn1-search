@@ -147,8 +147,6 @@ export class OutlineYextVertical extends LitElement {
         }
 
         this.totalCount = data.response.resultsCount;
-
-        // this.requestUpdate();
       },
     });
   }
