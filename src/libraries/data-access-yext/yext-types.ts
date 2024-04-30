@@ -77,6 +77,7 @@ export type ResultItemData = {
   c_locationHoursAndFax?: string;
   c_googleMapLocations?: string;
   c_authorCreatedDate?: string;
+  c_author?: string;
   c_phoneSearch?: string;
 };
 
