@@ -120,6 +120,16 @@ export class OutlineYextVertical extends LitElement {
           `
         )}
       </ul>
+      <outline-yext-pager
+        current-page=${this.searchSettings.offset /
+          (this.searchSettings.limit ?? 0) +
+        1}
+        total-pages=${Math.ceil(
+          this.totalCount / (this.searchSettings.limit ?? 0)
+        )}
+        @click=${(e: Event) => this.handlePageChange(e)}
+        aria-live="polite"
+      ></outline-yext-pager>
     `;
   }
 
@@ -190,20 +200,6 @@ export class OutlineYextVertical extends LitElement {
                 return this.displayAll(data.response);
               },
             })}
-            ${this.totalCount
-              ? html`
-                  <outline-yext-pager
-                    current-page=${this.searchSettings.offset /
-                      (this.searchSettings.limit ?? 0) +
-                    1}
-                    total-pages=${Math.ceil(
-                      this.totalCount / (this.searchSettings.limit ?? 0)
-                    )}
-                    @click=${(e: Event) => this.handlePageChange(e)}
-                    aria-live="polite"
-                  ></outline-yext-pager>
-                `
-              : null}
           </main>
         </div>
       </div>
