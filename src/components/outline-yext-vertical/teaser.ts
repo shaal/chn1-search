@@ -73,12 +73,12 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
     }
 
     case 'news': {
-      const { c_authorCreatedDate } = result.data;
+      const { c_authorCreatedDate, c_author } = result.data;
       return newsTeaser(
         `News | ${title}`,
         url,
         cleanData,
-        '',
+        c_author ? c_author : '',
         c_authorCreatedDate
       );
     }
