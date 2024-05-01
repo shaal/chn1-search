@@ -15,7 +15,10 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
     ? highlightText(result.highlightedFields.s_snippet)
     : result.data.s_snippet;
 
-  const url = `https://www.ecommunity.com${result.data.c_url}`;
+  // Get provider's landing page if c_url does not exist
+  const url = result.data.c_url
+    ? `https://www.ecommunity.com${result.data.c_url}`
+    : result.data.landingPageUrl;
 
   // If name (teaser's title) has highlighted text, display it. Otherwise display plain name string
   const title = result.highlightedFields.name
@@ -52,16 +55,31 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
     }
 
     case 'locationsearch': {
-      const { address, c_locationHoursAndFax, c_googleMapLocations } =
-        result.data;
+      const {
+        address,
+        c_locationHoursAndFax,
+        c_googleMapLocations,
+        c_phoneSearch,
+      } = result.data;
       return locationTeaser(
         title,
         url,
         address,
-        '',
+        c_phoneSearch,
         '',
         c_locationHoursAndFax,
         c_googleMapLocations
+      );
+    }
+
+    case 'news': {
+      const { c_authorCreatedDate, c_author } = result.data;
+      return newsTeaser(
+        `News | ${title}`,
+        url,
+        cleanData,
+        c_author ? c_author : '',
+        c_authorCreatedDate
       );
     }
 
@@ -70,9 +88,6 @@ export function displayTeaser(vertical: string, result: verticalSearchResult) {
       let prefix: string = '';
 
       switch (vertical) {
-        case 'news':
-          prefix = `News`;
-          break;
         case 'careers_area':
           prefix = `Careers`;
           break;
@@ -102,6 +117,23 @@ export function defaultTeaser(title: string, url: string, snippet: string) {
   </outline-teaser>`;
 }
 
+export function newsTeaser(
+  title: string,
+  url: string,
+  snippet: string,
+  author: string,
+  date: string
+) {
+  return html`<outline-teaser
+    url="${url}"
+    title="${title}"
+    snippet="${snippet}"
+    author="${author}"
+    date="${date}"
+  >
+  </outline-teaser>`;
+}
+
 export function healthcareProfessionalTeaser(
   image: string | undefined,
   title: string,
@@ -112,8 +144,10 @@ export function healthcareProfessionalTeaser(
     <outline-teaser image="${image}" title="${title}" url="${url}">
       ${specialties?.length > 0
         ? html`
-            <ul>
-              ${specialties.map((el: string) => html`<li>${el}</li>`)}
+            <ul class="specialty-list">
+              ${specialties.map(
+                (el: string) => html`<li class="specialty">${el}</li>`
+              )}
             </ul>
           `
         : null}

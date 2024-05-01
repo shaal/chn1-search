@@ -13,9 +13,9 @@ export type SubQueryParam = {
 };
 
 export interface SearchSettings {
-  [key: string]: string | number | QueryParam;
+  [key: string]: string | number | QueryParam | Object | null;
   input: string;
-  limit: number;
+  limit: number | null;
   offset: number;
   // facetFilters: QueryParam;
 }
@@ -32,9 +32,16 @@ export interface Result {
   verticalKeys: string[];
 }
 
+export interface ResponseContent {
+  input: {
+    value: string;
+  };
+  results: Result[];
+}
+
 export interface ResponseSearchSuggestions {
   meta: Meta;
-  response: Response;
+  response: ResponseContent;
 }
 
 // Universal search response types
@@ -69,6 +76,9 @@ export type ResultItemData = {
   address?: Address;
   c_locationHoursAndFax?: string;
   c_googleMapLocations?: string;
+  c_authorCreatedDate?: string;
+  c_author?: string;
+  c_phoneSearch?: string;
 };
 
 export type ResultData = {
